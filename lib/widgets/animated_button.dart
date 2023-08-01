@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AnimatedButton extends StatefulWidget {
-  const AnimatedButton({super.key, required this.text});
+  const AnimatedButton(
+      {super.key,
+      required this.onTap,
+      required this.text,
+      required this.widthSize,
+      required this.backgroundColor});
   final String text;
+  final double widthSize;
+  final Color backgroundColor;
+  final Function onTap;
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
 }
@@ -21,6 +29,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
         setState(() {
           _position = 5;
         });
+        widget.onTap();
       },
       onTapDown: (_) {
         setState(() {
@@ -32,18 +41,18 @@ class _AnimatedButtonState extends State<AnimatedButton> {
           _position = 5;
         });
       },
-      child: Container(
+      child: SizedBox(
         height: height + _shadowHeight,
-        width: 90,
+        width: widget.widthSize,
         child: Stack(
           children: [
             Positioned(
               bottom: 0,
               child: Container(
                 height: height,
-                width: 90,
+                width: widget.widthSize,
                 decoration: const BoxDecoration(
-                  color: Color.fromRGBO(136, 74, 57, 0.9),
+                  color: Color.fromRGBO(195, 129, 84, 1),
                   borderRadius: BorderRadius.all(
                     Radius.circular(16),
                   ),
@@ -56,10 +65,10 @@ class _AnimatedButtonState extends State<AnimatedButton> {
               duration: const Duration(milliseconds: 70),
               child: Container(
                 height: height,
-                width: 90,
-                decoration: const BoxDecoration(
-                  color: Color.fromRGBO(136, 74, 57, 1),
-                  borderRadius: BorderRadius.all(
+                width: widget.widthSize,
+                decoration: BoxDecoration(
+                  color: widget.backgroundColor,
+                  borderRadius: const BorderRadius.all(
                     Radius.circular(16),
                   ),
                 ),
