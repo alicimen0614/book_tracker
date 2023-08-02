@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:book_tracker/models/books_model.dart';
+import 'package:book_tracker/models/categorybooks_model.dart';
+import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class BooksService extends ChangeNotifier {
-  Future<BooksModel> booksModel(String searchItem, int page) async {
+  Future<BooksModel> bookSearch(String searchItem, int page) async {
+    print("booksearch api girdi");
     var response = await http.get(Uri.parse(
         'https://openlibrary.org/search.json?mode=everything&q=$searchItem&limit=10&page=$page'));
     log('https://openlibrary.org/search.json?mode=everything&q=$searchItem&limit=10&page=$page');
@@ -22,32 +25,56 @@ class BooksService extends ChangeNotifier {
     }
   }
 
-  Future getBookCover(List isbn) async {
-    for (var element in isbn) {
-      print("http request");
-      var response = await http.get(
-        Uri.parse("https://covers.openlibrary.org/b/isbn/$element-M.jpg"),
-      );
+  Future<CategoryBooks> categoryBooks(String categoryName, int offset) async {
+    print("categorybooks api girdi");
+    var response = await http.get(Uri.parse(
+        "https://openlibrary.org/subjects/${categoryName.toLowerCase()}.json?limit=20&offset=$offset&published_in=2000-2023"));
+    log("https://openlibrary.org/subjects/$categoryName.json?limit=20&offset=$offset");
+    if (response.statusCode == 200) {
+      var result = CategoryBooks.fromJson(jsonDecode(response.body));
+      log(result.workCount.toString());
 
-      if (response.body.startsWith("GIF")) {
-      } else {
-        return "https://covers.openlibrary.org/b/isbn/$element-M.jpg";
-      }
+      print(result);
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
     }
-    return;
   }
 
-  Future bookSearchNumber(String searchItem, int page) async {
-    var _booksModel = await booksModel(searchItem, page);
-    return _booksModel.numFound;
-  }
-
-  Future<List<BooksModelDocs?>?> booksModelDocsList(
+  Future<List<BooksModelDocs?>?> bookSearchDocsList(
       String searchItem, int page) async {
     print("booksmodeldocslist çalıştı");
-    List<BooksModelDocs?>? bookItemsList = [];
-    var _booksModel = await booksModel(searchItem, page);
-    log(_booksModel.docs.toString());
-    return _booksModel.docs;
+
+    var _searchBooks = await bookSearch(searchItem, page);
+    log(_searchBooks.docs.toString());
+    return _searchBooks.docs;
+  }
+
+  Future<List<CategoryBooksWorks?>?> categoryBookWorksList(
+      String categoryName, int pageKey) async {
+    var _categoryBooks = await categoryBooks(categoryName, pageKey);
+    return _categoryBooks.works;
+  }
+
+  Future<TrendingBooks> trendingBooks(String date, int pageKey) async {
+    print("categorybooks api girdi");
+    var response = await http.get(Uri.parse(
+        "https://openlibrary.org/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey"));
+    log("https://openlibrary.org/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey");
+    if (response.statusCode == 200) {
+      var result = TrendingBooks.fromJson(jsonDecode(response.body));
+      log(result.works.toString());
+
+      print(result);
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
+    }
+  }
+
+  Future<List<TrendingBooksWorks?>?> trendingBookDocsList(
+      String date, int pageKey) async {
+    var _trendingBooks = await trendingBooks(date, pageKey);
+    return _trendingBooks.works;
   }
 }

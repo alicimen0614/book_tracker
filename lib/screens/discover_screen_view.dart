@@ -1,9 +1,12 @@
+import 'package:book_tracker/models/trendingbooks_model.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/categories_view.dart';
 import 'package:book_tracker/screens/search_screen_view.dart';
+import 'package:book_tracker/screens/trending_books_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-enum PageStatus { search, categories }
+enum PageStatus { search, categories, trending }
 
 class DiscoverScreenView extends ConsumerStatefulWidget {
   const DiscoverScreenView({
@@ -30,15 +33,47 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
     return SafeArea(
       child: Scaffold(
           body: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-            child: searchBarBuilder(),
-          ),
+          pageStatus == PageStatus.categories ||
+                  pageStatus == PageStatus.trending
+              ? Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+                      child: searchBarBuilder(),
+                    ),
+                  ],
+                )
+              : Row(mainAxisSize: MainAxisSize.min, children: [
+                  Expanded(
+                    flex: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                      child: searchBarBuilder(),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 4),
+                      child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              pageStatus = PageStatus.categories;
+                              searchBarController.clear();
+                            });
+                          },
+                          child: Text("Vazgeç")),
+                    ),
+                  )
+                ]),
           pageStatus == PageStatus.search
               ? SearchScreenView(searchValue: searchBarController.text)
-              : CategoriesView()
+              : pageStatus == PageStatus.trending
+                  ? TrendingBooksView(date: "monthly")
+                  : CategoriesView()
         ],
       )),
     );

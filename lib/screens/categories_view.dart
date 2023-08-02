@@ -1,79 +1,246 @@
+import 'package:book_tracker/models/trendingbooks_model.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/detailed_categories_view.dart';
+import 'package:book_tracker/screens/trending_books_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CategoriesView extends StatelessWidget {
-  CategoriesView({super.key});
+class CategoriesView extends ConsumerStatefulWidget {
+  const CategoriesView({super.key});
+
+  @override
+  ConsumerState<CategoriesView> createState() => _CategoriesViewState();
+}
+
+class _CategoriesViewState extends ConsumerState<CategoriesView> {
+  bool isLoading = true;
+  List<TrendingBooksWorks?>? items = [];
+  @override
+  void initState() {
+    getTrendingBooks();
+    super.initState();
+  }
+
+  Future<void> getTrendingBooks() async {
+    isLoading = true;
+    items = await ref
+        .read(booksProvider)
+        .trendingBookDocsList("monthly", 1)
+        .whenComplete(() {
+      setState(() {
+        isLoading = false;
+      });
+    });
+    print(items);
+  }
 
   final List mainCategories = [
-    "Fiction",
-    "Non-Fiction",
-    "Novel",
+    "Classics",
+    "Fantasy",
+    "Adventure",
+    "Contemporary",
     "Romance",
-    "Self-Help Books",
-    "Children’s Books",
-    "Biography",
-    "Autobiography",
-    "Text-books",
-    "Political Books",
-    "Academic Books",
+    "Dystopian",
+    "Horror",
+    "Paranormal",
+    "Historical Fiction",
+    "Science Fiction",
+    "Children's",
+    "Academic",
     "Mystery",
     "Thrillers",
-    "Poetry Books",
-    "Spiritual Books",
-    "Cook Books",
-    "Art Books",
-    "Young Adult Books",
-    "History Books"
+    "Memoir",
+    "Self-help",
+    "Cookbook",
+    "Art & Photography",
+    "Young Adult",
+    "Personal Development",
+    "Motivational",
+    "Health",
+    "History",
+    "Travel",
+    "Guide",
+    "Families & Relationships",
+    "Humor",
+    "Graphic Novel",
+    "Short Story",
+    "Biography and Autobiography",
+    "Poetry",
+    "Religion & Spirituality"
   ];
 
   final List mainCategoriesImages = [
-    "science-fiction.png",
-    "science-fiction.png",
-    "science-fiction.png",
+    "classical.png",
+    "fantasy.png",
+    "adventure.png",
+    "contemporary.png",
     "romance.png",
-    "romance.png",
+    "dystopia.png",
+    "horror.png",
+    "paranormal.png",
+    "historicalfiction.png",
+    "science-fiction.png",
     "children.png",
-    "autobiography.png",
-    "biography.png",
-    "autobiography.png",
-    "politician.png",
     "academic.png",
     "mystery.png",
     "thriller.png",
-    "poetry.png",
-    "praying.png",
+    "memoirs.png",
+    "self-help.png",
     "cooking.png",
     "art.png",
-    "autobiography.png",
-    "history.png"
+    "youngadult.png",
+    "personaldevelopment.png",
+    "praying.png",
+    "health.png",
+    "history.png",
+    "travel.png",
+    "guide.png",
+    "family.png",
+    "humor.png",
+    "graphicnovel.png",
+    "shortstory.png",
+    "biography.png",
+    "poetry.png",
+    "religion.png"
   ];
 
   @override
   Widget build(BuildContext context) {
+    print(items);
     return Expanded(
-        child: GridView.builder(
-      physics: BouncingScrollPhysics(),
-      itemCount: mainCategories.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        mainAxisSpacing: 50,
-        crossAxisSpacing: 25,
-        mainAxisExtent: 250,
-        childAspectRatio: 0.1,
-        crossAxisCount: 2,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          scrollableTrendingBuilder(context),
+          categoriesGridViewBuilder(),
+        ],
       ),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.all(10),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              child: Column(children: [
-                Image.asset("lib/assets/images/${mainCategoriesImages[index]}"),
-                Text(mainCategories[index])
-              ]),
+    );
+  }
+
+  SliverToBoxAdapter categoriesGridViewBuilder() {
+    return SliverToBoxAdapter(
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
+        itemCount: mainCategories.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          mainAxisSpacing: 50,
+          crossAxisSpacing: 25,
+          mainAxisExtent: 250,
+          childAspectRatio: 0.1,
+          crossAxisCount: 2,
+        ),
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.all(10),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return DetailedCategoriesView(
+                          categoryName: mainCategories[index]);
+                    },
+                  ));
+                },
+                child: Column(children: [
+                  Image.asset(
+                      "lib/assets/images/${mainCategoriesImages[index]}"),
+                  const SizedBox(
+                    width: double.infinity,
+                    height: 10,
+                  ),
+                  Text(
+                    mainCategories[index],
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                        overflow: TextOverflow.fade),
+                    textAlign: TextAlign.center,
+                  )
+                ]),
+              ),
             ),
-          ),
-        );
-      },
-    ));
+          );
+        },
+      ),
+    );
+  }
+
+  SliverToBoxAdapter scrollableTrendingBuilder(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Trendler",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  TextButton(
+                      child: const Text("Daha fazla"),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return const TrendingBooksView(
+                              date: "Monthly",
+                            );
+                          },
+                        ));
+                      })
+                ],
+              ),
+            ),
+            isLoading == false
+                ? Container(
+                    height: 100,
+                    width: double.infinity,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: items!.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: SizedBox(
+                              width: 100,
+                              child: InkWell(
+                                  child: Column(
+                                children: [
+                                  Image.network(
+                                      "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg"),
+                                  Text(
+                                    items![index]!.title!,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                ],
+                              )),
+                            ),
+                          );
+                        }))
+                : const SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+            const Text(
+              "Kategoriler",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const SizedBox(
+              height: 5,
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

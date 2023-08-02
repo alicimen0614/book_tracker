@@ -1,10 +1,8 @@
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/detailed_book_view.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 
 class SearchScreenView extends ConsumerStatefulWidget {
   const SearchScreenView({super.key, required this.searchValue});
@@ -16,7 +14,8 @@ class SearchScreenView extends ConsumerStatefulWidget {
 
 class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
   ImageProvider getBookCover(BooksModelDocs? item) {
-    print(item!.coverI);
+    print(item!.language);
+    print(item.coverI);
     if (item.coverI != null) {
       return NetworkImage(
           "https://covers.openlibrary.org/b/id/${item.coverI}-M.jpg");
@@ -76,7 +75,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
     var list = await ref
         .read(booksProvider)
-        .booksModelDocsList(widget.searchValue, pageKey);
+        .bookSearchDocsList(widget.searchValue, pageKey);
 
     setState(() {
       pageKey++;
@@ -165,6 +164,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                         "${item?.title!} ",
                         style: TextStyle(
                             fontSize: 17, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(
                         height: 5,
