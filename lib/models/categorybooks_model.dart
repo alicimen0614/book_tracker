@@ -44,7 +44,6 @@ class CategoryBooksWorksAvailability {
   String? lastWaitlistDate;
   bool? isRestricted;
   bool? isBrowseable;
-  String? _Src__;
 
   CategoryBooksWorksAvailability({
     this.status,

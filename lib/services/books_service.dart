@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:book_tracker/models/books_model.dart';
+import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class BooksService extends ChangeNotifier {
@@ -76,5 +77,37 @@ class BooksService extends ChangeNotifier {
       String date, int pageKey) async {
     var _trendingBooks = await trendingBooks(date, pageKey);
     return _trendingBooks.works;
+  }
+
+  Future<BookWorkModel> getBooksWorkModel(String key) async {
+    var response =
+        await http.get(Uri.parse("https://openlibrary.org$key.json"));
+    if (response.statusCode == 200) {
+      var result = BookWorkModel.fromJson(jsonDecode(response.body));
+
+      print(result);
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
+    }
+  }
+
+  Future<BookWorkEditionsModel> getBookWorkEditions(String key) async {
+    var response =
+        await http.get(Uri.parse("https://openlibrary.org$key/editions.json"));
+    if (response.statusCode == 200) {
+      var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
+
+      print(result);
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
+    }
+  }
+
+  Future<List<BookWorkEditionsModelEntries?>?> bookEditionsEntriesList(
+      String key) async {
+    var _bookEditions = await getBookWorkEditions(key);
+    return _bookEditions.entries;
   }
 }
