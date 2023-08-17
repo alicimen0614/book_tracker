@@ -1,3 +1,4 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
@@ -36,76 +37,6 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     });
     print(items);
   }
-
-  final List mainCategories = [
-    "Classics",
-    "Fantasy",
-    "Adventure",
-    "Contemporary",
-    "Romance",
-    "Dystopian",
-    "Horror",
-    "Paranormal",
-    "Historical Fiction",
-    "Science Fiction",
-    "Children's",
-    "Academic",
-    "Mystery",
-    "Thrillers",
-    "Memoir",
-    "Self-help",
-    "Cookbook",
-    "Art & Photography",
-    "Young Adult",
-    "Personal Development",
-    "Motivational",
-    "Health",
-    "History",
-    "Travel",
-    "Guide",
-    "Families & Relationships",
-    "Humor",
-    "Graphic Novel",
-    "Short Story",
-    "Biography and Autobiography",
-    "Poetry",
-    "Religion & Spirituality"
-  ];
-
-  final List mainCategoriesImages = [
-    "classical.png",
-    "fantasy.png",
-    "adventure.png",
-    "contemporary.png",
-    "romance.png",
-    "dystopia.png",
-    "horror.png",
-    "paranormal.png",
-    "historicalfiction.png",
-    "science-fiction.png",
-    "children.png",
-    "academic.png",
-    "mystery.png",
-    "thriller.png",
-    "memoirs.png",
-    "self-help.png",
-    "cooking.png",
-    "art.png",
-    "youngadult.png",
-    "personaldevelopment.png",
-    "praying.png",
-    "health.png",
-    "history.png",
-    "travel.png",
-    "guide.png",
-    "family.png",
-    "humor.png",
-    "graphicnovel.png",
-    "shortstory.png",
-    "biography.png",
-    "poetry.png",
-    "religion.png"
-  ];
 
   @override
   Widget build(BuildContext context) {

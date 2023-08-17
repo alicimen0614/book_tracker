@@ -66,10 +66,18 @@ class _DetailedCategoriesViewState
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          centerTitle: true,
+          leadingWidth: 50,
           title: Text(widget.categoryName),
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 30,
+              )),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+          elevation: 5,
         ),
         body: PagedGridView<int, CategoryBooksWorks?>(
             pagingController: pagingController,

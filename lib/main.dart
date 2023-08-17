@@ -18,11 +18,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Book Tracker',
       theme: ThemeData(
+          scrollbarTheme: ScrollbarThemeData(
+            thumbColor: MaterialStateProperty.all(Colors.white),
+            minThumbLength: 100,
+          ),
           primarySwatch: Colors.teal,
           scaffoldBackgroundColor: const Color.fromRGBO(224, 192, 151, 1),
           primaryColor: const Color.fromRGBO(249, 224, 187, 1),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              backgroundColor: Color.fromRGBO(250, 240, 215, 1))),
+              backgroundColor: Colors.white)),
       home: BottomNavigationBarController(),
     );
   }

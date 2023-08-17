@@ -3,6 +3,8 @@ import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
+import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
+import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,8 +38,8 @@ class _DetailedTrendingBooksViewState
               size: 30,
             )),
         automaticallyImplyLeading: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
+        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+        elevation: 5,
       ),
       body: FutureBuilder(
           future: ref
@@ -52,7 +54,7 @@ class _DetailedTrendingBooksViewState
                   builder: (context, workSnapshot) {
                     if (workSnapshot.hasData) {
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
                         child: Column(
                           children: [
                             bookInfoBarBuilder(workSnapshot),
@@ -81,16 +83,22 @@ class _DetailedTrendingBooksViewState
   Expanded bookInfoBodyBuilder(AsyncSnapshot<BookWorkModel> snapshot,
       AsyncSnapshot<List<BookWorkEditionsModelEntries?>?> editionsSnapshot) {
     return Expanded(
-      child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          snapshot.data!.description != null
-              ? descriptionInfoBuilder(snapshot)
-              : const SizedBox.shrink(),
-          snapshot.data!.firstSentence != null
-              ? firstSentenceBuilder(snapshot)
-              : const SizedBox.shrink(),
-          editionsBuilder(editionsSnapshot)
-        ]),
+      child: Scrollbar(
+        thickness: 2,
+        radius: Radius.circular(20),
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            snapshot.data!.description != null
+                ? descriptionInfoBuilder(snapshot)
+                : const SizedBox.shrink(),
+            snapshot.data!.firstSentence != null
+                ? firstSentenceBuilder(snapshot)
+                : const SizedBox.shrink(),
+            editionsBuilder(editionsSnapshot)
+          ]),
+        ),
       ),
     );
   }
@@ -115,6 +123,7 @@ class _DetailedTrendingBooksViewState
           width: double.infinity,
           height: 100,
           child: ListView.separated(
+            physics: BouncingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
               width: 10,
             ),
@@ -122,6 +131,14 @@ class _DetailedTrendingBooksViewState
             itemCount: 5,
             itemBuilder: (context, index) {
               return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailedEditionInfo(
+                            editionInfo: editionsSnapshot.data![index]!),
+                      ));
+                },
                 child: Column(children: [
                   Expanded(
                       child: editionsSnapshot.data![index]!.covers != null
@@ -208,6 +225,7 @@ class _DetailedTrendingBooksViewState
   }
 
   Column descriptionInfoBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
+    String textAsString = snapshot.data!.description!.replaceRange(0, 26, "");
     return Column(
       children: [
         const Align(
@@ -228,12 +246,23 @@ class _DetailedTrendingBooksViewState
             ),
             child: textShowMoreForDescription == false
                 ? Text(
-                    snapshot.data!.description!,
+                    /* There is an issue with the api that is the description comes sometimes as String and sometimes as Map<String,Dynamic> with
+                  type and value properties to fix this ı've made a easy solution that is first ı've converted the variable to String on my
+                  model if it was a map it was starting with  "{type: /type/text, value: " so it is 26 characters and ı used replaceRange
+                  method and if it was a map that is coming from api "{type: /type/text, value: " was being deleted and the last character "}" 
+                  was also being deleted*/
+                    snapshot.data!.description!.startsWith("{")
+                        ? textAsString.replaceRange(
+                            textAsString.length - 1, textAsString.length, "")
+                        : snapshot.data!.description!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                   )
                 : Text(
-                    snapshot.data!.description!,
+                    snapshot.data!.description!.startsWith("{")
+                        ? textAsString.replaceRange(
+                            textAsString.length - 1, textAsString.length, "")
+                        : snapshot.data!.description!,
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -288,11 +317,21 @@ class _DetailedTrendingBooksViewState
                 width: 200,
                 child: snapshot.data!.subjects != null
                     ? ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: snapshot.data!.subjects!.length,
                         itemBuilder: (context, index) {
                           return TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailedCategoriesView(
+                                              categoryName: snapshot
+                                                  .data!.subjects![index]!),
+                                    ));
+                              },
                               child: Text(snapshot.data!.subjects![index]!));
                         })
                     : const SizedBox.shrink(),

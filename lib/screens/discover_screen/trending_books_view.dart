@@ -66,8 +66,18 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("${widget.date} Trending Books"),
           centerTitle: true,
+          leadingWidth: 50,
+          title: Text("${widget.date} Trending Books"),
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 30,
+              )),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+          elevation: 5,
         ),
         body: PagedGridView<int, TrendingBooksWorks?>(
             pagingController: pagingController,

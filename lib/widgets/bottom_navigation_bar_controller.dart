@@ -49,7 +49,7 @@ class _BottomNavigationBarControllerState
   Widget bottomNavigationBarBuilder() {
     return BottomNavigationBar(
       iconSize: 30,
-      fixedColor: const Color.fromRGBO(255, 194, 111, 1),
+      fixedColor: const Color.fromRGBO(195, 129, 84, 1),
       unselectedItemColor: Colors.black54,
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,

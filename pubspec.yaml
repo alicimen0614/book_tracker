@@ -45,6 +45,9 @@ dependencies:
   cached_network_image: ^3.2.3
   infinite_scroll_pagination: ^3.2.0
   sealed_languages: ^0.2.2
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  cloud_firestore: ^4.8.5
   
 
 dev_dependencies:

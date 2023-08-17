@@ -93,6 +93,7 @@ class BooksService extends ChangeNotifier {
   }
 
   Future<BookWorkEditionsModel> getBookWorkEditions(String key) async {
+    print("https://openlibrary.org$key/editions.json");
     var response =
         await http.get(Uri.parse("https://openlibrary.org$key/editions.json"));
     if (response.statusCode == 200) {

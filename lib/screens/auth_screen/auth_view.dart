@@ -185,7 +185,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                     },
                     child: const Text(
                       "Şifremi Unuttum",
-                      style: TextStyle(color: Colors.amber),
+                      style: TextStyle(color: Colors.teal),
                     )),
               ),
             ),
@@ -242,7 +242,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       },
                       child: const Text(
                         "Üye Ol",
-                        style: TextStyle(color: Colors.amber),
+                        style: TextStyle(color: Colors.teal),
                       )),
                 ],
               ),
@@ -363,7 +363,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       },
                       child: const Text(
                         "Giriş Yap",
-                        style: TextStyle(color: Colors.amber),
+                        style: TextStyle(color: Colors.teal),
                       )),
                 ],
               ),
@@ -423,7 +423,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   },
                   child: const Text(
                     "Giriş Yap",
-                    style: TextStyle(color: Colors.amber),
+                    style: TextStyle(color: Colors.teal),
                   )),
             )
           ],

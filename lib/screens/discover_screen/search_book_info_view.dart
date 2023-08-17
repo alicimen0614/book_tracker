@@ -1,10 +1,10 @@
-import 'dart:math';
-
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
+import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
+import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
@@ -19,13 +19,13 @@ class SearchBookInfoView extends ConsumerStatefulWidget {
 }
 
 class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
   bool textShowMore = false;
   bool textShowMoreForFirstSentence = false;
   @override
   Widget build(
     BuildContext context,
   ) {
+    print(widget.book!.language);
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -37,8 +37,8 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
               size: 30,
             )),
         automaticallyImplyLeading: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
+        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+        elevation: 5,
       ),
       body: FutureBuilder(
           future: ref
@@ -53,7 +53,7 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
                   builder: (context, workSnapshot) {
                     if (workSnapshot.hasData) {
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
                         child: Column(
                           children: [
                             bookInfoBarBuilder(workSnapshot),
@@ -79,29 +79,36 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
     ));
   }
 
-  Expanded bookInfoBodyBuilder(AsyncSnapshot<BookWorkModel> snapshot,
+  Expanded bookInfoBodyBuilder(AsyncSnapshot<BookWorkModel> workSnapshot,
       AsyncSnapshot<List<BookWorkEditionsModelEntries?>?> editionsSnapshot) {
     bool isThereMoreEditionsThanFive = editionsSnapshot.data!.length > 5;
     print(isThereMoreEditionsThanFive);
     int itemCount = editionsSnapshot.data!.length;
+
     print("$itemCount-1");
 
     return Expanded(
-      child: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          snapshot.data!.description != null
-              ? descriptionInfoBuilder(snapshot)
-              : const SizedBox.shrink(),
-          widget.book!.language != null
-              ? availableLanguagesBuilder()
-              : SizedBox.shrink(),
-          snapshot.data!.firstSentence != null
-              ? firstSentenceBuilder(snapshot)
-              : const SizedBox.shrink(),
-          isThereMoreEditionsThanFive == true
-              ? editionsBuilder(editionsSnapshot, 5)
-              : editionsBuilder(editionsSnapshot, itemCount)
-        ]),
+      child: Scrollbar(
+        thickness: 2,
+        radius: Radius.circular(20),
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            workSnapshot.data!.description != null
+                ? descriptionInfoBuilder(workSnapshot)
+                : const SizedBox.shrink(),
+            widget.book!.language != null
+                ? availableLanguagesBuilder()
+                : SizedBox.shrink(),
+            workSnapshot.data!.firstSentence != null
+                ? firstSentenceBuilder(workSnapshot)
+                : const SizedBox.shrink(),
+            isThereMoreEditionsThanFive == true
+                ? editionsBuilder(editionsSnapshot, 5)
+                : editionsBuilder(editionsSnapshot, itemCount)
+          ]),
+        ),
       ),
     );
   }
@@ -109,15 +116,27 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
   Column availableLanguagesBuilder() {
     return Column(
       children: [
-        const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Mevcut Diller",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18),
-            )),
+        Row(
+          children: [
+            const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Mevcut Diller",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                )),
+            SizedBox(
+              width: 5,
+            ),
+            Tooltip(
+                showDuration: Duration(seconds: 3),
+                triggerMode: TooltipTriggerMode.tap,
+                message: "Buradaki diller mevcut tüm dilleri göstermeyebilir.",
+                child: Icon(Icons.info_outline))
+          ],
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -125,6 +144,7 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
           height: 16,
           width: double.infinity,
           child: ListView.separated(
+            physics: BouncingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
               width: 10,
             ),
@@ -183,6 +203,7 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
           width: double.infinity,
           height: 100,
           child: ListView.separated(
+            physics: BouncingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
               width: 10,
             ),
@@ -190,6 +211,14 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
             itemCount: itemCount,
             itemBuilder: (context, index) {
               return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailedEditionInfo(
+                            editionInfo: editionsSnapshot.data![index]!),
+                      ));
+                },
                 child: Column(children: [
                   Expanded(
                       child: editionsSnapshot.data![index]!.covers != null
@@ -231,7 +260,7 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
     );
   }
 
-  Column firstSentenceBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
+  Column firstSentenceBuilder(AsyncSnapshot<BookWorkModel> workSnapshot) {
     return Column(
       children: [
         const Align(
@@ -252,12 +281,12 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
             ),
             child: textShowMoreForFirstSentence == false
                 ? Text(
-                    snapshot.data!.firstSentence!.value!,
+                    workSnapshot.data!.firstSentence!.value!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                   )
                 : Text(
-                    snapshot.data!.firstSentence!.value!,
+                    workSnapshot.data!.firstSentence!.value!,
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -276,6 +305,7 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
   }
 
   Column descriptionInfoBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
+    String textAsString = snapshot.data!.description!.replaceRange(0, 26, "");
     return Column(
       children: [
         const Align(
@@ -296,12 +326,23 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
             ),
             child: textShowMore == false
                 ? Text(
-                    snapshot.data!.description!,
+                    /* There is an issue with the api that is the description comes sometimes as String and sometimes as Map<String,Dynamic> with
+                  type and value properties to fix this ı've made a easy solution that is first ı've converted the variable to String on my
+                  model if it was a map it was starting with  "{type: /type/text, value: " so it is 26 characters and ı used replaceRange
+                  method and if it was a map that is coming from api "{type: /type/text, value: " was being deleted and the last character "}" 
+                  was also being deleted*/
+                    snapshot.data!.description!.startsWith("{")
+                        ? textAsString.replaceRange(
+                            textAsString.length - 1, textAsString.length, "")
+                        : snapshot.data!.description!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                   )
                 : Text(
-                    snapshot.data!.description!,
+                    snapshot.data!.description!.startsWith("{")
+                        ? textAsString.replaceRange(
+                            textAsString.length - 1, textAsString.length, "")
+                        : snapshot.data!.description!,
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -327,11 +368,13 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
           flex: 1,
           child: Container(
             color: Colors.teal,
-            child: Image.network(
-              "https://covers.openlibrary.org/b/id/${widget.book!.coverI}-M.jpg",
-              errorBuilder: (context, error, stackTrace) =>
-                  Image.asset("lib/assets/images/error.png"),
-            ),
+            child: snapshot.data!.covers != null
+                ? Image.network(
+                    "https://covers.openlibrary.org/b/id/${snapshot.data!.covers!.first!}-M.jpg",
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.asset("lib/assets/images/error.png"),
+                  )
+                : Image.asset("lib/assets/images/nocover.jpg"),
           ),
         ),
         Expanded(
@@ -356,11 +399,21 @@ class _SearchBookInfoViewState extends ConsumerState<SearchBookInfoView> {
                 width: 200,
                 child: snapshot.data!.subjects != null
                     ? ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: snapshot.data!.subjects!.length,
                         itemBuilder: (context, index) {
                           return TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailedCategoriesView(
+                                              categoryName: snapshot
+                                                  .data!.subjects![index]!),
+                                    ));
+                              },
                               child: Text(snapshot.data!.subjects![index]!));
                         })
                     : const SizedBox.shrink(),
