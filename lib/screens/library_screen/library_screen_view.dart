@@ -93,11 +93,7 @@ class LibraryScreenView extends ConsumerWidget {
             print(snapshot.data!.isNotEmpty);
 
             if (firestoreSnapshot != null) {
-              if (snapshot.data!.isNotEmpty &&
-                  firestoreSnapshot.data!.isEmpty) {
-                print(" if girdi");
-                differenceList = snapshot.data!;
-              }
+              differenceList = snapshot.data!;
 
               if (differenceList.isNotEmpty) {
                 print("database yazdı");
@@ -115,7 +111,12 @@ class LibraryScreenView extends ConsumerWidget {
                         "isbn_10": element.isbn_10,
                         "isbn_13": element.isbn_13
                       },
-                      userId: ref.read(authProvider).currentUser!.uid);
+                      userId: ref.read(authProvider).currentUser!.uid,
+                      uniqueBookId: element.isbn_10 != null
+                          ? element.isbn_10!.first!
+                          : element.isbn_13 != null
+                              ? element.isbn_13!.first!
+                              : element.title!.trim());
                 }
               }
             }

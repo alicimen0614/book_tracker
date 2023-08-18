@@ -18,7 +18,7 @@ class SqlHelper {
       onCreate: (db, version) {
         // Run the CREATE TABLE statement on the database.
         return db.execute(
-          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte BLOB)',
+          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte BLOB)',
         );
       },
       // Set the version. This executes the onCreate function and provides a
@@ -38,6 +38,19 @@ class SqlHelper {
       String bookStatus, Uint8List? imageAsByte) async {
     // Get a reference to the database.
     final db = await _openDatabase();
+    int uniqueId;
+    if (bookEditionInfo.isbn_10 != null &&
+        int.tryParse(bookEditionInfo.isbn_10!.first!) != null) {
+      uniqueId = int.parse(bookEditionInfo.isbn_10!.first!);
+    } else if (bookEditionInfo.isbn_13 != null &&
+        int.tryParse(bookEditionInfo.isbn_13!.first!) != null) {
+      uniqueId = int.parse(bookEditionInfo.isbn_13!.first!);
+    } else {
+      uniqueId = int.parse(
+          "${bookEditionInfo.numberOfPages}${bookEditionInfo.latestRevision}");
+    }
+
+    print(uniqueId);
 
     // Insert the Dog into the correct table. You might also specify the
     // `conflictAlgorithm` to use in case the same dog is inserted twice.
@@ -46,6 +59,7 @@ class SqlHelper {
     await db.insert(
       'bookshelf',
       {
+        "id": uniqueId,
         "imageAsByte": imageAsByte,
         "bookStatus": bookStatus,
         "title": bookEditionInfo.title,

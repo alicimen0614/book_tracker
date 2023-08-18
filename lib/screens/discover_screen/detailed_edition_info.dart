@@ -222,7 +222,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           "isbn_10": editionInfo.isbn_10,
           "isbn_13": editionInfo.isbn_13
         },
-        userId: ref.read(authProvider).currentUser!.uid);
+        userId: ref.read(authProvider).currentUser!.uid,
+        uniqueBookId: editionInfo.isbn_10 != null
+            ? editionInfo.isbn_10!.first!
+            : editionInfo.isbn_13 != null
+                ? editionInfo.isbn_13!.first!
+                : editionInfo.title!.trim());
   }
 
   Future<void> insertToSqlDatabase(
