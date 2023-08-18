@@ -1,23 +1,26 @@
 import 'dart:typed_data';
 
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
-class DetailedEditionInfo extends StatefulWidget {
+class DetailedEditionInfo extends ConsumerStatefulWidget {
   DetailedEditionInfo({super.key, required this.editionInfo});
 
   final BookWorkEditionsModelEntries editionInfo;
 
   @override
-  State<DetailedEditionInfo> createState() => _DetailedEditionInfoState();
+  ConsumerState<DetailedEditionInfo> createState() =>
+      _DetailedEditionInfoState();
 }
 
-class _DetailedEditionInfoState extends State<DetailedEditionInfo> {
+class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   final SqlHelper _sqlHelper = SqlHelper();
 
   BookStatus bookStatus = BookStatus.wantToRead;
@@ -170,47 +173,18 @@ class _DetailedEditionInfoState extends State<DetailedEditionInfo> {
                               if (widget.editionInfo.covers != null) {
                                 Uint8List? base64AsString = await readNetworkImage(
                                     "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg");
-                                await _sqlHelper
-                                    .insertBook(
-                                        widget.editionInfo,
-                                        bookStatus == BookStatus.alreadyRead
-                                            ? "Okuduklarım"
-                                            : bookStatus ==
-                                                    BookStatus.currentlyReading
-                                                ? "Şu an okuduklarım"
-                                                : "Okumak istediklerim",
-                                        base64AsString)
-                                    .whenComplete(() =>
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          duration: Duration(seconds: 1),
-                                          content: const Text(
-                                              'Kitap başarıyla kitaplığına eklendi.'),
-                                          action: SnackBarAction(
-                                              label: 'Tamam', onPressed: () {}),
-                                          behavior: SnackBarBehavior.floating,
-                                        )));
+                                await insertToSqlDatabase(
+                                    base64AsString, context);
+                                if (ref.read(authProvider).currentUser !=
+                                    null) {
+                                  await insertToFirestore();
+                                }
                               } else {
-                                await _sqlHelper
-                                    .insertBook(
-                                        widget.editionInfo,
-                                        bookStatus == BookStatus.alreadyRead
-                                            ? "Okuduklarım"
-                                            : bookStatus ==
-                                                    BookStatus.currentlyReading
-                                                ? "Şu an okuduklarım"
-                                                : "Okumak istediklerim",
-                                        null)
-                                    .whenComplete(() =>
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          duration: Duration(seconds: 1),
-                                          content: const Text(
-                                              'Kitap başarıyla kitaplığına eklendi.'),
-                                          action: SnackBarAction(
-                                              label: 'Tamam', onPressed: () {}),
-                                          behavior: SnackBarBehavior.floating,
-                                        )));
+                                await insertToSqlDatabase(null, context);
+                                if (ref.read(authProvider).currentUser !=
+                                    null) {
+                                  await insertToFirestore();
+                                }
                               }
 
                               Navigator.pop(context);
@@ -226,6 +200,48 @@ class _DetailedEditionInfoState extends State<DetailedEditionInfo> {
         );
       },
     );
+  }
+
+  Future<void> insertToFirestore() {
+    BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
+
+    return ref.read(firestoreProvider).setBookData(
+        collectionPath: "usersBooks",
+        bookAsMap: {
+          "title": editionInfo.title,
+          "numberOfPages": editionInfo.numberOfPages,
+          "covers": editionInfo.covers,
+          "bookStatus": bookStatus == BookStatus.alreadyRead
+              ? "Okuduklarım"
+              : bookStatus == BookStatus.currentlyReading
+                  ? "Şu an okuduklarım"
+                  : "Okumak istediklerim",
+          "publishers": editionInfo.publishers,
+          "physicalFormat": editionInfo.physicalFormat,
+          "publishDate": editionInfo.publishDate,
+          "isbn_10": editionInfo.isbn_10,
+          "isbn_13": editionInfo.isbn_13
+        },
+        userId: ref.read(authProvider).currentUser!.uid);
+  }
+
+  Future<void> insertToSqlDatabase(
+      Uint8List? base64AsString, BuildContext context) async {
+    await _sqlHelper
+        .insertBook(
+            widget.editionInfo,
+            bookStatus == BookStatus.alreadyRead
+                ? "Okuduklarım"
+                : bookStatus == BookStatus.currentlyReading
+                    ? "Şu an okuduklarım"
+                    : "Okumak istediklerim",
+            base64AsString)
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: Duration(seconds: 1),
+              content: const Text('Kitap başarıyla kitaplığına eklendi.'),
+              action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+              behavior: SnackBarBehavior.floating,
+            )));
   }
 
   Future<Uint8List> readNetworkImage(String imageUrl) async {

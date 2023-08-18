@@ -36,7 +36,6 @@ class SqlHelper {
   // Define a function that inserts dogs into the database
   Future<void> insertBook(BookWorkEditionsModelEntries bookEditionInfo,
       String bookStatus, Uint8List? imageAsByte) async {
-    print(imageAsByte);
     // Get a reference to the database.
     final db = await _openDatabase();
 

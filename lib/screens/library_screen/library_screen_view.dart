@@ -1,20 +1,45 @@
-import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
-
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 
-class LibraryScreenView extends StatelessWidget {
+class LibraryScreenView extends ConsumerWidget {
   const LibraryScreenView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     print("screen build çalıştı");
+    return StreamBuilder<List<BookWorkEditionsModelEntries>>(
+        stream: ref.read(authProvider).currentUser != null
+            ? ref.read(firestoreProvider).getBookList(
+                "usersBooks", ref.read(authProvider).currentUser!.uid)
+            : null,
+        builder: (context, firestoreSnapshot) {
+          if (firestoreSnapshot.hasData) {
+            print(firestoreSnapshot.connectionState);
+            List<BookWorkEditionsModelEntries> booksList =
+                firestoreSnapshot.data!;
+
+            return defaultTabControllerBuilder(firestoreSnapshot, ref);
+          } else if (firestoreSnapshot.connectionState ==
+              ConnectionState.none) {
+            return defaultTabControllerBuilder(null, ref);
+          } else {
+            print(firestoreSnapshot.connectionState);
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+
+  DefaultTabController defaultTabControllerBuilder(
+      AsyncSnapshot<List<BookWorkEditionsModelEntries>>? firestoreSnapshot,
+      WidgetRef ref) {
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
@@ -41,17 +66,21 @@ class LibraryScreenView extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            tabBarViewItem(""),
-            tabBarViewItem("Okumak istediklerim"),
-            tabBarViewItem("Okuduklarım"),
-            tabBarViewItem("Şu an okuduklarım")
+            tabBarViewItem("", firestoreSnapshot ?? null, ref),
+            tabBarViewItem(
+                "Okumak istediklerim", firestoreSnapshot ?? null, ref),
+            tabBarViewItem("Okuduklarım", firestoreSnapshot ?? null, ref),
+            tabBarViewItem("Şu an okuduklarım", firestoreSnapshot ?? null, ref)
           ],
         ),
       ),
     );
   }
 
-  Column tabBarViewItem(String bookStatus) {
+  Column tabBarViewItem(
+      String bookStatus,
+      AsyncSnapshot<List<BookWorkEditionsModelEntries>>? firestoreSnapshot,
+      WidgetRef ref) {
     return Column(children: [
       SizedBox(
         width: 15,
@@ -60,6 +89,37 @@ class LibraryScreenView extends StatelessWidget {
         future: _sqlHelper.getBookShelf(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            List<BookWorkEditionsModelEntries> differenceList = [];
+            print(snapshot.data!.isNotEmpty);
+
+            if (firestoreSnapshot != null) {
+              if (snapshot.data!.isNotEmpty &&
+                  firestoreSnapshot.data!.isEmpty) {
+                print(" if girdi");
+                differenceList = snapshot.data!;
+              }
+
+              if (differenceList.isNotEmpty) {
+                print("database yazdı");
+                for (var element in differenceList) {
+                  ref.read(firestoreProvider).setBookData(
+                      collectionPath: "usersBooks",
+                      bookAsMap: {
+                        "title": element.title,
+                        "numberOfPages": element.numberOfPages,
+                        "covers": element.covers,
+                        "bookStatus": element.bookStatus,
+                        "publishers": element.publishers,
+                        "physicalFormat": element.physicalFormat,
+                        "publishDate": element.publishDate,
+                        "isbn_10": element.isbn_10,
+                        "isbn_13": element.isbn_13
+                      },
+                      userId: ref.read(authProvider).currentUser!.uid);
+                }
+              }
+            }
+
             List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus;
             bookStatus != ""
                 ? listOfTheCurrentBookStatus = snapshot.data!
@@ -73,8 +133,6 @@ class LibraryScreenView extends StatelessWidget {
               child: ListView.separated(
                   padding: EdgeInsets.all(20),
                   itemBuilder: (context, index) {
-                    print("${listOfTheCurrentBookStatus[index].imageAsByte}");
-                    print(" ${listOfTheCurrentBookStatus[index].title}");
                     return InkWell(
                       onTap: () {
                         Navigator.push(
@@ -90,14 +148,19 @@ class LibraryScreenView extends StatelessWidget {
                             ? Expanded(
                                 child: Card(
                                   elevation: 18,
-                                  child: Image.memory(
-                                    listOfTheCurrentBookStatus[index]
-                                        .imageAsByte!,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Image.asset(
-                                                "lib/assets/images/error.png"),
-                                  ),
+                                  child: listOfTheCurrentBookStatus[index]
+                                              .imageAsByte !=
+                                          null
+                                      ? Image.memory(
+                                          listOfTheCurrentBookStatus[index]
+                                              .imageAsByte!,
+                                          errorBuilder: (context, error,
+                                                  stackTrace) =>
+                                              Image.asset(
+                                                  "lib/assets/images/error.png"),
+                                        )
+                                      : Image.network(
+                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus![index]!.covers!.first!}-M.jpg"),
                                 ),
                               )
                             : Expanded(
