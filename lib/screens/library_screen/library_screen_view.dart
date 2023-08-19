@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
@@ -20,16 +24,11 @@ class LibraryScreenView extends ConsumerWidget {
             : null,
         builder: (context, firestoreSnapshot) {
           if (firestoreSnapshot.hasData) {
-            print(firestoreSnapshot.connectionState);
-            List<BookWorkEditionsModelEntries> booksList =
-                firestoreSnapshot.data!;
-
             return defaultTabControllerBuilder(firestoreSnapshot, ref);
           } else if (firestoreSnapshot.connectionState ==
               ConnectionState.none) {
             return defaultTabControllerBuilder(null, ref);
           } else {
-            print(firestoreSnapshot.connectionState);
             return Center(
               child: CircularProgressIndicator(),
             );
@@ -89,48 +88,42 @@ class LibraryScreenView extends ConsumerWidget {
         future: _sqlHelper.getBookShelf(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            List<BookWorkEditionsModelEntries> differenceList = [];
-            print(snapshot.data!.isNotEmpty);
-
-            if (firestoreSnapshot != null) {
-              differenceList = snapshot.data!;
-
-              if (differenceList.isNotEmpty) {
-                print("database yazdı");
-                for (var element in differenceList) {
-                  //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-                  int uniqueId;
-                  if (element.isbn_10 != null &&
-                      int.tryParse(element.isbn_10!.first!) != null) {
-                    uniqueId = int.parse(element.isbn_10!.first!);
-                  } else if (element.isbn_13 != null &&
-                      int.tryParse(element.isbn_13!.first!) != null) {
-                    uniqueId = int.parse(element.isbn_13!.first!);
-                  } else if (element.publishers != null) {
-                    uniqueId = int.parse(
-                        "${element.title.hashCode}${element.publishers!.first.hashCode}");
-                  } else {
-                    uniqueId = int.parse("${element.title.hashCode}");
-                  }
-                  ref.read(firestoreProvider).setBookData(
-                      collectionPath: "usersBooks",
-                      bookAsMap: {
-                        "title": element.title,
-                        "numberOfPages": element.numberOfPages,
-                        "covers": element.covers,
-                        "bookStatus": element.bookStatus,
-                        "publishers": element.publishers,
-                        "physicalFormat": element.physicalFormat,
-                        "publishDate": element.publishDate,
-                        "isbn_10": element.isbn_10,
-                        "isbn_13": element.isbn_13
-                      },
-                      userId: ref.read(authProvider).currentUser!.uid,
-                      uniqueBookId: uniqueId);
-                }
-              }
+            List<BookWorkEditionsModelEntries> booksListFromFirebase = [];
+            List<BookWorkEditionsModelEntries>?
+                bookListFromSqlWithoutImageAsByte = [];
+            for (var element in snapshot.data!) {
+              bookListFromSqlWithoutImageAsByte.add(
+                  BookWorkEditionsModelEntries(
+                      bookStatus: element.bookStatus,
+                      covers: element.covers,
+                      isbn_10: element.isbn_10,
+                      isbn_13: element.isbn_13,
+                      numberOfPages: element.numberOfPages,
+                      publishDate: element.publishDate,
+                      publishers: element.publishers,
+                      physicalFormat: element.physicalFormat,
+                      title: element.title));
             }
 
+            //if there are no user available firestoreSnapshot will be null
+            if (firestoreSnapshot != null &&
+                checkIfEqual(bookListFromSqlWithoutImageAsByte,
+                        firestoreSnapshot.data) !=
+                    true) {
+              log(firestoreSnapshot.data!.length.toString());
+              insertBooksToSql(booksListFromFirebase, firestoreSnapshot);
+            }
+
+            List<BookWorkEditionsModelEntries> booksListFromLocal = [];
+
+            //if there are no user available firestoreSnapshot will be null
+            if (firestoreSnapshot != null &&
+                checkIfEqual(bookListFromSqlWithoutImageAsByte,
+                        firestoreSnapshot.data) !=
+                    true) {
+              insertBooksToFirebase(booksListFromLocal, snapshot, ref);
+            }
+            //making a filter list for books(already read, want to read, currently reading)
             List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus;
             bookStatus != ""
                 ? listOfTheCurrentBookStatus = snapshot.data!
@@ -171,7 +164,7 @@ class LibraryScreenView extends ConsumerWidget {
                                                   "lib/assets/images/error.png"),
                                         )
                                       : Image.network(
-                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus![index]!.covers!.first!}-M.jpg"),
+                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg"),
                                 ),
                               )
                             : Expanded(
@@ -246,5 +239,92 @@ class LibraryScreenView extends ConsumerWidget {
         },
       )
     ]);
+  }
+
+  bool checkIfEqual(
+      List<BookWorkEditionsModelEntries>? bookListFromSqlWithoutImageAsByte,
+      List<BookWorkEditionsModelEntries>? firestoreData) {
+    List<String?>? titleListFromSqlWithoutImageAsByte;
+    List<String?>? firestoreTitleData;
+    titleListFromSqlWithoutImageAsByte = bookListFromSqlWithoutImageAsByte!
+        .map(
+          (element) => element.title,
+        )
+        .toList();
+
+    firestoreTitleData = firestoreData!
+        .map(
+          (element) => element.title,
+        )
+        .toList();
+
+    titleListFromSqlWithoutImageAsByte.sort();
+    firestoreTitleData.sort();
+    print(listEquals(titleListFromSqlWithoutImageAsByte, firestoreTitleData));
+
+    return listEquals(titleListFromSqlWithoutImageAsByte, firestoreTitleData);
+  }
+
+  Future<void> insertBooksToSql(
+      List<BookWorkEditionsModelEntries> booksListFromFirebase,
+      AsyncSnapshot<List<BookWorkEditionsModelEntries>>
+          firestoreSnapshot) async {
+    booksListFromFirebase = firestoreSnapshot.data!;
+    for (var element in booksListFromFirebase) {
+      if (element.covers != null) {
+        String imageLink =
+            "https://covers.openlibrary.org/b/id/${element.covers!.first}-M.jpg";
+        final ByteData data =
+            await NetworkAssetBundle(Uri.parse(imageLink)).load(imageLink);
+        final Uint8List bytes = data.buffer.asUint8List();
+
+        Uint8List imageAsByte = bytes;
+        await _sqlHelper.insertBook(element, element.bookStatus!, imageAsByte);
+      } else {
+        await _sqlHelper.insertBook(element, element.bookStatus!, null);
+      }
+    }
+  }
+
+  void insertBooksToFirebase(
+      List<BookWorkEditionsModelEntries> booksListFromLocal,
+      AsyncSnapshot<List<BookWorkEditionsModelEntries>> snapshot,
+      WidgetRef ref) async {
+    booksListFromLocal = snapshot.data!;
+
+    if (booksListFromLocal.isNotEmpty) {
+      print("database yazdı");
+      for (var element in booksListFromLocal) {
+        //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
+        int uniqueId;
+        if (element.isbn_10 != null &&
+            int.tryParse(element.isbn_10!.first!) != null) {
+          uniqueId = int.parse(element.isbn_10!.first!);
+        } else if (element.isbn_13 != null &&
+            int.tryParse(element.isbn_13!.first!) != null) {
+          uniqueId = int.parse(element.isbn_13!.first!);
+        } else if (element.publishers != null) {
+          uniqueId = int.parse(
+              "${element.title.hashCode}${element.publishers!.first.hashCode}");
+        } else {
+          uniqueId = int.parse("${element.title.hashCode}");
+        }
+        await ref.read(firestoreProvider).setBookData(
+            collectionPath: "usersBooks",
+            bookAsMap: {
+              "title": element.title,
+              "numberOfPages": element.numberOfPages,
+              "covers": element.covers,
+              "bookStatus": element.bookStatus,
+              "publishers": element.publishers,
+              "physicalFormat": element.physicalFormat,
+              "publishDate": element.publishDate,
+              "isbn_10": element.isbn_10,
+              "isbn_13": element.isbn_13
+            },
+            userId: ref.read(authProvider).currentUser!.uid,
+            uniqueBookId: uniqueId);
+      }
+    }
   }
 }

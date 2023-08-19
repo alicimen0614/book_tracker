@@ -203,7 +203,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     );
   }
 
-  Future<void> insertToFirestore() {
+  Future<void> insertToFirestore() async {
     BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
 
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
@@ -221,7 +221,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       uniqueId = int.parse("${editionInfo.title.hashCode}");
     }
 
-    return ref.read(firestoreProvider).setBookData(
+    return await ref.read(firestoreProvider).setBookData(
         collectionPath: "usersBooks",
         bookAsMap: {
           "title": editionInfo.title,
