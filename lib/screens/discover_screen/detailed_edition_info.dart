@@ -27,6 +27,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.editionInfo.title.hashCode);
     print(bookStatus);
     return Scaffold(
       appBar: AppBar(
@@ -205,6 +206,21 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Future<void> insertToFirestore() {
     BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
 
+    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
+    int uniqueId;
+    if (editionInfo.isbn_10 != null &&
+        int.tryParse(editionInfo.isbn_10!.first!) != null) {
+      uniqueId = int.parse(editionInfo.isbn_10!.first!);
+    } else if (editionInfo.isbn_13 != null &&
+        int.tryParse(editionInfo.isbn_13!.first!) != null) {
+      uniqueId = int.parse(editionInfo.isbn_13!.first!);
+    } else if (editionInfo.publishers != null) {
+      uniqueId = int.parse(
+          "${editionInfo.title.hashCode}${editionInfo.publishers!.first.hashCode}");
+    } else {
+      uniqueId = int.parse("${editionInfo.title.hashCode}");
+    }
+
     return ref.read(firestoreProvider).setBookData(
         collectionPath: "usersBooks",
         bookAsMap: {
@@ -223,11 +239,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           "isbn_13": editionInfo.isbn_13
         },
         userId: ref.read(authProvider).currentUser!.uid,
-        uniqueBookId: editionInfo.isbn_10 != null
-            ? editionInfo.isbn_10!.first!
-            : editionInfo.isbn_13 != null
-                ? editionInfo.isbn_13!.first!
-                : editionInfo.title!.trim());
+        uniqueBookId: uniqueId);
   }
 
   Future<void> insertToSqlDatabase(

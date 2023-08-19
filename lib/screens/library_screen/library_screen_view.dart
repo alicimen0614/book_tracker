@@ -98,6 +98,20 @@ class LibraryScreenView extends ConsumerWidget {
               if (differenceList.isNotEmpty) {
                 print("database yazdı");
                 for (var element in differenceList) {
+                  //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
+                  int uniqueId;
+                  if (element.isbn_10 != null &&
+                      int.tryParse(element.isbn_10!.first!) != null) {
+                    uniqueId = int.parse(element.isbn_10!.first!);
+                  } else if (element.isbn_13 != null &&
+                      int.tryParse(element.isbn_13!.first!) != null) {
+                    uniqueId = int.parse(element.isbn_13!.first!);
+                  } else if (element.publishers != null) {
+                    uniqueId = int.parse(
+                        "${element.title.hashCode}${element.publishers!.first.hashCode}");
+                  } else {
+                    uniqueId = int.parse("${element.title.hashCode}");
+                  }
                   ref.read(firestoreProvider).setBookData(
                       collectionPath: "usersBooks",
                       bookAsMap: {
@@ -112,11 +126,7 @@ class LibraryScreenView extends ConsumerWidget {
                         "isbn_13": element.isbn_13
                       },
                       userId: ref.read(authProvider).currentUser!.uid,
-                      uniqueBookId: element.isbn_10 != null
-                          ? element.isbn_10!.first!
-                          : element.isbn_13 != null
-                              ? element.isbn_13!.first!
-                              : element.title!.trim());
+                      uniqueBookId: uniqueId);
                 }
               }
             }

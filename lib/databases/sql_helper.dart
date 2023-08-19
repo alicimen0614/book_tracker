@@ -38,6 +38,7 @@ class SqlHelper {
       String bookStatus, Uint8List? imageAsByte) async {
     // Get a reference to the database.
     final db = await _openDatabase();
+    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
     int uniqueId;
     if (bookEditionInfo.isbn_10 != null &&
         int.tryParse(bookEditionInfo.isbn_10!.first!) != null) {
@@ -45,9 +46,11 @@ class SqlHelper {
     } else if (bookEditionInfo.isbn_13 != null &&
         int.tryParse(bookEditionInfo.isbn_13!.first!) != null) {
       uniqueId = int.parse(bookEditionInfo.isbn_13!.first!);
-    } else {
+    } else if (bookEditionInfo.publishers != null) {
       uniqueId = int.parse(
-          "${bookEditionInfo.numberOfPages}${bookEditionInfo.latestRevision}");
+          "${bookEditionInfo.title.hashCode}${bookEditionInfo.publishers!.first.hashCode}");
+    } else {
+      uniqueId = int.parse("${bookEditionInfo.title.hashCode}");
     }
 
     print(uniqueId);
