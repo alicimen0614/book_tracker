@@ -46,6 +46,7 @@ class FirestoreDatabase extends ChangeNotifier {
       required Map<String, dynamic> bookAsMap,
       required String userId,
       required int uniqueBookId}) async {
+    print("setBookData çalıştı");
     await _firestore
         .collection(collectionPath)
         .doc(userId)

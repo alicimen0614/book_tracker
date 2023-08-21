@@ -36,6 +36,7 @@ class SqlHelper {
   // Define a function that inserts dogs into the database
   Future<void> insertBook(BookWorkEditionsModelEntries bookEditionInfo,
       String bookStatus, Uint8List? imageAsByte) async {
+    print("insertBook çalıştı");
     // Get a reference to the database.
     final db = await _openDatabase();
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
