@@ -16,7 +16,7 @@ class LibraryScreenView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print("screen build çalıştı");
+    print("libraryscreen build çalıştı");
     return StreamBuilder<List<BookWorkEditionsModelEntries>>(
         stream: ref.read(authProvider).currentUser != null
             ? ref.read(firestoreProvider).getBookList(
@@ -24,9 +24,11 @@ class LibraryScreenView extends ConsumerWidget {
             : null,
         builder: (context, firestoreSnapshot) {
           if (firestoreSnapshot.hasData) {
+            //if there is a user logged in
             return defaultTabControllerBuilder(firestoreSnapshot, ref);
           } else if (firestoreSnapshot.connectionState ==
               ConnectionState.none) {
+            //if there is no user logged in
             return defaultTabControllerBuilder(null, ref);
           } else {
             return Center(
@@ -56,20 +58,20 @@ class LibraryScreenView extends ConsumerWidget {
                 Tab(
                   text: "Tümü",
                 ),
+                Tab(text: "Şu an okuduklarım"),
                 Tab(
                   text: "Okumak istediklerim",
                 ),
                 Tab(text: "Okuduklarım"),
-                Tab(text: "Şu an okuduklarım")
               ]),
         ),
         body: TabBarView(
           children: [
             tabBarViewItem("", firestoreSnapshot ?? null, ref),
+            tabBarViewItem("Şu an okuduklarım", firestoreSnapshot ?? null, ref),
             tabBarViewItem(
                 "Okumak istediklerim", firestoreSnapshot ?? null, ref),
             tabBarViewItem("Okuduklarım", firestoreSnapshot ?? null, ref),
-            tabBarViewItem("Şu an okuduklarım", firestoreSnapshot ?? null, ref)
           ],
         ),
       ),
@@ -86,151 +88,53 @@ class LibraryScreenView extends ConsumerWidget {
       ),
       FutureBuilder(
         future: _sqlHelper.getBookShelf(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<BookWorkEditionsModelEntries> booksListFromFirebase = [];
+        builder: (context, sqlBooksSnapshot) {
+          if (sqlBooksSnapshot.hasData) {
             List<BookWorkEditionsModelEntries>?
                 bookListFromSqlWithoutImageAsByte = [];
-            for (var element in snapshot.data!) {
-              bookListFromSqlWithoutImageAsByte.add(
-                  BookWorkEditionsModelEntries(
-                      bookStatus: element.bookStatus,
-                      covers: element.covers,
-                      isbn_10: element.isbn_10,
-                      isbn_13: element.isbn_13,
-                      numberOfPages: element.numberOfPages,
-                      publishDate: element.publishDate,
-                      publishers: element.publishers,
-                      physicalFormat: element.physicalFormat,
-                      title: element.title));
-            }
+            creatingBookListWithoutImageAsByte(
+                sqlBooksSnapshot, bookListFromSqlWithoutImageAsByte);
 
             //if there are no user available firestoreSnapshot will be null
             if (firestoreSnapshot != null &&
                 checkIfEqual(bookListFromSqlWithoutImageAsByte,
                         firestoreSnapshot.data) !=
                     true) {
-              log(firestoreSnapshot.data!.length.toString());
-              insertBooksToSql(booksListFromFirebase, firestoreSnapshot);
-            }
-
-            List<BookWorkEditionsModelEntries> booksListFromLocal = [];
-
-            //if there are no user available firestoreSnapshot will be null
-            if (firestoreSnapshot != null &&
-                checkIfEqual(bookListFromSqlWithoutImageAsByte,
-                        firestoreSnapshot.data) !=
-                    true) {
-              insertBooksToFirebase(booksListFromLocal, snapshot, ref);
+              insertBooksToFirebase(sqlBooksSnapshot.data!, ref);
             }
             //making a filter list for books(already read, want to read, currently reading)
             List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus;
             bookStatus != ""
-                ? listOfTheCurrentBookStatus = snapshot.data!
+                ? listOfTheCurrentBookStatus = sqlBooksSnapshot.data!
                     .where(
                       (element) => element.bookStatus == bookStatus,
                     )
                     .toList()
-                : listOfTheCurrentBookStatus = snapshot.data!;
+                : listOfTheCurrentBookStatus = sqlBooksSnapshot.data!;
 
-            return Expanded(
-              child: ListView.separated(
-                  padding: EdgeInsets.all(20),
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailedEditionInfo(
-                                  editionInfo:
-                                      listOfTheCurrentBookStatus[index]),
-                            ));
-                      },
-                      child: Row(children: [
-                        listOfTheCurrentBookStatus[index].covers != null
-                            ? Expanded(
-                                child: Card(
-                                  elevation: 18,
-                                  child: listOfTheCurrentBookStatus[index]
-                                              .imageAsByte !=
-                                          null
-                                      ? Image.memory(
-                                          listOfTheCurrentBookStatus[index]
-                                              .imageAsByte!,
-                                          errorBuilder: (context, error,
-                                                  stackTrace) =>
-                                              Image.asset(
-                                                  "lib/assets/images/error.png"),
-                                        )
-                                      : Image.network(
-                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg"),
-                                ),
-                              )
-                            : Expanded(
-                                child: Image.asset(
-                                    "lib/assets/images/nocover.jpg")),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              child: Text(
-                                listOfTheCurrentBookStatus[index].title!,
-                                style: const TextStyle(
-                                    fontSize: 17, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            SizedBox(
-                                width: 200,
-                                child: listOfTheCurrentBookStatus[index]
-                                            .numberOfPages !=
-                                        null
-                                    ? Text(
-                                        listOfTheCurrentBookStatus[index]
-                                            .numberOfPages
-                                            .toString(),
-                                        style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontStyle: FontStyle.italic),
-                                        textAlign: TextAlign.center,
-                                      )
-                                    : SizedBox.shrink()),
-                            SizedBox(
-                                width: 150,
-                                child: listOfTheCurrentBookStatus[index]
-                                            .publishers !=
-                                        null
-                                    ? Text(
-                                        listOfTheCurrentBookStatus[index]
-                                            .publishers!
-                                            .first!,
-                                        style: const TextStyle(
-                                            color: Colors.black, fontSize: 15),
-                                        textAlign: TextAlign.center,
-                                      )
-                                    : const SizedBox.shrink()),
-                            SizedBox(
-                                width: 200,
-                                child: Text(
-                                  listOfTheCurrentBookStatus[index].bookStatus!,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontStyle: FontStyle.normal,
-                                      fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ))
-                          ],
-                        )
-                      ]),
+            return FutureBuilder(
+                future: (firestoreSnapshot != null &&
+                        checkIfEqual(bookListFromSqlWithoutImageAsByte,
+                                firestoreSnapshot.data) !=
+                            true)
+                    ? insertBooksToSql(firestoreSnapshot.data!)
+                    : null,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    print("${snapshot.connectionState} hasdata");
+
+                    return bookContentBuilder(firestoreSnapshot!.data!);
+                    //sent new items if connection state is done
+                  } else if (snapshot.connectionState == ConnectionState.none) {
+                    print(snapshot.connectionState);
+                    return bookContentBuilder(listOfTheCurrentBookStatus);
+                  } else {
+                    print(snapshot.connectionState);
+                    return Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                  separatorBuilder: (context, index) => Divider(),
-                  itemCount: listOfTheCurrentBookStatus.length),
-            );
+                  }
+                });
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -239,6 +143,121 @@ class LibraryScreenView extends ConsumerWidget {
         },
       )
     ]);
+  }
+
+  Expanded bookContentBuilder(
+      List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus) {
+    return Expanded(
+      child: ListView.separated(
+          padding: EdgeInsets.all(20),
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailedEditionInfo(
+                          editionInfo: listOfTheCurrentBookStatus[index]),
+                    ));
+              },
+              child: Row(children: [
+                listOfTheCurrentBookStatus[index].covers != null
+                    ? Expanded(
+                        child: Card(
+                          elevation: 18,
+                          child: listOfTheCurrentBookStatus[index]
+                                      .imageAsByte !=
+                                  null
+                              ? Image.memory(
+                                  listOfTheCurrentBookStatus[index]
+                                      .imageAsByte!,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                          "lib/assets/images/error.png"),
+                                )
+                              : Image.network(
+                                  "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg"),
+                        ),
+                      )
+                    : Expanded(
+                        child: Image.asset("lib/assets/images/nocover.jpg")),
+                const SizedBox(
+                  width: 10,
+                ),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        listOfTheCurrentBookStatus[index].title!,
+                        style: const TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(
+                        width: 200,
+                        child:
+                            listOfTheCurrentBookStatus[index].numberOfPages !=
+                                    null
+                                ? Text(
+                                    listOfTheCurrentBookStatus[index]
+                                        .numberOfPages
+                                        .toString(),
+                                    style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontStyle: FontStyle.italic),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : SizedBox.shrink()),
+                    SizedBox(
+                        width: 150,
+                        child:
+                            listOfTheCurrentBookStatus[index].publishers != null
+                                ? Text(
+                                    listOfTheCurrentBookStatus[index]
+                                        .publishers!
+                                        .first!,
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 15),
+                                    textAlign: TextAlign.center,
+                                  )
+                                : const SizedBox.shrink()),
+                    SizedBox(
+                        width: 200,
+                        child: Text(
+                          listOfTheCurrentBookStatus[index].bookStatus!,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontStyle: FontStyle.normal,
+                              fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ))
+                  ],
+                )
+              ]),
+            );
+          },
+          separatorBuilder: (context, index) => Divider(),
+          itemCount: listOfTheCurrentBookStatus.length),
+    );
+  }
+
+  void creatingBookListWithoutImageAsByte(
+      AsyncSnapshot<List<BookWorkEditionsModelEntries>> sqlBooksSnapshot,
+      List<BookWorkEditionsModelEntries> bookListFromSqlWithoutImageAsByte) {
+    for (var element in sqlBooksSnapshot.data!) {
+      bookListFromSqlWithoutImageAsByte.add(BookWorkEditionsModelEntries(
+          bookStatus: element.bookStatus,
+          covers: element.covers,
+          isbn_10: element.isbn_10,
+          isbn_13: element.isbn_13,
+          numberOfPages: element.numberOfPages,
+          publishDate: element.publishDate,
+          publishers: element.publishers,
+          physicalFormat: element.physicalFormat,
+          title: element.title));
+    }
   }
 
   bool checkIfEqual(
@@ -266,10 +285,7 @@ class LibraryScreenView extends ConsumerWidget {
   }
 
   Future<void> insertBooksToSql(
-      List<BookWorkEditionsModelEntries> booksListFromFirebase,
-      AsyncSnapshot<List<BookWorkEditionsModelEntries>>
-          firestoreSnapshot) async {
-    booksListFromFirebase = firestoreSnapshot.data!;
+      List<BookWorkEditionsModelEntries> booksListFromFirebase) async {
     for (var element in booksListFromFirebase) {
       if (element.covers != null) {
         String imageLink =
@@ -287,14 +303,11 @@ class LibraryScreenView extends ConsumerWidget {
   }
 
   void insertBooksToFirebase(
-      List<BookWorkEditionsModelEntries> booksListFromLocal,
-      AsyncSnapshot<List<BookWorkEditionsModelEntries>> snapshot,
+      List<BookWorkEditionsModelEntries> sqlBooksSnapshotData,
       WidgetRef ref) async {
-    booksListFromLocal = snapshot.data!;
-
-    if (booksListFromLocal.isNotEmpty) {
+    if (sqlBooksSnapshotData.isNotEmpty) {
       print("database yazdı");
-      for (var element in booksListFromLocal) {
+      for (var element in sqlBooksSnapshotData) {
         //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
         int uniqueId;
         if (element.isbn_10 != null &&
