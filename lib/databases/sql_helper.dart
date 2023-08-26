@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
@@ -36,25 +37,11 @@ class SqlHelper {
   // Define a function that inserts dogs into the database
   Future<void> insertBook(BookWorkEditionsModelEntries bookEditionInfo,
       String bookStatus, Uint8List? imageAsByte) async {
-    print("insertBook çalıştı");
+    print("sql e yazdı");
+    print(bookEditionInfo.title);
     // Get a reference to the database.
     final db = await _openDatabase();
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-    int uniqueId;
-    if (bookEditionInfo.isbn_10 != null &&
-        int.tryParse(bookEditionInfo.isbn_10!.first!) != null) {
-      uniqueId = int.parse(bookEditionInfo.isbn_10!.first!);
-    } else if (bookEditionInfo.isbn_13 != null &&
-        int.tryParse(bookEditionInfo.isbn_13!.first!) != null) {
-      uniqueId = int.parse(bookEditionInfo.isbn_13!.first!);
-    } else if (bookEditionInfo.publishers != null) {
-      uniqueId = int.parse(
-          "${bookEditionInfo.title.hashCode}${bookEditionInfo.publishers!.first.hashCode}");
-    } else {
-      uniqueId = int.parse("${bookEditionInfo.title.hashCode}");
-    }
-
-    print(uniqueId);
 
     // Insert the Dog into the correct table. You might also specify the
     // `conflictAlgorithm` to use in case the same dog is inserted twice.
@@ -63,7 +50,7 @@ class SqlHelper {
     await db.insert(
       'bookshelf',
       {
-        "id": uniqueId,
+        "id": uniqueIdCreater(bookEditionInfo),
         "imageAsByte": imageAsByte,
         "bookStatus": bookStatus,
         "title": bookEditionInfo.title,
@@ -136,5 +123,19 @@ class SqlHelper {
         isbn_13: isbn13_List,
       );
     });
+  }
+
+  Future<void> deleteBook(int id) async {
+    // Get a reference to the database.
+    final db = await _openDatabase();
+
+    // Remove the Dog from the database.
+    await db.delete(
+      'bookshelf',
+      // Use a `where` clause to delete a specific dog.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    ).whenComplete(() => print("sql document deleted"));
   }
 }

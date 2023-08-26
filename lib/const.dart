@@ -1,3 +1,5 @@
+import 'package:book_tracker/models/bookswork_editions_model.dart';
+
 final List mainCategories = [
   "Klasikler",
   "Fantasy",
@@ -32,6 +34,23 @@ final List mainCategories = [
   "Poetry",
   "Religion & Spirituality"
 ];
+
+int uniqueIdCreater(BookWorkEditionsModelEntries bookEditionInfo) {
+  int uniqueId;
+  if (bookEditionInfo.isbn_10 != null &&
+      int.tryParse(bookEditionInfo.isbn_10!.first!) != null) {
+    uniqueId = int.parse(bookEditionInfo.isbn_10!.first!);
+  } else if (bookEditionInfo.isbn_13 != null &&
+      int.tryParse(bookEditionInfo.isbn_13!.first!) != null) {
+    uniqueId = int.parse(bookEditionInfo.isbn_13!.first!);
+  } else if (bookEditionInfo.publishers != null) {
+    uniqueId = int.parse(
+        "${bookEditionInfo.title.hashCode}${bookEditionInfo.publishers!.first.hashCode}");
+  } else {
+    uniqueId = int.parse("${bookEditionInfo.title.hashCode}");
+  }
+  return uniqueId;
+}
 
 final List mainCategoriesImages = [
   "classical.png",

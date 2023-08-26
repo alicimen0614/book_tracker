@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:flutter/material.dart';
@@ -207,19 +208,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
 
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-    int uniqueId;
-    if (editionInfo.isbn_10 != null &&
-        int.tryParse(editionInfo.isbn_10!.first!) != null) {
-      uniqueId = int.parse(editionInfo.isbn_10!.first!);
-    } else if (editionInfo.isbn_13 != null &&
-        int.tryParse(editionInfo.isbn_13!.first!) != null) {
-      uniqueId = int.parse(editionInfo.isbn_13!.first!);
-    } else if (editionInfo.publishers != null) {
-      uniqueId = int.parse(
-          "${editionInfo.title.hashCode}${editionInfo.publishers!.first.hashCode}");
-    } else {
-      uniqueId = int.parse("${editionInfo.title.hashCode}");
-    }
 
     return await ref.read(firestoreProvider).setBookData(
         collectionPath: "usersBooks",
@@ -239,7 +227,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           "isbn_13": editionInfo.isbn_13
         },
         userId: ref.read(authProvider).currentUser!.uid,
-        uniqueBookId: uniqueId);
+        uniqueBookId: uniqueIdCreater(editionInfo));
   }
 
   Future<void> insertToSqlDatabase(
@@ -315,6 +303,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   height: 20,
                 ),
               if (widget.editionInfo.languages != null)
+                //buraya geçenki eklediğimiz eğer fromcode da yoksa bibliografic de olanı eklediğimiz methodu uygula
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: Text(

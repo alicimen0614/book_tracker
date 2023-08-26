@@ -14,6 +14,15 @@ class FirestoreDatabase extends ChangeNotifier {
         .snapshots();
   }
 
+  Future<QuerySnapshot<Map<String, dynamic>>> getBooks(
+      String collectionPath, String userId) async {
+    return await _firestore
+        .collection(collectionPath)
+        .doc(userId)
+        .collection("books")
+        .get();
+  }
+
   Stream<List<BookWorkEditionsModelEntries>> getBookList(
       String collectionPath, String userId) {
     /// stream<QuerySnapshot> --> Stream<List<DocumentSnapshot>>
@@ -34,8 +43,16 @@ class FirestoreDatabase extends ChangeNotifier {
 
   //Deleting a data in Firebase.
   Future<void> deleteDocument(
-      {required String referencePath, required String userId}) async {
-    await _firestore.collection(referencePath).doc(userId).delete();
+      {required String referencePath,
+      required String userId,
+      required String bookId}) async {
+    print("document deleted");
+    await _firestore
+        .collection(referencePath)
+        .doc(userId)
+        .collection("books")
+        .doc(bookId)
+        .delete();
     print("database girdi");
   }
 
@@ -46,7 +63,8 @@ class FirestoreDatabase extends ChangeNotifier {
       required Map<String, dynamic> bookAsMap,
       required String userId,
       required int uniqueBookId}) async {
-    print("setBookData çalıştı");
+    print("firebase yazdı");
+    print(bookAsMap['title']);
     await _firestore
         .collection(collectionPath)
         .doc(userId)
