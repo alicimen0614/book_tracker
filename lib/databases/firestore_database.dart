@@ -53,7 +53,6 @@ class FirestoreDatabase extends ChangeNotifier {
         .collection("books")
         .doc(bookId)
         .delete();
-    print("database girdi");
   }
 
   //inserting and updating a data in Firebase.
