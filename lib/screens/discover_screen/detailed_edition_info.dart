@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,8 +13,12 @@ import 'package:book_tracker/databases/sql_helper.dart';
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
 class DetailedEditionInfo extends ConsumerStatefulWidget {
-  DetailedEditionInfo({super.key, required this.editionInfo});
+  DetailedEditionInfo(
+      {super.key,
+      required this.editionInfo,
+      required this.isNavigatingFromLibrary});
 
+  final bool isNavigatingFromLibrary;
   final BookWorkEditionsModelEntries editionInfo;
 
   @override
@@ -32,6 +37,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     print(bookStatus);
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                modalBottomSheetBuilderForPopUpMenu(context);
+              },
+              icon: Icon(
+                Icons.more_vert_sharp,
+                size: 30,
+              ))
+        ],
         leadingWidth: 50,
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
@@ -101,6 +116,79 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         ),
       ),
     );
+  }
+
+  void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.grey.shade300,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      context: context,
+      builder: (context) {
+        return Container(
+          height: widget.isNavigatingFromLibrary != false
+              ? MediaQuery.sizeOf(context).height * 0.25
+              : MediaQuery.sizeOf(context).height * 0.17,
+          child: Column(mainAxisSize: MainAxisSize.max, children: [
+            widget.isNavigatingFromLibrary != false
+                ? ListTile(
+                    onTap: () async {
+                      await deleteBook(widget.editionInfo).whenComplete(() {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  BottomNavigationBarController(
+                                      currentIndexParam: 2),
+                            ),
+                            (route) => false);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: const Text('Kitap başarıyla silindi.'),
+                          action:
+                              SnackBarAction(label: 'Tamam', onPressed: () {}),
+                          behavior: SnackBarBehavior.floating,
+                        ));
+                      });
+                    },
+                    leading: Icon(
+                      Icons.delete,
+                      size: 30,
+                    ),
+                    title: Text("Sil", style: TextStyle(fontSize: 20)),
+                  )
+                : SizedBox.shrink(),
+            widget.isNavigatingFromLibrary != false
+                ? Divider()
+                : SizedBox.shrink(),
+            ListTile(
+              leading: Icon(
+                Icons.info,
+                size: 30,
+              ),
+              title: Text("Bilgi", style: TextStyle(fontSize: 20)),
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(
+                Icons.share,
+                size: 30,
+              ),
+              title: Text("Paylaş", style: TextStyle(fontSize: 20)),
+            )
+          ]),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteBook(BookWorkEditionsModelEntries bookInfo) async {
+    await _sqlHelper.deleteBook(uniqueIdCreater(bookInfo));
+    if (ref.read(authProvider).currentUser != null) {
+      await ref.read(firestoreProvider).deleteDocument(
+          referencePath: "usersBooks",
+          userId: ref.read(authProvider).currentUser!.uid,
+          bookId: uniqueIdCreater(bookInfo).toString());
+    }
   }
 
   Future<dynamic> bookStatusDialog(BuildContext context) {

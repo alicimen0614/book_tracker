@@ -214,7 +214,9 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailedEditionInfo(
-                            editionInfo: editionsSnapshot.data![index]!),
+                          editionInfo: editionsSnapshot.data![index]!,
+                          isNavigatingFromLibrary: false,
+                        ),
                       ));
                 },
                 child: Column(children: [

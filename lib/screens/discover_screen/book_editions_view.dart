@@ -48,7 +48,9 @@ class BookEditionsView extends ConsumerWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailedEditionInfo(
-                              editionInfo: editionsList![index]!),
+                            editionInfo: editionsList![index]!,
+                            isNavigatingFromLibrary: false,
+                          ),
                         ));
                   },
                   child: Row(children: [
