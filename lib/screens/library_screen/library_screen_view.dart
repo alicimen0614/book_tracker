@@ -4,7 +4,6 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter/services.dart';
@@ -21,128 +20,22 @@ class LibraryScreenView extends ConsumerStatefulWidget {
 }
 
 class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
+  bool isDataLoading = false;
   ConnectivityResult connectivityResult = ConnectivityResult.none;
   bool isConnected = false;
-
-  Future<bool> checkForInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile) {
-      return true;
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      return true;
-    }
-    return false;
-  }
+  bool isUserAvailable = false;
+  List<BookWorkEditionsModelEntries>? listOfBooksFromFirestore = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
 
   @override
   void initState() {
-    checkForInternetConnection().then((internet) {
-      if (internet == true) {
-        if (isConnected == false) {
-          setState(() {
-            isConnected = true;
-          });
-        }
-
-        print("$isConnected -1");
-      } else {
-        if (isConnected == true) {
-          setState(() {
-            isConnected = false;
-          });
-        }
-
-        print("$isConnected -2");
-      }
-    });
+    getPageData();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<BookWorkEditionsModelEntries>? listOfBooksFromFirestore = [];
-    print("libraryscreen build çalıştı");
-
-    if (ref.read(authProvider).currentUser != null && isConnected != false) {
-      print("ilk if e girdi connectivity: $isConnected");
-      return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        future: ref
-            .read(firestoreProvider)
-            .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid),
-        builder: (context, firestoreSnapshot) {
-          if (firestoreSnapshot.connectionState == ConnectionState.done) {
-            print("firebase futurebuilder girdi");
-            listOfBooksFromFirestore = firestoreSnapshot.data!.docs
-                .map(
-                  (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-                )
-                .toList();
-
-            log(" if firebase lenght: ${listOfBooksFromFirestore!.length.toString()}");
-            //if there is a user logged in
-            return FutureBuilder(
-              future: _sqlHelper.getBookShelf(),
-              builder: (context, sqlSnapshot) {
-                if (sqlSnapshot.connectionState == ConnectionState.done) {
-                  print("sql futurebuilder girdi");
-                  log(" if sql lenght: ${sqlSnapshot.data!.length.toString()}");
-                  return defaultTabControllerBuilder(
-                      listOfBooksFromSql: sqlSnapshot.data,
-                      listOfBooksFromFirebase: listOfBooksFromFirestore,
-                      isUserAvailable: true);
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              },
-            );
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      );
-    } else {
-      print("else e girdi connectivity: $isConnected");
-      return FutureBuilder(
-        future: _sqlHelper.getBookShelf(),
-        builder: (context, sqlSnapshot) {
-          print("else sql futurebuilder girdi");
-          if (sqlSnapshot.connectionState == ConnectionState.done) {
-            log(" else sql lenght: ${sqlSnapshot.data!.length.toString()}");
-            return defaultTabControllerBuilder(
-                listOfBooksFromSql: sqlSnapshot.data, isUserAvailable: false);
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      );
-    }
-  }
-
-  DefaultTabController defaultTabControllerBuilder(
-      {List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase,
-      List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
-      required isUserAvailable}) {
-    List<String?>? listOfBookTitlesFromFirebase = [];
-    List<String?>? listOfBookTitlesFromSql = [];
-    listOfBooksFromFirebase != null
-        ? listOfBookTitlesFromFirebase =
-            listOfBooksFromFirebase.map((e) => e.title).toList()
-        : null;
-    listOfBooksFromSql != null
-        ? listOfBookTitlesFromSql =
-            listOfBooksFromSql.map((e) => e.title).toList()
-        : null;
-    if (isUserAvailable == true) {
-      insertingProcesses(listOfBookTitlesFromSql, listOfBookTitlesFromFirebase,
-          listOfBooksFromSql, listOfBooksFromFirebase);
-    }
-
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
@@ -167,59 +60,47 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 Tab(text: "Okuduklarım"),
               ]),
         ),
-        body: TabBarView(
-          children: [
-            tabBarViewItem(
-              "",
-              listOfBooksFromFirebase,
-              listOfBooksFromSql,
-            ),
-            tabBarViewItem("Şu an okuduklarım", listOfBooksFromFirebase,
-                listOfBooksFromSql),
-            tabBarViewItem("Okumak istediklerim", listOfBooksFromFirebase,
-                listOfBooksFromSql),
-            tabBarViewItem(
-                "Okuduklarım", listOfBooksFromFirebase, listOfBooksFromSql),
-          ],
-        ),
+        body: isDataLoading == true
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : TabBarView(
+                children: [
+                  tabBarViewItem(
+                    "",
+                  ),
+                  tabBarViewItem("Şu an okuduklarım"),
+                  tabBarViewItem("Okumak istediklerim"),
+                  tabBarViewItem("Okuduklarım"),
+                ],
+              ),
       ),
     );
   }
 
   ListView tabBarViewItem(
     String bookStatus,
-    List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase,
-    List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
   ) {
     //making a filter list for books(already read, want to read, currently reading)
     List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus;
     bookStatus != ""
-        ? listOfBooksFromFirebase != null
-            ? listOfTheCurrentBookStatus = listOfBooksFromFirebase
-                .where((element) => element.bookStatus == bookStatus)
-                .toList()
-            : listOfTheCurrentBookStatus = listOfBooksFromSql!
-                .where(
-                  (element) => element.bookStatus == bookStatus,
-                )
-                .toList()
-        : listOfTheCurrentBookStatus =
-            listOfBooksFromFirebase ?? listOfBooksFromSql;
+        ? listOfTheCurrentBookStatus = listOfBooksToShow!
+            .where((element) => element.bookStatus == bookStatus)
+            .toList()
+        : listOfTheCurrentBookStatus = listOfBooksToShow;
     ;
 
-    return bookContentBuilder(listOfTheCurrentBookStatus, listOfBooksFromSql);
+    return bookContentBuilder(listOfTheCurrentBookStatus);
   }
 
   ListView bookContentBuilder(
-    List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus,
-    List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
-  ) {
+      List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus) {
     //we create a list of titles from the books coming from sql
     int indexOfMatching = 0;
-    List<String?>? listOfBookTitlesFromSql = [];
+    List<int> listOfBookIdsFromSql = [];
     listOfBooksFromSql != null
-        ? listOfBookTitlesFromSql =
-            listOfBooksFromSql.map((e) => e.title).toList()
+        ? listOfBookIdsFromSql =
+            listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList()
         : null;
 
     print("bookContentBuilder çalıştı");
@@ -228,22 +109,18 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
           //in here we check if the book list from sql has the current book
-          indexOfMatching = listOfBookTitlesFromSql!.indexWhere(
-              (element) => element == listOfTheCurrentBookStatus[index].title);
+          indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
+              element == uniqueIdCreater(listOfTheCurrentBookStatus[index]));
           return InkWell(
             onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => DetailedEditionInfo(
-                        editionInfo: listOfTheCurrentBookStatus[index]),
+                      editionInfo: listOfTheCurrentBookStatus[index],
+                      isNavigatingFromLibrary: true,
+                    ),
                   ));
-            },
-            onLongPress: () async {
-              await deleteBook(listOfTheCurrentBookStatus, index)
-                  .whenComplete(() {
-                setState(() {});
-              });
             },
             child: Row(children: [
               listOfTheCurrentBookStatus[index].covers != null
@@ -273,7 +150,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                                 "lib/assets/images/error.png"),
                                   )
                                 : Image.network(
-                                    "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg"),
+                                    "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                  ),
                       ),
                     )
                   : Expanded(
@@ -350,19 +228,41 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
   }
 
+  Future<bool> checkForInternetConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      print("connected from mobile");
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      print("connected from wifi");
+      return true;
+    }
+
+    return false;
+  }
+
   Future<void> insertingProcesses(
-      List<String?> listOfBookTitlesFromSql,
-      List<String?> listOfBookTitlesFromFirebase,
       List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
       List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase) async {
-    for (var i = 0; i < listOfBookTitlesFromSql.length; i++) {
-      if (!listOfBookTitlesFromFirebase.contains(listOfBookTitlesFromSql[i])) {
+    List<int> listOfBookIdsFromFirebase = [];
+    List<int> listOfBookIdsFromSql = [];
+    listOfBooksFromFirebase != null
+        ? listOfBookIdsFromFirebase =
+            listOfBooksFromFirebase.map((e) => uniqueIdCreater(e)).toList()
+        : null;
+    listOfBooksFromSql != null
+        ? listOfBookIdsFromSql =
+            listOfBooksFromSql.map((e) => uniqueIdCreater(e)).toList()
+        : null;
+
+    for (var i = 0; i < listOfBookIdsFromSql.length; i++) {
+      if (!listOfBookIdsFromFirebase.contains(listOfBookIdsFromSql[i])) {
         await insertBookToFirebase(listOfBooksFromSql![i]);
       }
     }
 
-    for (var i = 0; i < listOfBookTitlesFromFirebase.length; i++) {
-      if (!listOfBookTitlesFromSql.contains(listOfBookTitlesFromFirebase[i])) {
+    for (var i = 0; i < listOfBookIdsFromFirebase.length; i++) {
+      if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
         await insertBookToSql(listOfBooksFromFirebase![i]);
       }
     }
@@ -381,6 +281,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     } else {
       await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, null);
     }
+    setState(() {});
   }
 
   Future<void> insertBookToFirebase(
@@ -402,5 +303,81 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         },
         userId: ref.read(authProvider).currentUser!.uid,
         uniqueBookId: uniqueIdCreater(bookInfo));
+    setState(() {});
+  }
+
+  Future<void> getPageData() async {
+    setState(() {
+      isDataLoading = true;
+    });
+
+    if (ref.read(authProvider).currentUser != null) {
+      isUserAvailable = true;
+    } else {
+      isUserAvailable = false;
+    }
+
+    checkForInternetConnection().then((internet) {
+      print(internet);
+      print("$isConnected -1");
+      if (internet == true) {
+        if (isConnected == false) {
+          setState(() {
+            isConnected = true;
+          });
+        }
+        print("$isConnected -2");
+      } else {
+        if (isConnected == true) {
+          setState(() {
+            isConnected = false;
+          });
+        }
+        print("$isConnected -3");
+      }
+    });
+
+    await getSqlBookList();
+
+    if (isUserAvailable == true && isConnected == true) {
+      await getFirestoreBookList();
+      setState(() {
+        isDataLoading = false;
+      });
+      await insertingProcesses(listOfBooksFromSql, listOfBooksFromFirestore);
+    } else {
+      setState(() {
+        isDataLoading = false;
+      });
+    }
+  }
+
+  Future<void> getFirestoreBookList() async {
+    var data = await ref
+        .read(firestoreProvider)
+        .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
+
+    listOfBooksFromFirestore = data.docs
+        .map(
+          (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+        )
+        .toList();
+
+    if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
+      listOfBooksToShow = data.docs
+          .map(
+            (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+          )
+          .toList();
+      print("gösterilen kitaplar firestore");
+    }
+  }
+
+  Future<void> getSqlBookList() async {
+    var data = await _sqlHelper.getBookShelf();
+
+    listOfBooksFromSql = data;
+    print("gösterilen kitaplar sql");
+    listOfBooksToShow = data;
   }
 }
