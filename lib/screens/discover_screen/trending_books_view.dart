@@ -100,7 +100,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => TrendingBookInfoView(
-                              book: item,
+                              trendingBook: item,
                             ),
                           ));
                     },

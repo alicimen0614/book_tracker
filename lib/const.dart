@@ -35,9 +35,9 @@ final List mainCategories = [
   "Religion & Spirituality"
 ];
 
-int uniqueIdCreater(BookWorkEditionsModelEntries bookEditionInfo) {
+int uniqueIdCreater(BookWorkEditionsModelEntries? bookEditionInfo) {
   int uniqueId;
-  if (bookEditionInfo.isbn_10 != null &&
+  if (bookEditionInfo!.isbn_10 != null &&
       int.tryParse(bookEditionInfo.isbn_10!.first!) != null) {
     uniqueId = int.parse(bookEditionInfo.isbn_10!.first!);
   } else if (bookEditionInfo.isbn_13 != null &&

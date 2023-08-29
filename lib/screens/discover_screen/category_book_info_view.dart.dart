@@ -138,6 +138,8 @@ class _DetailedTrendingBooksViewState
                         builder: (context) => DetailedEditionInfo(
                           editionInfo: editionsSnapshot.data![index]!,
                           isNavigatingFromLibrary: false,
+                          bookImage: Image.network(
+                              "https://covers.openlibrary.org/b/id/${editionsSnapshot.data![index]!.covers!.first}-M.jpg"),
                         ),
                       ));
                 },

@@ -1,3 +1,4 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,12 @@ class BookEditionsView extends ConsumerWidget {
                           builder: (context) => DetailedEditionInfo(
                             editionInfo: editionsList![index]!,
                             isNavigatingFromLibrary: false,
+                            bookImage: editionsList![index]!.covers != null
+                                ? Image.network(
+                                    "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                  )
+                                : null,
+                            indexOfEdition: index,
                           ),
                         ));
                   },
@@ -58,22 +65,27 @@ class BookEditionsView extends ConsumerWidget {
                         ? Expanded(
                             child: Card(
                               elevation: 18,
-                              child: Image.network(
-                                "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Image.asset("lib/assets/images/error.png"),
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  } else {
-                                    return Center(
-                                      child: Container(
-                                        color: Colors.grey.shade400,
-                                      ),
-                                    );
-                                  }
-                                },
+                              child: Hero(
+                                tag: uniqueIdCreater(editionsList![index]!) +
+                                    index,
+                                child: Image.network(
+                                  "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                          "lib/assets/images/error.png"),
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    } else {
+                                      return Center(
+                                        child: Container(
+                                          color: Colors.grey.shade400,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
                               ),
                             ),
                           )

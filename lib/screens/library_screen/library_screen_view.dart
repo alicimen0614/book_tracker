@@ -4,11 +4,13 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 
@@ -52,17 +54,48 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               tabs: [
                 Tab(
                   text: "Tümü",
+                  icon: Image.asset(
+                    "lib/assets/images/books.png",
+                    height: 35,
+                  ),
                 ),
-                Tab(text: "Şu an okuduklarım"),
                 Tab(
-                  text: "Okumak istediklerim",
-                ),
-                Tab(text: "Okuduklarım"),
+                    text: "Şu an okuduklarım",
+                    icon: Image.asset(
+                      "lib/assets/images/reading.png",
+                      height: 35,
+                    )),
+                Tab(
+                    text: "Okumak istediklerim",
+                    icon: Image.asset(
+                      "lib/assets/images/want_to_read.png",
+                      height: 35,
+                    )),
+                Tab(
+                    text: "Okuduklarım",
+                    icon: Image.asset(
+                      "lib/assets/images/alreadyread.png",
+                      height: 35,
+                    )),
               ]),
         ),
         body: isDataLoading == true
-            ? Center(
-                child: CircularProgressIndicator(),
+            ? GridView.builder(
+                padding: EdgeInsets.all(20),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.6,
+                    crossAxisSpacing: 25,
+                    mainAxisSpacing: 25),
+                itemBuilder: (context, index) {
+                  return Column(children: [
+                    ShimmerWidget.rectangular(width: 75, height: 100),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    ShimmerWidget.rectangular(width: 75, height: 10)
+                  ]);
+                },
               )
             : TabBarView(
                 children: [
@@ -78,7 +111,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     );
   }
 
-  ListView tabBarViewItem(
+  GridView tabBarViewItem(
     String bookStatus,
   ) {
     //making a filter list for books(already read, want to read, currently reading)
@@ -90,11 +123,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         : listOfTheCurrentBookStatus = listOfBooksToShow;
     ;
 
-    return bookContentBuilder(listOfTheCurrentBookStatus);
+    return bookContentBuilder(listOfTheCurrentBookStatus, bookStatus);
   }
 
-  ListView bookContentBuilder(
-      List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus) {
+  GridView bookContentBuilder(
+      List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus,
+      String bookStatus) {
     //we create a list of titles from the books coming from sql
     int indexOfMatching = 0;
     List<int> listOfBookIdsFromSql = [];
@@ -105,7 +139,14 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
     print("bookContentBuilder çalıştı");
 
-    return ListView.separated(
+    return GridView.builder(
+        physics: BouncingScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 0.6,
+          crossAxisSpacing: 25,
+          mainAxisSpacing: 25,
+        ),
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
           //in here we check if the book list from sql has the current book
@@ -117,22 +158,36 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => DetailedEditionInfo(
-                      editionInfo: listOfTheCurrentBookStatus[index],
-                      isNavigatingFromLibrary: true,
-                    ),
+                        editionInfo: listOfTheCurrentBookStatus[index],
+                        isNavigatingFromLibrary: true,
+                        bookImage: indexOfMatching != -1
+                            ? Image.memory(
+                                listOfBooksFromSql![index].imageAsByte!,
+                              )
+                            : Image.network(
+                                "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")),
                   ));
             },
-            child: Row(children: [
+            child: Column(children: [
               listOfTheCurrentBookStatus[index].covers != null
                   ? Expanded(
                       child: Card(
                         elevation: 18,
                         child: listOfTheCurrentBookStatus[index].imageAsByte !=
                                 null
-                            ? Image.memory(
-                                listOfTheCurrentBookStatus[index].imageAsByte!,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Image.asset("lib/assets/images/error.png"),
+                            ? Hero(
+                                placeholderBuilder:
+                                    (context, heroSize, child) =>
+                                        SizedBox.shrink(),
+                                tag: uniqueIdCreater(
+                                    listOfTheCurrentBookStatus[index]),
+                                child: Image.memory(
+                                  listOfTheCurrentBookStatus[index]
+                                      .imageAsByte!,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                          "lib/assets/images/error.png"),
+                                ),
                               )
                             /* if there is a list of books coming from firebase it doesn't
                               have the imageAsByte value and we checked above if the sqlbooklist
@@ -141,28 +196,36 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                             it in here if we have the book in sql show it from local 
                             if it doesn't have it show it from network */
                             : indexOfMatching != -1
-                                ? Image.memory(
-                                    listOfBooksFromSql![indexOfMatching]
-                                        .imageAsByte!,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Image.asset(
-                                                "lib/assets/images/error.png"),
+                                ? Hero(
+                                    placeholderBuilder:
+                                        (context, heroSize, child) =>
+                                            SizedBox.shrink(),
+                                    tag: uniqueIdCreater(
+                                        listOfBooksFromSql![indexOfMatching]),
+                                    child: Image.memory(
+                                      listOfBooksFromSql![indexOfMatching]
+                                          .imageAsByte!,
+                                      errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png"),
+                                    ),
                                   )
-                                : Image.network(
-                                    "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      } else {
-                                        return Center(
-                                          child: Container(
-                                            color: Colors.grey.shade400,
-                                          ),
-                                        );
-                                      }
-                                    },
+                                : Hero(
+                                    placeholderBuilder:
+                                        (context, heroSize, child) =>
+                                            SizedBox.shrink(),
+                                    tag: uniqueIdCreater(
+                                        listOfTheCurrentBookStatus[index]),
+                                    child: FadeInImage.memoryNetwork(
+                                      image:
+                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                      placeholder: kTransparentImage,
+                                      imageErrorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png"),
+                                    ),
                                   ),
                       ),
                     )
@@ -171,60 +234,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               const SizedBox(
                 width: 10,
               ),
-              Column(
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      listOfTheCurrentBookStatus[index].title!,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  SizedBox(
-                      width: 200,
-                      child: listOfTheCurrentBookStatus[index].numberOfPages !=
-                              null
-                          ? Text(
-                              listOfTheCurrentBookStatus[index]
-                                  .numberOfPages
-                                  .toString(),
-                              style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontStyle: FontStyle.italic),
-                              textAlign: TextAlign.center,
-                            )
-                          : SizedBox.shrink()),
-                  SizedBox(
-                      width: 150,
-                      child:
-                          listOfTheCurrentBookStatus[index].publishers != null
-                              ? Text(
-                                  listOfTheCurrentBookStatus[index]
-                                      .publishers!
-                                      .first!,
-                                  style: const TextStyle(
-                                      color: Colors.black, fontSize: 15),
-                                  textAlign: TextAlign.center,
-                                )
-                              : const SizedBox.shrink()),
-                  SizedBox(
-                      width: 200,
-                      child: Text(
-                        listOfTheCurrentBookStatus[index].bookStatus!,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontStyle: FontStyle.normal,
-                            fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                      ))
-                ],
-              )
+              SizedBox(
+                width: 200,
+                child: Text(
+                  listOfTheCurrentBookStatus[index].title!,
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ]),
           );
         },
-        separatorBuilder: (context, index) => Divider(),
         itemCount: listOfTheCurrentBookStatus!.length);
   }
 

@@ -16,10 +16,14 @@ class DetailedEditionInfo extends ConsumerStatefulWidget {
   DetailedEditionInfo(
       {super.key,
       required this.editionInfo,
-      required this.isNavigatingFromLibrary});
+      required this.isNavigatingFromLibrary,
+      required this.bookImage,
+      this.indexOfEdition = 0});
 
   final bool isNavigatingFromLibrary;
   final BookWorkEditionsModelEntries editionInfo;
+  final Image? bookImage;
+  final int indexOfEdition;
 
   @override
   ConsumerState<DetailedEditionInfo> createState() =>
@@ -96,14 +100,14 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 ? Align(
                     alignment: Alignment.center,
                     child: Card(
-                      elevation: 18,
-                      child: Image.network(
-                        "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg",
-                        errorBuilder: (context, error, stackTrace) =>
-                            Image.asset("lib/assets/images/error.png"),
-                        height: 200,
-                      ),
-                    ),
+                        elevation: 18,
+                        child: Hero(
+                            tag: uniqueIdCreater(widget.editionInfo) +
+                                widget.indexOfEdition,
+                            child: widget.bookImage != null
+                                ? widget.bookImage!
+                                : Image.asset(
+                                    "lib/assets/images/nocover.jpg"))),
                   )
                 : Align(
                     alignment: Alignment.center,
@@ -516,7 +520,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 ),
               if (widget.editionInfo.isbn_10 != null)
                 Text(
-                  "isbn 10",
+                  "Isbn 10",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -539,7 +543,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 ),
               if (widget.editionInfo.isbn_13 != null)
                 Text(
-                  "isbn 13",
+                  "Isbn 13",
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -554,6 +558,29 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
                       widget.editionInfo.isbn_13!.first!,
+                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                    )),
+              if (widget.editionInfo.bookStatus != null)
+                SizedBox(
+                  height: 20,
+                ),
+              if (widget.editionInfo.bookStatus != null)
+                Text(
+                  "Kitap durumu",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+              if (widget.editionInfo.bookStatus != null)
+                SizedBox(
+                  height: 20,
+                ),
+              if (widget.editionInfo.bookStatus != null)
+                SizedBox(
+                    width: MediaQuery.sizeOf(context).width - 40,
+                    child: Text(
+                      widget.editionInfo.bookStatus!,
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
             ],

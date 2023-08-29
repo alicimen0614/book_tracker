@@ -154,7 +154,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
                                         return TrendingBookInfoView(
-                                            book: items![index]);
+                                            trendingBook: items![index]);
                                       },
                                     ));
                                   },
