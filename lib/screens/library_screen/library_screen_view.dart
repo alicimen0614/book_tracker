@@ -151,6 +151,18 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                   )
                                 : Image.network(
                                     "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      } else {
+                                        return Center(
+                                          child: Container(
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        );
+                                      }
+                                    },
                                   ),
                       ),
                     )

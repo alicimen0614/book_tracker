@@ -62,6 +62,18 @@ class BookEditionsView extends ConsumerWidget {
                                 "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
                                 errorBuilder: (context, error, stackTrace) =>
                                     Image.asset("lib/assets/images/error.png"),
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: Container(
+                                        color: Colors.grey.shade400,
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                             ),
                           )

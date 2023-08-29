@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/trending_book_info_view.dart';
+import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class TrendingBooksView extends ConsumerStatefulWidget {
   const TrendingBooksView({super.key, required this.date});
@@ -18,12 +20,13 @@ class TrendingBooksView extends ConsumerStatefulWidget {
 
 class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
   List<TrendingBooksWorks?>? itemList = [];
-  Image getBookCover(TrendingBooksWorks? work) {
+  Widget getBookCover(TrendingBooksWorks? work) {
     if (work!.coverI != null) {
       log("https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg");
-      return Image.network(
-        "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
-        errorBuilder: (context, error, stackTrace) =>
+      return FadeInImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        image: "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
+        imageErrorBuilder: (context, error, stackTrace) =>
             Image.asset("lib/assets/images/error.png"),
       );
     } else {
@@ -80,8 +83,14 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
           elevation: 5,
         ),
         body: PagedGridView<int, TrendingBooksWorks?>(
+            physics: BouncingScrollPhysics(),
+            showNewPageProgressIndicatorAsGridChild: false,
+            showNoMoreItemsIndicatorAsGridChild: false,
             pagingController: pagingController,
             builderDelegate: PagedChildBuilderDelegate<TrendingBooksWorks?>(
+              firstPageProgressIndicatorBuilder: (context) {
+                return shimmerEffectBuilder();
+              },
               itemBuilder: (context, item, index) {
                 return Padding(
                   padding: const EdgeInsets.all(10),
@@ -117,6 +126,32 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                 mainAxisExtent: 250,
                 crossAxisSpacing: 25,
                 mainAxisSpacing: 25)),
+      ),
+    );
+  }
+
+  SizedBox shimmerEffectBuilder() {
+    return SizedBox(
+      height: 500,
+      width: 500,
+      child: GridView.builder(
+        physics: BouncingScrollPhysics(),
+        itemCount: 12,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 25,
+            childAspectRatio: 0.5,
+            mainAxisSpacing: 25),
+        itemBuilder: (context, index) => Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(children: [
+            ShimmerWidget.rectangular(width: 180, height: 150),
+            SizedBox(
+              height: 5,
+            ),
+            ShimmerWidget.rectangular(width: 180, height: 10)
+          ]),
+        ),
       ),
     );
   }

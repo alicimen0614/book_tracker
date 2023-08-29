@@ -20,7 +20,17 @@ class TrendingBookInfoView extends ConsumerStatefulWidget {
 }
 
 class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
+  bool isDataLoading = false;
+  List<BookWorkEditionsModelEntries?>? editionsList = [];
   bool textShowMore = false;
+  BookWorkModel bookWorkModel = BookWorkModel();
+
+  @override
+  void initState() {
+    getPageData();
+    super.initState();
+  }
+
   @override
   Widget build(
     BuildContext context,
@@ -28,62 +38,40 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
     print(widget.book!.language);
     return SafeArea(
         child: Scaffold(
-      appBar: AppBar(
-        leadingWidth: 50,
-        leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 30,
-            )),
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
-        elevation: 5,
-      ),
-      body: FutureBuilder(
-          future: ref
-              .read(booksProvider)
-              .bookEditionsEntriesList(widget.book!.key!),
-          builder: (context, editionsSnapshot) {
-            if (editionsSnapshot.hasData) {
-              return FutureBuilder(
-                  future: ref
-                      .read(booksProvider)
-                      .getBooksWorkModel(widget.book!.key!),
-                  builder: (context, workSnapshot) {
-                    if (workSnapshot.hasData) {
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                        child: Column(
-                          children: [
-                            bookInfoBarBuilder(workSnapshot),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            bookInfoBodyBuilder(workSnapshot, editionsSnapshot),
-                          ],
+            appBar: AppBar(
+              leadingWidth: 50,
+              leading: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 30,
+                  )),
+              automaticallyImplyLeading: false,
+              backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+              elevation: 5,
+            ),
+            body: isDataLoading == false
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                    child: Column(
+                      children: [
+                        bookInfoBarBuilder(),
+                        const SizedBox(
+                          height: 15,
                         ),
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  });
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          }),
-    ));
+                        bookInfoBodyBuilder(),
+                      ],
+                    ),
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
+                  )));
   }
 
-  Expanded bookInfoBodyBuilder(AsyncSnapshot<BookWorkModel> snapshot,
-      AsyncSnapshot<List<BookWorkEditionsModelEntries?>?> editionsSnapshot) {
-    bool isThereMoreEditionsThanFive = editionsSnapshot.data!.length > 5;
+  Expanded bookInfoBodyBuilder() {
+    bool isThereMoreEditionsThanFive = editionsList!.length > 5;
     print(isThereMoreEditionsThanFive);
-    int itemCount = editionsSnapshot.data!.length;
+    int itemCount = editionsList!.length;
     print("$itemCount-1");
     return Expanded(
       child: Scrollbar(
@@ -93,18 +81,18 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
           physics: BouncingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            snapshot.data!.description != null
-                ? descriptionInfoBuilder(snapshot)
+            bookWorkModel.description != null
+                ? descriptionInfoBuilder()
                 : const SizedBox.shrink(),
             widget.book!.language != null
                 ? availableLanguagesBuilder()
                 : SizedBox.shrink(),
-            snapshot.data!.firstSentence != null
-                ? firstSentenceBuilder(snapshot)
+            bookWorkModel.firstSentence != null
+                ? firstSentenceBuilder()
                 : const SizedBox.shrink(),
             isThereMoreEditionsThanFive == true
-                ? editionsBuilder(editionsSnapshot, 5)
-                : editionsBuilder(editionsSnapshot, itemCount)
+                ? editionsBuilder(5)
+                : editionsBuilder(itemCount)
           ]),
         ),
       ),
@@ -180,9 +168,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
     );
   }
 
-  Column editionsBuilder(
-      AsyncSnapshot<List<BookWorkEditionsModelEntries?>?> editionsSnapshot,
-      int itemCount) {
+  Column editionsBuilder(int itemCount) {
     return Column(
       children: [
         const Align(
@@ -214,16 +200,16 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailedEditionInfo(
-                          editionInfo: editionsSnapshot.data![index]!,
+                          editionInfo: editionsList![index]!,
                           isNavigatingFromLibrary: false,
                         ),
                       ));
                 },
                 child: Column(children: [
                   Expanded(
-                      child: editionsSnapshot.data![index]!.covers != null
+                      child: editionsList![index]!.covers != null
                           ? Image.network(
-                              "https://covers.openlibrary.org/b/id/${editionsSnapshot.data![index]!.covers!.first}-M.jpg",
+                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
                               errorBuilder: (context, error, stackTrace) =>
                                   Image.asset("lib/assets/images/error.png"),
                             )
@@ -231,7 +217,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                   SizedBox(
                     width: 75,
                     child: Text(
-                      editionsSnapshot.data![index]!.title!,
+                      editionsList![index]!.title!,
                       maxLines: 2,
                       textAlign: TextAlign.center,
                     ),
@@ -248,19 +234,19 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return BookEditionsView(
-                        editionsList: editionsSnapshot.data,
+                        editionsList: editionsList!,
                         title: widget.book!.title!,
                       );
                     },
                   ));
                 },
-                child: Text(
-                    "${editionsSnapshot.data!.length} Baskının Tümünü Görüntüle")))
+                child:
+                    Text("${editionsList!.length} Baskının Tümünü Görüntüle")))
       ],
     );
   }
 
-  Column firstSentenceBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
+  Column firstSentenceBuilder() {
     return Column(
       children: [
         const Align(
@@ -275,13 +261,16 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
         const SizedBox(
           height: 10,
         ),
-        Text(snapshot.data!.firstSentence!.value!),
+        Text(bookWorkModel.firstSentence!.value!),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     );
   }
 
-  Column descriptionInfoBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
-    String textAsString = snapshot.data!.description!.replaceRange(0, 26, "");
+  Column descriptionInfoBuilder() {
+    String textAsString = bookWorkModel.description!.replaceRange(0, 26, "");
 
     return Column(
       children: [
@@ -308,18 +297,18 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                   model if it was a map it was starting with  "{type: /type/text, value: " so it is 26 characters and ı used replaceRange
                   method and if it was a map that is coming from api "{type: /type/text, value: " was being deleted and the last character "}" 
                   was also being deleted*/
-                    snapshot.data!.description!.startsWith("{")
+                    bookWorkModel.description!.startsWith("{")
                         ? textAsString.replaceRange(
                             textAsString.length - 1, textAsString.length, "")
-                        : snapshot.data!.description!,
+                        : bookWorkModel.description!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                   )
                 : Text(
-                    snapshot.data!.description!.startsWith("{")
+                    bookWorkModel.description!.startsWith("{")
                         ? textAsString.replaceRange(
                             textAsString.length - 1, textAsString.length, "")
-                        : snapshot.data!.description!,
+                        : bookWorkModel.description!,
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -337,7 +326,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
     );
   }
 
-  Row bookInfoBarBuilder(AsyncSnapshot<BookWorkModel> snapshot) {
+  Row bookInfoBarBuilder() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -372,11 +361,11 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
               Container(
                 height: 50,
                 width: 200,
-                child: snapshot.data!.subjects != null
+                child: bookWorkModel.subjects != null
                     ? ListView.builder(
                         physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
-                        itemCount: snapshot.data!.subjects!.length,
+                        itemCount: bookWorkModel.subjects!.length,
                         itemBuilder: (context, index) {
                           return TextButton(
                               onPressed: () {
@@ -385,11 +374,11 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           DetailedCategoriesView(
-                                              categoryName: snapshot
-                                                  .data!.subjects![index]!),
+                                              categoryName: bookWorkModel
+                                                  .subjects![index]!),
                                     ));
                               },
-                              child: Text(snapshot.data!.subjects![index]!));
+                              child: Text(bookWorkModel.subjects![index]!));
                         })
                     : const SizedBox.shrink(),
               )
@@ -398,5 +387,29 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
         )
       ],
     );
+  }
+
+  Future<void> getPageData() async {
+    setState(() {
+      isDataLoading = true;
+    });
+
+    await getBookEditionEntriesList();
+    await getBookWorkModel();
+
+    setState(() {
+      isDataLoading = false;
+    });
+  }
+
+  Future<void> getBookEditionEntriesList() async {
+    editionsList = await ref
+        .read(booksProvider)
+        .bookEditionsEntriesList(widget.book!.key!);
+  }
+
+  Future<void> getBookWorkModel() async {
+    bookWorkModel =
+        await ref.read(booksProvider).getBooksWorkModel(widget.book!.key!);
   }
 }

@@ -67,7 +67,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
       if (getCurrentUser(ref)!.displayName == null) {
         return const Text("Ziyaretçi");
       } else {
-        return Text(getCurrentUser(ref)!.displayName!);
+        return Text(
+          getCurrentUser(ref)!.displayName!,
+          style: TextStyle(fontSize: 20),
+        );
       }
     }
   }
@@ -81,98 +84,96 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
 
     return SafeArea(
         child: Scaffold(
-            appBar: AppBar(
-                title: getAppBarTitle(ref),
-                leading: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: getAppBarLeading(ref),
-                ),
-                leadingWidth: 50,
-                actions: [
-                  isUserLoggedIn == true
-                      ? IconButton(
-                          onPressed: () async {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text("BookTracker"),
-                                  content: const Text(
-                                      "Çıkış yapmak istediğinizden emin misiniz?"),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("Vazgeç")),
-                                    TextButton(
-                                        onPressed: () {
-                                          print("$isUserLoggedIn -2");
+            body: Center(
+      child: Padding(
+          padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+          child: Column(
+            children: [
+              if (isUserLoggedIn == true)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                      color: Colors.white,
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("BookTracker"),
+                              content: const Text(
+                                  "Çıkış yapmak istediğinizden emin misiniz?"),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Vazgeç")),
+                                TextButton(
+                                    onPressed: () {
+                                      print("$isUserLoggedIn -2");
 
-                                          ref
-                                              .read(authProvider)
-                                              .signOut()
-                                              .whenComplete(() {
-                                            setState(() {
-                                              isUserLoggedIn = false;
-                                            });
-                                          });
-                                          Navigator.pop(context);
-                                          print("$isUserLoggedIn -3");
-                                        },
-                                        child: const Text("Çıkış yap"))
-                                  ],
-                                );
-                              },
+                                      ref
+                                          .read(authProvider)
+                                          .signOut()
+                                          .whenComplete(() {
+                                        setState(() {
+                                          isUserLoggedIn = false;
+                                        });
+                                      });
+                                      Navigator.pop(context);
+                                      print("$isUserLoggedIn -3");
+                                    },
+                                    child: const Text("Çıkış yap"))
+                              ],
                             );
                           },
-                          icon: const Icon(
-                            Icons.exit_to_app_sharp,
-                            size: 25,
-                          ))
-                      : const SizedBox.shrink()
-                ],
-                backgroundColor: const Color.fromRGBO(195, 129, 84, 1)),
-            body: Center(
-              child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    children: [
-                      isUserLoggedIn == false
-                          ? AnimatedButton(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AuthView(
-                                          formStatusData: FormStatus.signIn),
-                                    ));
-                              },
-                              text: "Giriş Yap",
-                              widthSize: 250,
-                              backgroundColor:
-                                  const Color.fromRGBO(136, 74, 57, 1))
-                          : const SizedBox.shrink(),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      isUserLoggedIn == false
-                          ? AnimatedButton(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AuthView(
-                                          formStatusData: FormStatus.register),
-                                    ));
-                              },
-                              text: "Üye Ol",
-                              widthSize: 250,
-                              backgroundColor:
-                                  const Color.fromRGBO(204, 149, 68, 1))
-                          : const SizedBox.shrink()
-                    ],
-                  )),
-            )));
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.exit_to_app_sharp,
+                        size: 25,
+                      )),
+                ),
+              if (isUserLoggedIn == false)
+                AnimatedButton(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AuthView(formStatusData: FormStatus.signIn),
+                          ));
+                    },
+                    text: "Giriş Yap",
+                    widthSize: 250,
+                    backgroundColor: const Color.fromRGBO(136, 74, 57, 1))
+              else
+                Column(children: [
+                  getAppBarLeading(ref),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  getAppBarTitle(ref)
+                ]),
+              const SizedBox(
+                height: 5,
+              ),
+              isUserLoggedIn == false
+                  ? AnimatedButton(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AuthView(formStatusData: FormStatus.register),
+                            ));
+                      },
+                      text: "Üye Ol",
+                      widthSize: 250,
+                      backgroundColor: const Color.fromRGBO(204, 149, 68, 1))
+                  : const SizedBox.shrink()
+            ],
+          )),
+    )));
   }
 }

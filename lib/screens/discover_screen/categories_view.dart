@@ -4,8 +4,10 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/trending_book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
+import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class CategoriesView extends ConsumerStatefulWidget {
   const CategoriesView({super.key});
@@ -24,7 +26,9 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   }
 
   Future<void> getTrendingBooks() async {
-    isLoading = true;
+    setState(() {
+      isLoading = true;
+    });
     items = await ref
         .read(booksProvider)
         .trendingBookDocsList("monthly", 1)
@@ -144,7 +148,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                           return Padding(
                             padding: const EdgeInsets.all(10),
                             child: SizedBox(
-                              width: 100,
+                              width: 85,
                               child: InkWell(
                                   onTap: () {
                                     Navigator.push(context, MaterialPageRoute(
@@ -156,9 +160,11 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                   },
                                   child: Column(
                                     children: [
-                                      Image.network(
-                                        "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg",
-                                        errorBuilder: (context, error,
+                                      FadeInImage.memoryNetwork(
+                                        image:
+                                            "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg",
+                                        placeholder: kTransparentImage,
+                                        imageErrorBuilder: (context, error,
                                                 stackTrace) =>
                                             Image.asset(
                                                 "lib/assets/images/error.png"),
@@ -172,12 +178,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                             ),
                           );
                         }))
-                : const SizedBox(
-                    height: 100,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
+                : shimmerEffectBuilder(),
             const Text(
               "Kategoriler",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -188,6 +189,31 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
           ],
         ),
       ),
+    );
+  }
+
+  Container shimmerEffectBuilder() {
+    return Container(
+      height: 100,
+      width: double.infinity,
+      child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          separatorBuilder: (context, index) => SizedBox(
+                width: 25,
+              ),
+          itemCount: 10,
+          itemBuilder: (context, index) => SizedBox(
+              width: 85,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(children: [
+                  ShimmerWidget.rectangular(width: 40, height: 58),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  ShimmerWidget.rectangular(width: 75, height: 10)
+                ]),
+              ))),
     );
   }
 }
