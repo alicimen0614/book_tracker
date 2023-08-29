@@ -1,5 +1,8 @@
+import 'package:book_tracker/const.dart';
+import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
+import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
@@ -9,24 +12,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
-class TrendingBookInfoView extends ConsumerStatefulWidget {
-  const TrendingBookInfoView({super.key, required this.book});
+class BookInfoView extends ConsumerStatefulWidget {
+  const BookInfoView(
+      {super.key, this.trendingBook, this.categoryBook, this.searchBook});
 
-  final TrendingBooksWorks? book;
+  final TrendingBooksWorks? trendingBook;
+  final CategoryBooksWorks? categoryBook;
+  final BooksModelDocs? searchBook;
 
   @override
-  ConsumerState<TrendingBookInfoView> createState() =>
-      _TrendingBookInfoViewState();
+  ConsumerState<BookInfoView> createState() => _BookInfoViewState();
 }
 
-class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
+class _BookInfoViewState extends ConsumerState<BookInfoView> {
+  var mainBook;
   bool isDataLoading = false;
   List<BookWorkEditionsModelEntries?>? editionsList = [];
-  bool textShowMore = false;
+  bool textShowMoreForDescription = false;
   BookWorkModel bookWorkModel = BookWorkModel();
+  bool textShowMoreForFirstSentence = false;
 
   @override
   void initState() {
+    mainBook = widget.categoryBook != null
+        ? widget.categoryBook
+        : widget.searchBook != null
+            ? widget.searchBook
+            : widget.trendingBook;
     getPageData();
     super.initState();
   }
@@ -35,7 +47,6 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
   Widget build(
     BuildContext context,
   ) {
-    print(widget.book!.language);
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(
@@ -84,9 +95,12 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
             bookWorkModel.description != null
                 ? descriptionInfoBuilder()
                 : const SizedBox.shrink(),
-            widget.book!.language != null
-                ? availableLanguagesBuilder()
-                : SizedBox.shrink(),
+            if ((mainBook.runtimeType == TrendingBooksWorks &&
+                    mainBook.language != null) ||
+                (mainBook.runtimeType == BooksModelDocs &&
+                    mainBook.language != null))
+              availableLanguagesBuilder(),
+            if (mainBook.runtimeType == CategoryBooksWorks) SizedBox.shrink(),
             bookWorkModel.firstSentence != null
                 ? firstSentenceBuilder()
                 : const SizedBox.shrink(),
@@ -135,20 +149,20 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
               width: 10,
             ),
             scrollDirection: Axis.horizontal,
-            itemCount: widget.book!.language!.length,
+            itemCount: mainBook!.language!.length,
             itemBuilder: (context, index) {
               /* Some of the language codes coming from the api didn't match with the codes in the package but they matched with the bibliographiccode
                       so ı've searched within the list of languages that matches the language code coming from api and the package's bibliographiccode */
               int indexOfBibliographicCode = NaturalLanguage.list.indexWhere(
                   (element) =>
-                      widget.book!.language![index]!.toUpperCase() ==
+                      mainBook!.language![index]!.toUpperCase() ==
                       element.bibliographicCode);
 
               if (NaturalLanguage.maybeFromValue(
-                      widget.book!.language![index]!.toUpperCase()) !=
+                      mainBook!.language![index]!.toUpperCase() as String) !=
                   null) {
                 String country = NaturalLanguage.maybeFromValue(
-                  widget.book!.language![index]!.toUpperCase(),
+                  mainBook!.language![index]!.toUpperCase() as String,
                 )!
                     .name;
                 return Text(country);
@@ -156,7 +170,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                 return Text(
                     NaturalLanguage.list[indexOfBibliographicCode].name);
               } else {
-                return Text(widget.book!.language![index]!);
+                return Text(mainBook!.language![index]!);
               }
             },
           ),
@@ -202,16 +216,27 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                         builder: (context) => DetailedEditionInfo(
                           editionInfo: editionsList![index]!,
                           isNavigatingFromLibrary: false,
+                          bookImage: editionsList![index]!.covers != null
+                              ? Image.network(
+                                  "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg")
+                              : null,
+                          indexOfEdition: index,
                         ),
                       ));
                 },
                 child: Column(children: [
                   Expanded(
                       child: editionsList![index]!.covers != null
-                          ? Image.network(
-                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset("lib/assets/images/error.png"),
+                          ? Hero(
+                              placeholderBuilder: (context, heroSize, child) =>
+                                  Container(),
+                              tag:
+                                  uniqueIdCreater(editionsList![index]) + index,
+                              child: Image.network(
+                                "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset("lib/assets/images/error.png"),
+                              ),
                             )
                           : Image.asset("lib/assets/images/nocover.jpg")),
                   SizedBox(
@@ -235,7 +260,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                     builder: (context) {
                       return BookEditionsView(
                         editionsList: editionsList!,
-                        title: widget.book!.title!,
+                        title: mainBook!.title!,
                       );
                     },
                   ));
@@ -261,9 +286,24 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
         const SizedBox(
           height: 10,
         ),
-        Text(bookWorkModel.firstSentence!.value!),
-        const SizedBox(
-          height: 10,
+        textShowMoreForFirstSentence == false
+            ? Text(
+                bookWorkModel.firstSentence!.value!,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+              )
+            : Text(bookWorkModel.firstSentence!.value!),
+        Align(
+          alignment: Alignment.topRight,
+          child: TextButton(
+              onPressed: () {
+                setState(() {
+                  textShowMoreForFirstSentence = !textShowMoreForFirstSentence;
+                });
+              },
+              child: textShowMoreForFirstSentence == false
+                  ? const Text("Daha fazla")
+                  : const Text("Daha az")),
         ),
       ],
     );
@@ -290,7 +330,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
             ),
-            child: textShowMore == false
+            child: textShowMoreForDescription == false
                 ? Text(
                     /* There is an issue with the api that is the description comes sometimes as String and sometimes as Map<String,Dynamic> with
                   type and value properties to fix this ı've made a easy solution that is first ı've converted the variable to String on my
@@ -315,10 +355,10 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
           child: TextButton(
               onPressed: () {
                 setState(() {
-                  textShowMore = !textShowMore;
+                  textShowMoreForDescription = !textShowMoreForDescription;
                 });
               },
-              child: textShowMore == false
+              child: textShowMoreForDescription == false
                   ? const Text("Daha fazla")
                   : const Text("Daha az")),
         ),
@@ -335,7 +375,7 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
           child: Container(
             color: Colors.teal,
             child: Image.network(
-              "https://covers.openlibrary.org/b/id/${widget.book!.coverI}-M.jpg",
+              "https://covers.openlibrary.org/b/id/${mainBook.runtimeType == CategoryBooksWorks ? mainBook!.coverId : mainBook!.coverI}-M.jpg",
               errorBuilder: (context, error, stackTrace) =>
                   Image.asset("lib/assets/images/error.png"),
             ),
@@ -349,14 +389,22 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(
                   child: Text(
-                    widget.book!.title!,
+                    mainBook!.title!,
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 ),
               ),
-              Text(widget.book!.authorName!.first!,
-                  style: const TextStyle(color: Colors.grey, fontSize: 16)),
+              if ((mainBook.runtimeType == TrendingBooksWorks &&
+                      mainBook.authorName != null) ||
+                  (mainBook.runtimeType == BooksModelDocs &&
+                      mainBook.authorName != null))
+                Text(mainBook!.authorName!.first!,
+                    style: const TextStyle(color: Colors.grey, fontSize: 16)),
+              if (mainBook.runtimeType == CategoryBooksWorks &&
+                  mainBook!.authors != null)
+                Text(mainBook!.authors!.first!.name!,
+                    style: const TextStyle(color: Colors.grey, fontSize: 16)),
               const SizedBox(height: 10),
               Container(
                 height: 50,
@@ -403,13 +451,12 @@ class _TrendingBookInfoViewState extends ConsumerState<TrendingBookInfoView> {
   }
 
   Future<void> getBookEditionEntriesList() async {
-    editionsList = await ref
-        .read(booksProvider)
-        .bookEditionsEntriesList(widget.book!.key!);
+    editionsList =
+        await ref.read(booksProvider).bookEditionsEntriesList(mainBook!.key!);
   }
 
   Future<void> getBookWorkModel() async {
     bookWorkModel =
-        await ref.read(booksProvider).getBooksWorkModel(widget.book!.key!);
+        await ref.read(booksProvider).getBooksWorkModel(mainBook!.key!);
   }
 }

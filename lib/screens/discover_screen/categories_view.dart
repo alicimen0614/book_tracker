@@ -2,7 +2,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
-import 'package:book_tracker/screens/discover_screen/trending_book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
@@ -153,7 +153,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                   onTap: () {
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
-                                        return TrendingBookInfoView(
+                                        return BookInfoView(
                                             trendingBook: items![index]);
                                       },
                                     ));

@@ -1,5 +1,5 @@
 import 'package:book_tracker/providers/riverpod_management.dart';
-import 'package:book_tracker/screens/discover_screen/search_book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -138,7 +138,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SearchBookInfoView(book: item),
+                    builder: (context) => BookInfoView(searchBook: item),
                   ));
             },
             child: Row(

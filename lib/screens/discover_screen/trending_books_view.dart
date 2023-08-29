@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
-import 'package:book_tracker/screens/discover_screen/trending_book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,7 +99,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TrendingBookInfoView(
+                            builder: (context) => BookInfoView(
                               trendingBook: item,
                             ),
                           ));

@@ -1,6 +1,6 @@
 import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
-import 'package:book_tracker/screens/discover_screen/category_book_info_view.dart.dart';
+import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,7 +91,7 @@ class _DetailedCategoriesViewState
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                CategoryBookInfoView(book: item),
+                                BookInfoView(categoryBook: item),
                           ));
                     },
                     child: Column(children: [
