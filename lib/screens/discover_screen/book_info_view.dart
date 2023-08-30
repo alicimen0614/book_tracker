@@ -8,6 +8,7 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
@@ -74,9 +75,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                       ],
                     ),
                   )
-                : Center(
-                    child: CircularProgressIndicator(),
-                  )));
+                : shimmerEffectBuilder()));
   }
 
   Expanded bookInfoBodyBuilder() {
@@ -423,6 +422,8 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                       builder: (context) =>
                                           DetailedCategoriesView(
                                               categoryName: bookWorkModel
+                                                  .subjects![index]!,
+                                              categoryKey: bookWorkModel
                                                   .subjects![index]!),
                                     ));
                               },
@@ -458,5 +459,147 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   Future<void> getBookWorkModel() async {
     bookWorkModel =
         await ref.read(booksProvider).getBooksWorkModel(mainBook!.key!);
+  }
+
+  Padding shimmerEffectBuilder() {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ShimmerWidget.rectangular(width: 125, height: 170),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ShimmerWidget.rectangular(width: 150, height: 20),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ShimmerWidget.rectangular(width: 100, height: 15),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      ShimmerWidget.rectangular(width: 50, height: 10),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      ShimmerWidget.rectangular(width: 50, height: 10)
+                    ],
+                  )
+                ],
+              )
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ShimmerWidget.rectangular(width: 50, height: 13),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ListView.separated(
+              shrinkWrap: true,
+              itemBuilder: (context, index) => ShimmerWidget.rectangular(
+                  width: MediaQuery.sizeOf(context).width - 40, height: 10),
+              separatorBuilder: (context, index) => SizedBox(height: 10),
+              itemCount: 5),
+          SizedBox(
+            height: 20,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: ShimmerWidget.rectangular(width: 50, height: 10),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ShimmerWidget.rectangular(width: 70, height: 13),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+            height: 10,
+            child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) => ShimmerWidget.rectangular(
+                    width: MediaQuery.sizeOf(context).width - 40, height: 10),
+                separatorBuilder: (context, index) => SizedBox(height: 10),
+                itemCount: 5),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ShimmerWidget.rectangular(width: 70, height: 13),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          ListView.separated(
+              shrinkWrap: true,
+              itemBuilder: (context, index) => ShimmerWidget.rectangular(
+                  width: MediaQuery.sizeOf(context).width - 40, height: 10),
+              separatorBuilder: (context, index) => SizedBox(height: 10),
+              itemCount: 5),
+          SizedBox(
+            height: 10,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: ShimmerWidget.rectangular(width: 50, height: 10),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: ShimmerWidget.rectangular(width: 70, height: 13),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            height: 100,
+            child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) => Column(
+                      children: [
+                        ShimmerWidget.rectangular(width: 50, height: 70),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        ShimmerWidget.rectangular(width: 50, height: 10),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        ShimmerWidget.rectangular(width: 30, height: 10),
+                      ],
+                    ),
+                separatorBuilder: (context, index) => SizedBox(width: 10),
+                itemCount: 6),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: ShimmerWidget.rectangular(width: 100, height: 10),
+          )
+        ],
+      ),
+    );
   }
 }

@@ -47,6 +47,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     print(items);
     return Expanded(
       child: CustomScrollView(
+        physics: BouncingScrollPhysics(),
         slivers: <Widget>[
           scrollableTrendingBuilder(context),
           categoriesGridViewBuilder(),
@@ -78,7 +79,9 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return DetailedCategoriesView(
-                          categoryName: mainCategories[index]);
+                        categoryKey: mainCategories[index],
+                        categoryName: mainCategoriesNames[index],
+                      );
                     },
                   ));
                 },
@@ -90,7 +93,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     height: 10,
                   ),
                   Text(
-                    mainCategories[index],
+                    mainCategoriesNames[index],
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -142,6 +145,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     height: 100,
                     width: double.infinity,
                     child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: items!.length,
                         itemBuilder: (context, index) {

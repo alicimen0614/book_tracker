@@ -1,9 +1,9 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 
 final List mainCategories = [
-  "Klasikler",
+  "Classics",
   "Fantasy",
-  "Macera",
+  "Adventure",
   "Contemporary",
   "Romance",
   "Dystopian",
@@ -33,6 +33,41 @@ final List mainCategories = [
   "Biography and Autobiography",
   "Poetry",
   "Religion & Spirituality"
+];
+
+final List mainCategoriesNames = [
+  "Klasikler",
+  "Fantastik",
+  "Macera",
+  "Modern",
+  "Romantik",
+  "Distopik",
+  "Korku",
+  "Paranormal",
+  "Tarihsel kurgu",
+  "Bilim kurgu",
+  "Çocuk",
+  "Akademik",
+  "Gizem",
+  "Gerilim",
+  "Anı",
+  "Kendine yardım",
+  "Yemek kitabı",
+  "Sanat ve Fotoğrafçılık",
+  "Genç Yetişkin",
+  "Kişisel Gelişim",
+  "Motivasyonel",
+  "Sağlık",
+  "Tarih",
+  "Seyahat",
+  "Rehber",
+  "Aileler ve İlişkiler",
+  "Mizah",
+  "Çizgi roman",
+  "Kısa hikaye",
+  "Biyografi ve Otobiyografi",
+  "Şiir",
+  "Din ve Maneviyat"
 ];
 
 int uniqueIdCreater(BookWorkEditionsModelEntries? bookEditionInfo) {

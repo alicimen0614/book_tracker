@@ -1,14 +1,18 @@
 import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/widgets/shimmer_widget.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class DetailedCategoriesView extends ConsumerStatefulWidget {
-  const DetailedCategoriesView({super.key, required this.categoryName});
+  const DetailedCategoriesView(
+      {super.key, required this.categoryKey, required this.categoryName});
 
+  final String categoryKey;
   final String categoryName;
 
   @override
@@ -19,11 +23,12 @@ class DetailedCategoriesView extends ConsumerStatefulWidget {
 class _DetailedCategoriesViewState
     extends ConsumerState<DetailedCategoriesView> {
   List<CategoryBooksWorks?>? itemList = [];
-  Image getBookCover(CategoryBooksWorks? work) {
+  Widget getBookCover(CategoryBooksWorks? work) {
     if (work!.coverId != null) {
-      return Image.network(
-        "https://covers.openlibrary.org/b/id/${work.coverId}-M.jpg",
-        errorBuilder: (context, error, stackTrace) =>
+      return FadeInImage.memoryNetwork(
+        image: "https://covers.openlibrary.org/b/id/${work.coverId}-M.jpg",
+        placeholder: kTransparentImage,
+        imageErrorBuilder: (context, error, stackTrace) =>
             Image.asset("lib/assets/images/error.png"),
       );
     } else {
@@ -47,7 +52,7 @@ class _DetailedCategoriesViewState
     try {
       var list = await ref
           .read(booksProvider)
-          .categoryBookWorksList(widget.categoryName, pageKey);
+          .categoryBookWorksList(widget.categoryKey, pageKey);
       final isLastPage = list!.length < 20;
       if (isLastPage) {
         pagingController.appendLastPage(list);
@@ -80,8 +85,12 @@ class _DetailedCategoriesViewState
           elevation: 5,
         ),
         body: PagedGridView<int, CategoryBooksWorks?>(
+            showNewPageProgressIndicatorAsGridChild: false,
+            showNoMoreItemsIndicatorAsGridChild: false,
             pagingController: pagingController,
             builderDelegate: PagedChildBuilderDelegate<CategoryBooksWorks?>(
+              firstPageProgressIndicatorBuilder: (context) =>
+                  shimmerEffectBuilder(),
               itemBuilder: (context, item, index) {
                 return Padding(
                   padding: const EdgeInsets.all(10),
@@ -116,6 +125,32 @@ class _DetailedCategoriesViewState
                 mainAxisExtent: 250,
                 crossAxisSpacing: 25,
                 mainAxisSpacing: 25)),
+      ),
+    );
+  }
+
+  Container shimmerEffectBuilder() {
+    return Container(
+      height: 500,
+      width: 500,
+      child: GridView.builder(
+        padding: EdgeInsets.all(10),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 0.5,
+            crossAxisSpacing: 25,
+            mainAxisSpacing: 50),
+        itemBuilder: (context, index) => Column(children: [
+          ShimmerWidget.rectangular(width: 100, height: 170),
+          SizedBox(
+            height: 5,
+          ),
+          ShimmerWidget.rectangular(width: 90, height: 10),
+          SizedBox(
+            height: 5,
+          ),
+          ShimmerWidget.rectangular(width: 70, height: 7)
+        ]),
       ),
     );
   }
