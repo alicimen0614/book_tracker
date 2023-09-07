@@ -105,14 +105,13 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                           ));
                     },
                     child: Column(children: [
-                      getBookCover(item),
-                      SizedBox(
-                        height: 5,
-                      ),
+                      Expanded(flex: 3, child: getBookCover(item)),
                       Flexible(
+                        flex: 1,
                         child: Text(
+                          maxLines: 3,
                           item!.title!,
-                          overflow: TextOverflow.clip,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       )
                     ]),

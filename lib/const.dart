@@ -1,4 +1,6 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:flutter/material.dart';
+import 'package:sealed_languages/sealed_languages.dart';
 
 final List mainCategories = [
   "Classics",
@@ -85,6 +87,39 @@ int uniqueIdCreater(BookWorkEditionsModelEntries? bookEditionInfo) {
     uniqueId = int.parse("${bookEditionInfo.title.hashCode}");
   }
   return uniqueId;
+}
+
+/* Some of the language codes coming from the api didn't match with the codes in the package but they matched with the bibliographiccode
+                      so ı've searched within the list of languages that matches the language code coming from api and the package's bibliographiccode */
+String countryNameCreater(BookWorkEditionsModelEntries bookEdition) {
+  int indexOfBibliographicCode = NaturalLanguage.list.indexWhere((element) =>
+      bookEdition.languages!.first!.key!.characters
+          .getRange(11, 14)
+          .toUpperCase()
+          .toString() ==
+      element.bibliographicCode);
+
+  if (NaturalLanguage.maybeFromValue(bookEdition
+          .languages!.first!.key!.characters
+          .getRange(11, 14)
+          .toUpperCase()
+          .toString()) !=
+      null) {
+    String country = NaturalLanguage.maybeFromValue(bookEdition
+            .languages!.first!.key!.characters
+            .getRange(11, 14)
+            .toUpperCase()
+            .toString())!
+        .name;
+    return country;
+  } else if (indexOfBibliographicCode != -1) {
+    return NaturalLanguage.list[indexOfBibliographicCode].name;
+  } else {
+    return bookEdition.languages!.first!.key!.characters
+        .getRange(11, 14)
+        .toUpperCase()
+        .toString();
+  }
 }
 
 final List mainCategoriesImages = [

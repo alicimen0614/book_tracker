@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -7,7 +5,6 @@ import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sealed_languages/sealed_languages.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
@@ -37,6 +34,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "${uniqueIdCreater(widget.editionInfo) + widget.indexOfEdition} - detailed edition info");
     print(widget.editionInfo.title.hashCode);
     print(bookStatus);
     return Scaffold(
@@ -125,13 +124,15 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.grey.shade300,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), topRight: Radius.circular(30))),
       context: context,
       builder: (context) {
         return Container(
           height: widget.isNavigatingFromLibrary != false
-              ? MediaQuery.sizeOf(context).height * 0.25
-              : MediaQuery.sizeOf(context).height * 0.17,
+              ? MediaQuery.sizeOf(context).height * 0.295
+              : MediaQuery.sizeOf(context).height * 0.19,
           child: Column(mainAxisSize: MainAxisSize.max, children: [
             widget.isNavigatingFromLibrary != false
                 ? ListTile(
@@ -306,7 +307,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         bookAsMap: {
           "title": editionInfo.title,
           "numberOfPages": editionInfo.numberOfPages,
-          "covers": editionInfo.covers,
+          "covers":
+              editionInfo.covers != null ? editionInfo.covers!.first : null,
           "bookStatus": bookStatus == BookStatus.alreadyRead
               ? "Okuduklarım"
               : bookStatus == BookStatus.currentlyReading
@@ -395,16 +397,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   height: 20,
                 ),
               if (widget.editionInfo.languages != null)
-                //buraya geçenki eklediğimiz eğer fromcode da yoksa bibliografic de olanı eklediğimiz methodu uygula
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: Text(
-                    NaturalLanguage.fromCode(widget
-                            .editionInfo.languages!.first!.key!.characters
-                            .getRange(11, 14)
-                            .toUpperCase()
-                            .toString())
-                        .name,
+                    countryNameCreater(widget.editionInfo),
                     style: const TextStyle(
                         fontSize: 17, fontWeight: FontWeight.bold),
                   ),

@@ -156,7 +156,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                           width: 150,
                           child: item.languages != null
                               ? Text(
-                                  countryCodeCreater(item),
+                                  countryNameCreater(item),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 17,

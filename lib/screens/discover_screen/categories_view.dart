@@ -164,18 +164,24 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                   },
                                   child: Column(
                                     children: [
-                                      FadeInImage.memoryNetwork(
-                                        image:
-                                            "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg",
-                                        placeholder: kTransparentImage,
-                                        imageErrorBuilder: (context, error,
-                                                stackTrace) =>
-                                            Image.asset(
-                                                "lib/assets/images/error.png"),
+                                      Expanded(
+                                        flex: 3,
+                                        child: FadeInImage.memoryNetwork(
+                                          image:
+                                              "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg",
+                                          placeholder: kTransparentImage,
+                                          imageErrorBuilder: (context, error,
+                                                  stackTrace) =>
+                                              Image.asset(
+                                                  "lib/assets/images/error.png"),
+                                        ),
                                       ),
-                                      Text(
-                                        items![index]!.title!,
-                                        overflow: TextOverflow.ellipsis,
+                                      Expanded(
+                                        flex: 1,
+                                        child: Text(
+                                          items![index]!.title!,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       )
                                     ],
                                   )),

@@ -37,7 +37,7 @@ class _DetailedCategoriesViewState
   }
 
   final PagingController<int, CategoryBooksWorks?> pagingController =
-      PagingController(firstPageKey: 1);
+      PagingController(firstPageKey: 0);
 
   @override
   void initState() {
@@ -57,7 +57,7 @@ class _DetailedCategoriesViewState
       if (isLastPage) {
         pagingController.appendLastPage(list);
       } else {
-        final nextPageKey = pageKey + list.length;
+        final nextPageKey = pageKey + list.length + 1;
         pagingController.appendPage(list, nextPageKey);
       }
     } catch (e) {
@@ -104,11 +104,9 @@ class _DetailedCategoriesViewState
                           ));
                     },
                     child: Column(children: [
-                      getBookCover(item),
-                      SizedBox(
-                        height: 5,
-                      ),
+                      Expanded(flex: 4, child: getBookCover(item)),
                       Flexible(
+                        flex: 1,
                         child: Text(
                           item!.title!,
                           overflow: TextOverflow.clip,
