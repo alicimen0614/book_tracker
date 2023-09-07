@@ -276,7 +276,7 @@ class BookWorkEditionsModelEntries {
       });
       authors = arr0;
     }
-    translationOf = json['translation_of']?.toString();
+    translationOf = json['translationOf']?.toString();
     if (json['languages'] != null) {
       final v = json['languages'];
       final arr0 = <BookWorkEditionsModelLanguages>[];
@@ -285,24 +285,24 @@ class BookWorkEditionsModelEntries {
       });
       languages = arr0;
     }
-    if (json['translated_from'] != null) {
-      final v = json['translated_from'];
+    if (json['translatedFrom'] != null) {
+      final v = json['translatedFrom'];
       final arr0 = <BookWorkEditionsModelTranslatedFrom>[];
       v.forEach((v) {
         arr0.add(BookWorkEditionsModelTranslatedFrom.fromJson(v));
       });
       translatedFrom = arr0;
     }
-    publishDate = json['publish_date']?.toString();
-    if (json['source_records'] != null) {
-      final v = json['source_records'];
+    publishDate = json['publishDate']?.toString();
+    if (json['sourceRecords'] != null) {
+      final v = json['sourceRecords'];
       final arr0 = <String>[];
       v.forEach((v) {
         arr0.add(v.toString());
       });
       sourceRecords = arr0;
     }
-    numberOfPages = json['number_of_pages']?.toInt();
+    numberOfPages = json['numberOfPages']?.toInt();
     if (json['publishers'] != null) {
       final v = json['publishers'];
       final arr0 = <String>[];
@@ -327,7 +327,7 @@ class BookWorkEditionsModelEntries {
       });
       isbn_13 = arr0;
     }
-    physicalFormat = json['physical_format']?.toString();
+    physicalFormat = json['physicalFormat']?.toString();
     bookStatus = json['bookStatus']?.toString();
 
     if (json['covers'] != null) {
@@ -347,14 +347,14 @@ class BookWorkEditionsModelEntries {
       works = arr0;
     }
     key = json['key']?.toString();
-    latestRevision = json['latest_revision']?.toInt();
+    latestRevision = json['latestRevision']?.toInt();
     revision = json['revision']?.toInt();
     created = (json['created'] != null)
         ? BookWorkEditionsModelEntriesCreated.fromJson(json['created'])
         : null;
-    lastModified = (json['last_modified'] != null)
+    lastModified = (json['lastModified'] != null)
         ? BookWorkEditionsModelEntriesLastModified.fromJson(
-            json['last_modified'])
+            json['lastModified'])
         : null;
   }
   Map<String, dynamic> toJson() {
@@ -371,16 +371,16 @@ class BookWorkEditionsModelEntries {
       });
       data['authors'] = arr0;
     }
-    data['publish_date'] = publishDate;
+    data['publishDate'] = publishDate;
     if (sourceRecords != null) {
       final v = sourceRecords;
       final arr0 = [];
       v!.forEach((v) {
         arr0.add(v);
       });
-      data['source_records'] = arr0;
+      data['sourceRecords'] = arr0;
     }
-    data['number_of_pages'] = numberOfPages;
+    data['numberOfPages'] = numberOfPages;
     if (publishers != null) {
       final v = publishers;
       final arr0 = [];
@@ -407,7 +407,7 @@ class BookWorkEditionsModelEntries {
     }
     data['bookStatus'] = bookStatus;
 
-    data['physical_format'] = physicalFormat;
+    data['physicalFormat'] = physicalFormat;
     if (covers != null) {
       final v = covers;
       final arr0 = [];
@@ -425,13 +425,13 @@ class BookWorkEditionsModelEntries {
       data['works'] = arr0;
     }
     data['key'] = key;
-    data['latest_revision'] = latestRevision;
+    data['latestRevision'] = latestRevision;
     data['revision'] = revision;
     if (created != null) {
       data['created'] = created!.toJson();
     }
     if (lastModified != null) {
-      data['last_modified'] = lastModified!.toJson();
+      data['lastModified'] = lastModified!.toJson();
     }
     return data;
   }

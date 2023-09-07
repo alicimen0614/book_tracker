@@ -92,10 +92,11 @@ class BooksService extends ChangeNotifier {
     }
   }
 
-  Future<BookWorkEditionsModel> getBookWorkEditions(String key) async {
-    print("https://openlibrary.org$key/editions.json");
-    var response =
-        await http.get(Uri.parse("https://openlibrary.org$key/editions.json"));
+  Future<BookWorkEditionsModel> getBookWorkEditions(
+      String key, int offset) async {
+    log("https://openlibrary.org$key/editions.json?offset=$offset");
+    var response = await http.get(
+        Uri.parse("https://openlibrary.org$key/editions.json?offset=$offset"));
     if (response.statusCode == 200) {
       var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
 
@@ -107,8 +108,13 @@ class BooksService extends ChangeNotifier {
   }
 
   Future<List<BookWorkEditionsModelEntries?>?> bookEditionsEntriesList(
-      String key) async {
-    var _bookEditions = await getBookWorkEditions(key);
+      String key, int offset) async {
+    var _bookEditions = await getBookWorkEditions(key, offset);
     return _bookEditions.entries;
+  }
+
+  Future<int?> getBookEditionsSize(String key) async {
+    var _bookEditions = await getBookWorkEditions(key, 0);
+    return _bookEditions.size;
   }
 }

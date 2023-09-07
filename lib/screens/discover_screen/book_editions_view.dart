@@ -1,25 +1,66 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:sealed_languages/sealed_languages.dart';
+import 'package:transparent_image/transparent_image.dart';
 
-class BookEditionsView extends ConsumerWidget {
+class BookEditionsView extends ConsumerStatefulWidget {
   const BookEditionsView(
-      {super.key, required this.editionsList, required this.title});
+      {super.key, required this.workId, required this.title});
 
-  final List<BookWorkEditionsModelEntries?>? editionsList;
+  final String workId;
 
   final String title;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BookEditionsView> createState() => _BookEditionsViewState();
+}
+
+class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
+  final PagingController<int, BookWorkEditionsModelEntries?> pagingController =
+      PagingController(firstPageKey: 0);
+
+  @override
+  void initState() {
+    pagingController.addPageRequestListener((pageKey) {
+      fetchData(pageKey);
+    });
+    super.initState();
+  }
+
+  void fetchData(int pageKey) async {
+    print("fetchdata");
+    try {
+      var list = await ref
+          .read(booksProvider)
+          .bookEditionsEntriesList(widget.workId, pageKey);
+      final isLastPage = list!.length < 50;
+      if (isLastPage) {
+        pagingController.appendLastPage(list);
+      } else {
+        final nextPageKey = pageKey + list.length + 1;
+        pagingController.appendPage(list, nextPageKey);
+      }
+    } catch (e) {
+      pagingController.error = e;
+      print("$e-1");
+    }
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           leadingWidth: 50,
-          title: Text("$title Baskıları"),
+          title: Text("${widget.title} Baskıları"),
           leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
@@ -30,30 +71,24 @@ class BookEditionsView extends ConsumerWidget {
           backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 5,
         ),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-          child: ListView.separated(
-              physics: BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                print(editionsList![index]!.isbn_10);
-
-                return InkWell(
+        body: PagedListView<int, BookWorkEditionsModelEntries?>.separated(
+          pagingController: pagingController,
+          builderDelegate:
+              PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
+            itemBuilder: (context, item, index) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child: InkWell(
                   onTap: () {
-                    print(editionsList![index]!.physicalFormat);
-                    print(editionsList![index]!.publishDate);
-                    print(editionsList![index]!.publishers);
-                    print(editionsList![index]!.sourceRecords);
-                    print(editionsList![index]!.type!.key!);
-                    print(editionsList![index]!.works!.first!.key!);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailedEditionInfo(
-                            editionInfo: editionsList![index]!,
+                            editionInfo: item,
                             isNavigatingFromLibrary: false,
-                            bookImage: editionsList![index]!.covers != null
+                            bookImage: item.covers != null
                                 ? Image.network(
-                                    "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                    "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
                                   )
                                 : null,
                             indexOfEdition: index,
@@ -61,30 +96,20 @@ class BookEditionsView extends ConsumerWidget {
                         ));
                   },
                   child: Row(children: [
-                    editionsList![index]!.covers != null
+                    item!.covers != null
                         ? Expanded(
                             child: Card(
                               elevation: 18,
                               child: Hero(
-                                tag: uniqueIdCreater(editionsList![index]!) +
-                                    index,
-                                child: Image.network(
-                                  "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                                  errorBuilder: (context, error, stackTrace) =>
+                                tag: uniqueIdCreater(item) + index,
+                                child: FadeInImage.memoryNetwork(
+                                  image:
+                                      "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
+                                  placeholder: kTransparentImage,
+                                  imageErrorBuilder: (context, error,
+                                          stackTrace) =>
                                       Image.asset(
                                           "lib/assets/images/error.png"),
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    } else {
-                                      return Center(
-                                        child: Container(
-                                          color: Colors.grey.shade400,
-                                        ),
-                                      );
-                                    }
-                                  },
                                 ),
                               ),
                             ),
@@ -100,7 +125,7 @@ class BookEditionsView extends ConsumerWidget {
                         SizedBox(
                           width: 200,
                           child: Text(
-                            editionsList![index]!.title!,
+                            item.title!,
                             style: const TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
@@ -108,11 +133,9 @@ class BookEditionsView extends ConsumerWidget {
                         ),
                         SizedBox(
                             width: 200,
-                            child: editionsList![index]!.numberOfPages != null
+                            child: item.numberOfPages != null
                                 ? Text(
-                                    editionsList![index]!
-                                        .numberOfPages
-                                        .toString(),
+                                    item.numberOfPages.toString(),
                                     style: const TextStyle(
                                         color: Colors.grey,
                                         fontStyle: FontStyle.italic),
@@ -121,23 +144,38 @@ class BookEditionsView extends ConsumerWidget {
                                 : SizedBox.shrink()),
                         SizedBox(
                             width: 150,
-                            child: editionsList![index]!.publishers != null
+                            child: item.publishers != null
                                 ? Text(
-                                    editionsList![index]!.publishers!.first!,
+                                    item.publishers!.first!,
                                     style: const TextStyle(
                                         color: Colors.black, fontSize: 15),
                                     textAlign: TextAlign.center,
                                   )
-                                : const SizedBox.shrink())
+                                : const SizedBox.shrink()),
+                        SizedBox(
+                          width: 150,
+                          child: item.languages != null
+                              ? Text(
+                                  countryCodeCreater(item),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : SizedBox.shrink(),
+                        )
                       ],
                     )
                   ]),
-                );
-              },
-              separatorBuilder: (context, index) => const SizedBox(
-                    height: 20,
-                  ),
-              itemCount: editionsList!.length),
+                ),
+              );
+            },
+          ),
+          physics: BouncingScrollPhysics(),
+          separatorBuilder: (context, index) => const SizedBox(
+            height: 20,
+          ),
         ),
       ),
     );
