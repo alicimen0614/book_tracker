@@ -32,11 +32,12 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
     return ref.watch(authProvider).authState;
   }
 
-  Widget getAppBarLeading(WidgetRef ref) {
+  Widget getUserProfileImage(WidgetRef ref, double size) {
     if (ref.watch(authProvider).currentUser == null) {
-      return const Icon(
+      return Icon(
         Icons.account_circle_sharp,
-        size: 40,
+        size: size,
+        color: Colors.white,
       );
     } else {
       if (getCurrentUser(ref)!.photoURL != null) {
@@ -60,16 +61,25 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
     }
   }
 
-  Widget getAppBarTitle(WidgetRef ref) {
+  Widget getUserName(WidgetRef ref) {
     if (getCurrentUser(ref) == null) {
-      return const Text("Ziyaretçi");
+      return const Text(
+        "Ziyaretçi",
+        style: TextStyle(
+            fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold),
+      );
     } else {
       if (getCurrentUser(ref)!.displayName == null) {
-        return const Text("Ziyaretçi");
+        return const Text(
+          "Ziyaretçi",
+          style: TextStyle(
+              fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold),
+        );
       } else {
         return Text(
           getCurrentUser(ref)!.displayName!,
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(
+              fontSize: 35, color: Colors.white, fontWeight: FontWeight.bold),
         );
       }
     }
@@ -135,6 +145,16 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       )),
                 ),
               if (isUserLoggedIn == false)
+                SizedBox(
+                  height: 20,
+                ),
+              if (isUserLoggedIn == false) getUserProfileImage(ref, 150),
+              if (isUserLoggedIn == false) getUserName(ref),
+              if (isUserLoggedIn == false)
+                SizedBox(
+                  height: 20,
+                ),
+              if (isUserLoggedIn == false)
                 AnimatedButton(
                     onTap: () {
                       Navigator.push(
@@ -149,11 +169,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                     backgroundColor: const Color.fromRGBO(136, 74, 57, 1))
               else
                 Column(children: [
-                  getAppBarLeading(ref),
+                  getUserProfileImage(ref, 150),
                   SizedBox(
                     height: 10,
                   ),
-                  getAppBarTitle(ref)
+                  getUserName(ref)
                 ]),
               const SizedBox(
                 height: 5,
