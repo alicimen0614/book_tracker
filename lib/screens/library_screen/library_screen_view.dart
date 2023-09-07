@@ -43,6 +43,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
+          actions: [
+            IconButton(
+                onPressed: () {},
+                icon: Image.asset("lib/assets/images/add_book.png"))
+          ],
           backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           centerTitle: true,
           title: Text("Kitaplığım"),
@@ -56,26 +61,26 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   text: "Tümü",
                   icon: Image.asset(
                     "lib/assets/images/books.png",
-                    height: 35,
+                    height: 30,
                   ),
                 ),
                 Tab(
                     text: "Şu an okuduklarım",
                     icon: Image.asset(
                       "lib/assets/images/reading.png",
-                      height: 35,
+                      height: 30,
                     )),
                 Tab(
                     text: "Okumak istediklerim",
                     icon: Image.asset(
                       "lib/assets/images/want_to_read.png",
-                      height: 35,
+                      height: 30,
                     )),
                 Tab(
                     text: "Okuduklarım",
                     icon: Image.asset(
                       "lib/assets/images/alreadyread.png",
-                      height: 35,
+                      height: 30,
                     )),
               ]),
         ),
@@ -149,36 +154,49 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         ),
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
+          print(listOfTheCurrentBookStatus[index].publishDate);
           //in here we check if the book list from sql has the current book
           indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
               element == uniqueIdCreater(listOfTheCurrentBookStatus[index]));
           return InkWell(
             onTap: () {
+              indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
+                  element ==
+                  uniqueIdCreater(listOfTheCurrentBookStatus[index]));
+              print("$indexOfMatching - indexofmatching");
+              print(listOfBooksFromSql![indexOfMatching].title);
+              print(
+                  "${uniqueIdCreater(listOfTheCurrentBookStatus[index]) + index}-libraryscreen");
               Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => DetailedEditionInfo(
                         editionInfo: listOfTheCurrentBookStatus[index],
                         isNavigatingFromLibrary: true,
-                        bookImage: indexOfMatching != -1
-                            ? Image.memory(
-                                listOfBooksFromSql![index].imageAsByte!,
-                              )
-                            : Image.network(
-                                "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")),
+                        bookImage: listOfTheCurrentBookStatus[index].covers !=
+                                null
+                            ? indexOfMatching != -1 &&
+                                    listOfBooksFromSql![indexOfMatching]
+                                            .covers !=
+                                        null
+                                ? Image.memory(
+                                    listOfBooksFromSql![indexOfMatching]
+                                        .imageAsByte!,
+                                  )
+                                : Image.network(
+                                    "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")
+                            : null),
                   ));
             },
             child: Column(children: [
               listOfTheCurrentBookStatus[index].covers != null
                   ? Expanded(
+                      flex: 3,
                       child: Card(
                         elevation: 18,
                         child: listOfTheCurrentBookStatus[index].imageAsByte !=
                                 null
                             ? Hero(
-                                placeholderBuilder:
-                                    (context, heroSize, child) =>
-                                        SizedBox.shrink(),
                                 tag: uniqueIdCreater(
                                     listOfTheCurrentBookStatus[index]),
                                 child: Image.memory(
@@ -230,19 +248,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       ),
                     )
                   : Expanded(
+                      flex: 3,
                       child: Image.asset("lib/assets/images/nocover.jpg")),
-              const SizedBox(
-                width: 10,
-              ),
-              SizedBox(
-                width: 200,
-                child: Text(
-                  listOfTheCurrentBookStatus[index].title!,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+              Expanded(
+                flex: 1,
+                child: SizedBox(
+                  width: 200,
+                  child: Text(
+                    listOfTheCurrentBookStatus[index].title!,
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ]),
@@ -391,12 +410,14 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     var data = await ref
         .read(firestoreProvider)
         .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
+    print(data.docs[4].data());
 
     listOfBooksFromFirestore = data.docs
         .map(
           (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
         )
         .toList();
+    print(listOfBooksFromFirestore![4].numberOfPages);
 
     if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
       listOfBooksToShow = data.docs
