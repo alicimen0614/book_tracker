@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/screens/library_screen/notes_view.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
@@ -45,8 +44,30 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         appBar: AppBar(
           actions: [
             IconButton(
+                tooltip: "Notlar",
+                splashRadius: 25,
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotesView(
+                          listOfBooksFromSql: listOfBooksFromSql,
+                        ),
+                      ));
+                },
+                icon: Icon(
+                  Icons.library_books,
+                  size: 30,
+                  color: Colors.white,
+                )),
+            IconButton(
+                tooltip: "Kitap Ekle",
+                splashRadius: 25,
                 onPressed: () {},
-                icon: Image.asset("lib/assets/images/add_book.png"))
+                icon: Icon(
+                  Icons.add_circle,
+                  size: 30,
+                ))
           ],
           backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           centerTitle: true,
@@ -164,7 +185,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   element ==
                   uniqueIdCreater(listOfTheCurrentBookStatus[index]));
               print("$indexOfMatching - indexofmatching");
-              print(listOfBooksFromSql![indexOfMatching].title);
+
               print(
                   "${uniqueIdCreater(listOfTheCurrentBookStatus[index]) + index}-libraryscreen");
               Navigator.push(
@@ -193,7 +214,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   ? Expanded(
                       flex: 3,
                       child: Card(
-                        elevation: 18,
+                        color: Colors.transparent,
+                        elevation: 10,
                         child: listOfTheCurrentBookStatus[index].imageAsByte !=
                                 null
                             ? Hero(
@@ -215,9 +237,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                             if it doesn't have it show it from network */
                             : indexOfMatching != -1
                                 ? Hero(
-                                    placeholderBuilder:
-                                        (context, heroSize, child) =>
-                                            SizedBox.shrink(),
                                     tag: uniqueIdCreater(
                                         listOfBooksFromSql![indexOfMatching]),
                                     child: Image.memory(
@@ -230,9 +249,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                     ),
                                   )
                                 : Hero(
-                                    placeholderBuilder:
-                                        (context, heroSize, child) =>
-                                            SizedBox.shrink(),
                                     tag: uniqueIdCreater(
                                         listOfTheCurrentBookStatus[index]),
                                     child: FadeInImage.memoryNetwork(
@@ -276,7 +292,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     await _sqlHelper
         .deleteBook(uniqueIdCreater(listOfTheCurrentBookStatus[index]));
 
-    await ref.read(firestoreProvider).deleteDocument(
+    await ref.read(firestoreProvider).deleteBook(
         referencePath: "usersBooks",
         userId: ref.read(authProvider).currentUser!.uid,
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
@@ -295,18 +311,16 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     return false;
   }
 
-  Future<void> insertingProcesses(
-      List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
-      List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase) async {
+  Future<void> insertingProcesses() async {
     List<int> listOfBookIdsFromFirebase = [];
     List<int> listOfBookIdsFromSql = [];
-    listOfBooksFromFirebase != null
+    listOfBooksFromFirestore != null
         ? listOfBookIdsFromFirebase =
-            listOfBooksFromFirebase.map((e) => uniqueIdCreater(e)).toList()
+            listOfBooksFromFirestore!.map((e) => uniqueIdCreater(e)).toList()
         : null;
     listOfBooksFromSql != null
         ? listOfBookIdsFromSql =
-            listOfBooksFromSql.map((e) => uniqueIdCreater(e)).toList()
+            listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList()
         : null;
 
     for (var i = 0; i < listOfBookIdsFromSql.length; i++) {
@@ -317,7 +331,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
     for (var i = 0; i < listOfBookIdsFromFirebase.length; i++) {
       if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
-        await insertBookToSql(listOfBooksFromFirebase![i]);
+        await insertBookToSql(listOfBooksFromFirestore![i]);
       }
     }
   }
@@ -335,7 +349,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     } else {
       await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, null);
     }
-    setState(() {});
   }
 
   Future<void> insertBookToFirebase(
@@ -357,7 +370,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         },
         userId: ref.read(authProvider).currentUser!.uid,
         uniqueBookId: uniqueIdCreater(bookInfo));
-    setState(() {});
   }
 
   Future<void> getPageData() async {
@@ -395,10 +407,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
     if (isUserAvailable == true && isConnected == true) {
       await getFirestoreBookList();
+      await insertingProcesses();
+      await getSqlBookList();
       setState(() {
         isDataLoading = false;
       });
-      await insertingProcesses(listOfBooksFromSql, listOfBooksFromFirestore);
     } else {
       setState(() {
         isDataLoading = false;
@@ -410,14 +423,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     var data = await ref
         .read(firestoreProvider)
         .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
-    print(data.docs[4].data());
 
     listOfBooksFromFirestore = data.docs
         .map(
           (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
         )
         .toList();
-    print(listOfBooksFromFirestore![4].numberOfPages);
 
     if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
       listOfBooksToShow = data.docs

@@ -16,11 +16,14 @@ class SqlHelper {
       // constructed for each platform.
       join(await getDatabasesPath(), 'bookshelf_database.db'),
       // When the database is first created, create a table to store dogs.
-      onCreate: (db, version) {
+      onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
-        return db.execute(
+        await db.execute(
           'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte BLOB)',
         );
+
+        await db.execute(
+            'CREATE TABLE notes(id INTEGER PRIMARY KEY UNIQUE, bookId INTEGER, note TEXT)');
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
@@ -34,7 +37,6 @@ class SqlHelper {
         join(await getDatabasesPath(), 'bookshelf_database.db'));
   }
 
-  // Define a function that inserts dogs into the database
   Future<void> insertBook(BookWorkEditionsModelEntries bookEditionInfo,
       String bookStatus, Uint8List? imageAsByte) async {
     print("sql e yazdı");
@@ -72,6 +74,30 @@ class SqlHelper {
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<void> insertNoteToBook(String note, int bookId) async {
+    print("note a yazdı");
+
+    // Get a reference to the database.
+    final db = await _openDatabase();
+    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
+
+    // Insert the Dog into the correct table. You might also specify the
+    // `conflictAlgorithm` to use in case the same dog is inserted twice.
+    //
+    // In this case, replace any previous data.
+    await db.insert(
+      'notes',
+      {
+        "id": bookId + note.hashCode,
+        "bookId": bookId,
+        "note": note,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print(note);
+    print(bookId);
   }
 
   Future<List<BookWorkEditionsModelEntries>> getBookShelf() async {
@@ -125,6 +151,21 @@ class SqlHelper {
     });
   }
 
+  Future<List<Map<String, dynamic>>> getNotes() async {
+    // Get a reference to the database.
+    final db = await _openDatabase();
+
+    // Query the table for all The Dogs.
+    final List<Map<String, dynamic>> maps = await db.query('notes');
+    print(maps);
+    print(List.generate(maps.length, (i) {
+      return maps[i]['note'];
+    }));
+
+    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    return maps;
+  }
+
   Future<void> deleteBook(int id) async {
     // Get a reference to the database.
     final db = await _openDatabase();
@@ -136,6 +177,34 @@ class SqlHelper {
       where: 'id = ?',
       // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [id],
+    ).whenComplete(() => print("sql document deleted"));
+  }
+
+  Future<void> deleteNote(int id) async {
+    // Get a reference to the database.
+    final db = await _openDatabase();
+
+    // Remove the Dog from the database.
+    await db.delete(
+      'notes',
+      // Use a `where` clause to delete a specific dog.
+      where: 'id = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [id],
+    ).whenComplete(() => print("sql document deleted"));
+  }
+
+  Future<void> deleteNotesFromBook(int bookId) async {
+    // Get a reference to the database.
+    final db = await _openDatabase();
+
+    // Remove the Dog from the database.
+    await db.delete(
+      'notes',
+      // Use a `where` clause to delete a specific dog.
+      where: 'bookId = ?',
+      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      whereArgs: [bookId],
     ).whenComplete(() => print("sql document deleted"));
   }
 }

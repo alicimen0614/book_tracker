@@ -1,6 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +42,28 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          widget.isNavigatingFromLibrary == true
+              ? IconButton(
+                  tooltip: "Not Ekle",
+                  splashRadius: 25,
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddNoteView(
+                              showDeleteIcon: false,
+                              bookInfo: widget.editionInfo,
+                              bookImage: widget.bookImage),
+                        ));
+                  },
+                  icon: Icon(
+                    Icons.library_add_rounded,
+                    size: 30,
+                    color: Colors.white,
+                  ))
+              : SizedBox.shrink(),
           IconButton(
+              splashRadius: 25,
               onPressed: () {
                 modalBottomSheetBuilderForPopUpMenu(context);
               },
@@ -52,6 +74,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         ],
         leadingWidth: 50,
         leading: IconButton(
+            splashRadius: 25,
             onPressed: () => Navigator.pop(context),
             icon: const Icon(
               Icons.arrow_back_ios_new,
@@ -99,6 +122,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 ? Align(
                     alignment: Alignment.center,
                     child: Card(
+                        color: Colors.transparent,
                         elevation: 18,
                         child: Hero(
                             tag: uniqueIdCreater(widget.editionInfo) +
@@ -137,6 +161,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             widget.isNavigatingFromLibrary != false
                 ? ListTile(
                     onTap: () async {
+                      await deleteNote(widget.editionInfo);
                       await deleteBook(widget.editionInfo).whenComplete(() {
                         Navigator.pushAndRemoveUntil(
                             context,
@@ -189,10 +214,20 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Future<void> deleteBook(BookWorkEditionsModelEntries bookInfo) async {
     await _sqlHelper.deleteBook(uniqueIdCreater(bookInfo));
     if (ref.read(authProvider).currentUser != null) {
-      await ref.read(firestoreProvider).deleteDocument(
+      await ref.read(firestoreProvider).deleteBook(
           referencePath: "usersBooks",
           userId: ref.read(authProvider).currentUser!.uid,
           bookId: uniqueIdCreater(bookInfo).toString());
+    }
+  }
+
+  Future<void> deleteNote(BookWorkEditionsModelEntries bookInfo) async {
+    ref.read(sqlProvider).deleteNotesFromBook(uniqueIdCreater(bookInfo));
+    if (ref.read(authProvider).currentUser != null) {
+      await ref.read(firestoreProvider).deleteNotes(
+          referencePath: "usersBooks",
+          userId: ref.read(authProvider).currentUser!.uid,
+          bookId: uniqueIdCreater(bookInfo));
     }
   }
 
@@ -300,6 +335,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Future<void> insertToFirestore() async {
     BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
 
+    List<int?>? coverList = [];
+    editionInfo.covers != null
+        ? coverList = [editionInfo.covers!.first]
+        : coverList = null;
+
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
     return await ref.read(firestoreProvider).setBookData(
@@ -307,8 +347,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         bookAsMap: {
           "title": editionInfo.title,
           "numberOfPages": editionInfo.numberOfPages,
-          "covers":
-              editionInfo.covers != null ? editionInfo.covers!.first : null,
+          "covers": editionInfo.covers != null ? coverList : null,
           "bookStatus": bookStatus == BookStatus.alreadyRead
               ? "Okuduklarım"
               : bookStatus == BookStatus.currentlyReading

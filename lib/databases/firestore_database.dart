@@ -23,6 +23,15 @@ class FirestoreDatabase extends ChangeNotifier {
         .get();
   }
 
+  Future<QuerySnapshot<Map<String, dynamic>>> getNotes(
+      String collectionPath, String userId) async {
+    return await _firestore
+        .collection(collectionPath)
+        .doc(userId)
+        .collection("notes")
+        .get();
+  }
+
   Stream<List<BookWorkEditionsModelEntries>> getBookList(
       String collectionPath, String userId) {
     /// stream<QuerySnapshot> --> Stream<List<DocumentSnapshot>>
@@ -42,17 +51,52 @@ class FirestoreDatabase extends ChangeNotifier {
   }
 
   //Deleting a data in Firebase.
-  Future<void> deleteDocument(
+  Future<void> deleteBook(
       {required String referencePath,
       required String userId,
       required String bookId}) async {
-    print("document deleted");
+    print("book deleted");
     await _firestore
         .collection(referencePath)
         .doc(userId)
         .collection("books")
         .doc(bookId)
         .delete();
+  }
+
+  Future<void> deleteNote(
+      {required String referencePath,
+      required String userId,
+      required String noteId}) async {
+    print("note deleted");
+    await _firestore
+        .collection(referencePath)
+        .doc(userId)
+        .collection("notes")
+        .doc(noteId)
+        .delete();
+  }
+
+  Future<void> deleteNotes(
+      {required String referencePath,
+      required String userId,
+      required int bookId}) async {
+    print("note deleted");
+    await _firestore
+        .collection(referencePath)
+        .doc(userId)
+        .collection('notes')
+        .where('bookId', isEqualTo: bookId)
+        .get()
+        .then((value) => value.docs.forEach((element) async {
+              print(element.data());
+              await _firestore
+                  .collection(referencePath)
+                  .doc(userId)
+                  .collection('notes')
+                  .doc(element.data()['id'])
+                  .delete();
+            }));
   }
 
   //inserting and updating a data in Firebase.
@@ -71,6 +115,26 @@ class FirestoreDatabase extends ChangeNotifier {
         .doc(uniqueBookId.toString())
         .set(bookAsMap);
   }
+
+  Future<void> setNoteData(
+      {required String collectionPath,
+      required String note,
+      required String userId,
+      required int uniqueBookId}) async {
+    print("note firebase yazıldı");
+
+    await _firestore
+        .collection(collectionPath)
+        .doc(userId)
+        .collection("notes")
+        .doc((uniqueBookId + note.hashCode).toString())
+        .set({
+      'id': (uniqueBookId + note.hashCode).toString(),
+      'bookId': uniqueBookId,
+      'note': note
+    });
+  }
+  //update data
 }
 
   /*  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> getCustomerWorks(
