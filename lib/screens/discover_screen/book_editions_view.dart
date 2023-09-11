@@ -5,7 +5,6 @@ import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:sealed_languages/sealed_languages.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class BookEditionsView extends ConsumerStatefulWidget {
@@ -62,6 +61,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           leadingWidth: 50,
           title: Text("${widget.title} Baskıları"),
           leading: IconButton(
+              splashRadius: 25,
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
                 Icons.arrow_back_ios_new,

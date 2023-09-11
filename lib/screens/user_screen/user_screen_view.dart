@@ -105,39 +105,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   child: IconButton(
                       color: Colors.white,
                       onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text("BookTracker"),
-                              content: const Text(
-                                  "Çıkış yapmak istediğinizden emin misiniz?"),
-                              actions: [
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Vazgeç")),
-                                TextButton(
-                                    onPressed: () {
-                                      print("$isUserLoggedIn -2");
-
-                                      ref
-                                          .read(authProvider)
-                                          .signOut()
-                                          .whenComplete(() {
-                                        setState(() {
-                                          isUserLoggedIn = false;
-                                        });
-                                      });
-                                      Navigator.pop(context);
-                                      print("$isUserLoggedIn -3");
-                                    },
-                                    child: const Text("Çıkış yap"))
-                              ],
-                            );
-                          },
-                        );
+                        alertDialogBuilder(context);
                       },
                       icon: const Icon(
                         Icons.exit_to_app_sharp,
@@ -195,5 +163,39 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
             ],
           )),
     )));
+  }
+
+  Future<dynamic> alertDialogBuilder(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text("BookTracker"),
+          content: const Text("Çıkış yapmak istediğinizden emin misiniz?"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Vazgeç")),
+            TextButton(
+                onPressed: () {
+                  print("$isUserLoggedIn -2");
+
+                  ref.read(authProvider).signOut().whenComplete(() {
+                    setState(() {
+                      isUserLoggedIn = false;
+                    });
+                  });
+                  Navigator.pop(context);
+                  print("$isUserLoggedIn -3");
+                },
+                child: const Text("Çıkış yap"))
+          ],
+        );
+      },
+    );
   }
 }

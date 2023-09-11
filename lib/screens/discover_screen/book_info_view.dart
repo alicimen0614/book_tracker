@@ -228,8 +228,6 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   Expanded(
                       child: editionsList![index]!.covers != null
                           ? Hero(
-                              placeholderBuilder: (context, heroSize, child) =>
-                                  Container(),
                               tag:
                                   uniqueIdCreater(editionsList![index]) + index,
                               child: Image.network(
