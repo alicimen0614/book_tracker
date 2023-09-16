@@ -1,3 +1,4 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -101,11 +102,13 @@ class FirestoreDatabase extends ChangeNotifier {
 
   //inserting and updating a data in Firebase.
 
-  Future<void> setBookData(
-      {required String collectionPath,
-      required Map<String, dynamic> bookAsMap,
-      required String userId,
-      required int uniqueBookId}) async {
+  Future<void> setBookData({
+    required String collectionPath,
+    required Map<String, dynamic> bookAsMap,
+    required String userId,
+  }) async {
+    int uniqueBookId =
+        uniqueIdCreater(BookWorkEditionsModelEntries.fromJson(bookAsMap));
     print("firebase yazdı");
     print(bookAsMap['title']);
     await _firestore

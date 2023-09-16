@@ -84,31 +84,33 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
         elevation: 0,
       ),
-      bottomNavigationBar: BottomAppBar(
-        elevation: 0,
-        color: const Color.fromRGBO(195, 129, 84, 1),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber.shade900),
-                onPressed: () async {
-                  await _sqlHelper.deleteDatabasef();
-                },
-                icon: Icon(Icons.shopping_cart),
-                label: Text("Kitapçılar")),
-            ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown.shade600),
-                onPressed: () async {
-                  bookStatusDialog(context);
-                },
-                icon: Icon(Icons.shelves),
-                label: Text("Rafa ekle")),
-          ],
-        ),
-      ),
+      bottomNavigationBar: widget.isNavigatingFromLibrary == false
+          ? BottomAppBar(
+              elevation: 0,
+              color: const Color.fromRGBO(195, 129, 84, 1),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber.shade900),
+                      onPressed: () async {
+                        await _sqlHelper.deleteDatabasef();
+                      },
+                      icon: Icon(Icons.shopping_cart),
+                      label: Text("Kitapçılar")),
+                  ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.brown.shade600),
+                      onPressed: () async {
+                        bookStatusDialog(context);
+                      },
+                      icon: Icon(Icons.shelves),
+                      label: Text("Rafa ekle"))
+                ],
+              ),
+            )
+          : null,
       backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
       body: Padding(
         padding: EdgeInsets.only(left: 20, right: 20),
@@ -128,7 +130,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             tag: uniqueIdCreater(widget.editionInfo) +
                                 widget.indexOfEdition,
                             child: widget.bookImage != null
-                                ? widget.bookImage!
+                                ? Image(
+                                    image: widget.bookImage!.image,
+                                    height: 270,
+                                    width: 180,
+                                  )
                                 : Image.asset(
                                     "lib/assets/images/nocover.jpg"))),
                   )
@@ -153,60 +159,54 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               topLeft: Radius.circular(30), topRight: Radius.circular(30))),
       context: context,
       builder: (context) {
-        return Container(
-          height: widget.isNavigatingFromLibrary != false
-              ? MediaQuery.sizeOf(context).height * 0.295
-              : MediaQuery.sizeOf(context).height * 0.19,
-          child: Column(mainAxisSize: MainAxisSize.max, children: [
-            widget.isNavigatingFromLibrary != false
-                ? ListTile(
-                    onTap: () async {
-                      await deleteNote(widget.editionInfo);
-                      await deleteBook(widget.editionInfo).whenComplete(() {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  BottomNavigationBarController(
-                                      currentIndexParam: 2),
-                            ),
-                            (route) => false);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: Duration(seconds: 2),
-                          content: const Text('Kitap başarıyla silindi.'),
-                          action:
-                              SnackBarAction(label: 'Tamam', onPressed: () {}),
-                          behavior: SnackBarBehavior.floating,
-                        ));
-                      });
-                    },
-                    leading: Icon(
-                      Icons.delete,
-                      size: 30,
-                    ),
-                    title: Text("Sil", style: TextStyle(fontSize: 20)),
-                  )
-                : SizedBox.shrink(),
-            widget.isNavigatingFromLibrary != false
-                ? Divider()
-                : SizedBox.shrink(),
-            ListTile(
-              leading: Icon(
-                Icons.info,
-                size: 30,
-              ),
-              title: Text("Bilgi", style: TextStyle(fontSize: 20)),
+        return Column(mainAxisSize: MainAxisSize.min, children: [
+          widget.isNavigatingFromLibrary != false
+              ? ListTile(
+                  onTap: () async {
+                    await deleteNote(widget.editionInfo);
+                    await deleteBook(widget.editionInfo).whenComplete(() {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomNavigationBarController(
+                                currentIndexParam: 2),
+                          ),
+                          (route) => false);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: Duration(seconds: 2),
+                        content: const Text('Kitap başarıyla silindi.'),
+                        action:
+                            SnackBarAction(label: 'Tamam', onPressed: () {}),
+                        behavior: SnackBarBehavior.floating,
+                      ));
+                    });
+                  },
+                  leading: Icon(
+                    Icons.delete,
+                    size: 30,
+                  ),
+                  title: Text("Sil", style: TextStyle(fontSize: 20)),
+                )
+              : SizedBox.shrink(),
+          widget.isNavigatingFromLibrary != false
+              ? Divider()
+              : SizedBox.shrink(),
+          ListTile(
+            leading: Icon(
+              Icons.info,
+              size: 30,
             ),
-            Divider(),
-            ListTile(
-              leading: Icon(
-                Icons.share,
-                size: 30,
-              ),
-              title: Text("Paylaş", style: TextStyle(fontSize: 20)),
-            )
-          ]),
-        );
+            title: Text("Bilgi", style: TextStyle(fontSize: 20)),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(
+              Icons.share,
+              size: 30,
+            ),
+            title: Text("Paylaş", style: TextStyle(fontSize: 20)),
+          )
+        ]);
       },
     );
   }
@@ -343,28 +343,28 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
     return await ref.read(firestoreProvider).setBookData(
-        collectionPath: "usersBooks",
-        bookAsMap: {
-          "title": editionInfo.title,
-          "numberOfPages": editionInfo.numberOfPages,
-          "covers": editionInfo.covers != null ? coverList : null,
-          "bookStatus": bookStatus == BookStatus.alreadyRead
-              ? "Okuduklarım"
-              : bookStatus == BookStatus.currentlyReading
-                  ? "Şu an okuduklarım"
-                  : "Okumak istediklerim",
-          "publishers": editionInfo.publishers,
-          "physicalFormat": editionInfo.physicalFormat,
-          "publishDate": editionInfo.publishDate,
-          "isbn_10": editionInfo.isbn_10,
-          "isbn_13": editionInfo.isbn_13
-        },
-        userId: ref.read(authProvider).currentUser!.uid,
-        uniqueBookId: uniqueIdCreater(editionInfo));
+          collectionPath: "usersBooks",
+          bookAsMap: {
+            "title": editionInfo.title,
+            "numberOfPages": editionInfo.numberOfPages,
+            "covers": editionInfo.covers != null ? coverList : null,
+            "bookStatus": bookStatus == BookStatus.alreadyRead
+                ? "Okuduklarım"
+                : bookStatus == BookStatus.currentlyReading
+                    ? "Şu an okuduklarım"
+                    : "Okumak istediklerim",
+            "publishers": editionInfo.publishers,
+            "physicalFormat": editionInfo.physicalFormat,
+            "publishDate": editionInfo.publishDate,
+            "isbn_10": editionInfo.isbn_10,
+            "isbn_13": editionInfo.isbn_13
+          },
+          userId: ref.read(authProvider).currentUser!.uid,
+        );
   }
 
   Future<void> insertToSqlDatabase(
-      Uint8List? base64AsString, BuildContext context) async {
+      Uint8List? imageAsByte, BuildContext context) async {
     await _sqlHelper
         .insertBook(
             widget.editionInfo,
@@ -373,7 +373,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 : bookStatus == BookStatus.currentlyReading
                     ? "Şu an okuduklarım"
                     : "Okumak istediklerim",
-            base64AsString)
+            imageAsByte)
         .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               duration: Duration(seconds: 1),
               content: const Text('Kitap başarıyla kitaplığına eklendi.'),
@@ -386,7 +386,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     final ByteData data =
         await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl);
     final Uint8List bytes = data.buffer.asUint8List();
-    print("abc${bytes}");
     return bytes;
   }
 
@@ -419,6 +418,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontSize: 17, fontWeight: FontWeight.bold),
                 ),
               ),
+              if (widget.editionInfo.authors != null)
+                SizedBox(
+                  height: 20,
+                ),
+              if (widget.editionInfo.authors != null)
+                SizedBox(
+                    height: 25,
+                    child: ListView.builder(
+                      itemCount: widget.editionInfo.authors!.length,
+                      itemBuilder: (context, index) =>
+                          Text(widget.editionInfo.authors![index]!.key!),
+                    )),
               if (widget.editionInfo.languages != null)
                 SizedBox(
                   height: 20,
@@ -541,13 +552,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               fontSize: 15,
                               fontWeight: FontWeight.bold),
                         )
-                      : Text(
-                          "Ciltli",
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
-                        ),
+                      : widget.editionInfo.physicalFormat == "hardcover" &&
+                              widget.editionInfo.physicalFormat == "Hardcover"
+                          ? Text(
+                              "Ciltli",
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : widget.editionInfo.physicalFormat == "E-book"
+                              ? Text("E-kitap")
+                              : Text(widget.editionInfo.physicalFormat!),
                 ),
               if (widget.editionInfo.isbn_10 != null)
                 SizedBox(

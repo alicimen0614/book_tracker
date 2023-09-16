@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
@@ -47,8 +49,8 @@ class BooksListView extends StatelessWidget {
                         isNavigatingFromNotesView: true,
                         bookImage:
                             listOfBooksFromSql![index].imageAsByte != null
-                                ? Image.memory(
-                                    listOfBooksFromSql![index].imageAsByte!)
+                                ? Image.memory(base64Decode(
+                                    listOfBooksFromSql![index].imageAsByte!))
                                 : null,
                         showDeleteIcon: false,
                         bookInfo: listOfBooksFromSql![index]),
@@ -65,7 +67,8 @@ class BooksListView extends StatelessWidget {
                           elevation: 10,
                           child: listOfBooksFromSql![index].imageAsByte != null
                               ? Image.memory(
-                                  listOfBooksFromSql![index].imageAsByte!,
+                                  base64Decode(
+                                      listOfBooksFromSql![index].imageAsByte!),
                                   errorBuilder: (context, error, stackTrace) =>
                                       Image.asset(
                                           "lib/assets/images/error.png"),

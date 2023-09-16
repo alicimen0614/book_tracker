@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +66,13 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             IconButton(
                 tooltip: "Kitap Ekle",
                 splashRadius: 25,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddBookView(),
+                      )).then((value) async => await getPageData());
+                },
                 icon: Icon(
                   Icons.add_circle,
                   size: 30,
@@ -195,14 +204,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                         editionInfo: listOfTheCurrentBookStatus[index],
                         isNavigatingFromLibrary: true,
                         bookImage: listOfTheCurrentBookStatus[index].covers !=
-                                null
+                                    null &&
+                                listOfBooksFromSql![indexOfMatching]
+                                        .imageAsByte !=
+                                    null
                             ? indexOfMatching != -1 &&
                                     listOfBooksFromSql![indexOfMatching]
                                             .covers !=
                                         null
                                 ? Image.memory(
-                                    listOfBooksFromSql![indexOfMatching]
-                                        .imageAsByte!,
+                                    base64Decode(
+                                        listOfBooksFromSql![indexOfMatching]
+                                            .imageAsByte!),
+                                    cacheHeight: 270,
+                                    cacheWidth: 180,
                                   )
                                 : Image.network(
                                     "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")
@@ -222,8 +237,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                 tag: uniqueIdCreater(
                                     listOfTheCurrentBookStatus[index]),
                                 child: Image.memory(
-                                  listOfTheCurrentBookStatus[index]
-                                      .imageAsByte!,
+                                  base64Decode(listOfTheCurrentBookStatus[index]
+                                      .imageAsByte!),
+                                  cacheHeight: 270,
+                                  cacheWidth: 180,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Image.asset(
                                           "lib/assets/images/error.png"),
@@ -239,14 +256,22 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                 ? Hero(
                                     tag: uniqueIdCreater(
                                         listOfBooksFromSql![indexOfMatching]),
-                                    child: Image.memory(
-                                      listOfBooksFromSql![indexOfMatching]
-                                          .imageAsByte!,
-                                      errorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Image.asset(
-                                              "lib/assets/images/error.png"),
-                                    ),
+                                    child: listOfBooksFromSql![indexOfMatching]
+                                                .imageAsByte !=
+                                            null
+                                        ? Image.memory(
+                                            base64Decode(listOfBooksFromSql![
+                                                    indexOfMatching]
+                                                .imageAsByte!),
+                                            cacheHeight: 290,
+                                            cacheWidth: 180,
+                                            errorBuilder: (context, error,
+                                                    stackTrace) =>
+                                                Image.asset(
+                                                    "lib/assets/images/error.png"),
+                                          )
+                                        : Image.asset(
+                                            "lib/assets/images/nocover.jpg"),
                                   )
                                 : Hero(
                                     tag: uniqueIdCreater(
@@ -337,7 +362,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
   }
 
   Future<void> insertBookToSql(BookWorkEditionsModelEntries bookInfo) async {
-    if (bookInfo.covers != null) {
+    if (bookInfo.imageAsByte != null) {
+      print("ilk if e girdi");
+      await _sqlHelper.insertBook(
+          bookInfo, bookInfo.bookStatus!, base64Decode(bookInfo.imageAsByte!));
+    } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
+      print("ikinci if e girdi");
       String imageLink =
           "https://covers.openlibrary.org/b/id/${bookInfo.covers!.first}-M.jpg";
       final ByteData data =
@@ -356,20 +386,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
     await ref.read(firestoreProvider).setBookData(
-        collectionPath: "usersBooks",
-        bookAsMap: {
-          "title": bookInfo.title,
-          "numberOfPages": bookInfo.numberOfPages,
-          "covers": bookInfo.covers,
-          "bookStatus": bookInfo.bookStatus,
-          "publishers": bookInfo.publishers,
-          "physicalFormat": bookInfo.physicalFormat,
-          "publishDate": bookInfo.publishDate,
-          "isbn_10": bookInfo.isbn_10,
-          "isbn_13": bookInfo.isbn_13
-        },
-        userId: ref.read(authProvider).currentUser!.uid,
-        uniqueBookId: uniqueIdCreater(bookInfo));
+          collectionPath: "usersBooks",
+          bookAsMap: {
+            "title": bookInfo.title,
+            "numberOfPages": bookInfo.numberOfPages,
+            "covers": bookInfo.covers,
+            "bookStatus": bookInfo.bookStatus,
+            "publishers": bookInfo.publishers,
+            "physicalFormat": bookInfo.physicalFormat,
+            "publishDate": bookInfo.publishDate,
+            "isbn_10": bookInfo.isbn_10,
+            "isbn_13": bookInfo.isbn_13
+          },
+          userId: ref.read(authProvider).currentUser!.uid,
+        );
   }
 
   Future<void> getPageData() async {

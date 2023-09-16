@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:book_tracker/const.dart';
@@ -19,7 +20,7 @@ class SqlHelper {
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
         await db.execute(
-          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte BLOB)',
+          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte TEXT)',
         );
 
         await db.execute(
@@ -53,7 +54,7 @@ class SqlHelper {
       'bookshelf',
       {
         "id": uniqueIdCreater(bookEditionInfo),
-        "imageAsByte": imageAsByte,
+        "imageAsByte": base64Encode(imageAsByte!),
         "bookStatus": bookStatus,
         "title": bookEditionInfo.title,
         "publishDate": bookEditionInfo.publishDate ?? null,

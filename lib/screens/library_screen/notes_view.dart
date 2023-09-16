@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -79,11 +81,11 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                   initialNoteValue: notesToShow[index]['note'],
                                   bookImage: Image.memory(
                                       fit: BoxFit.fill,
-                                      widget.listOfBooksFromSql!
+                                      base64Decode(widget.listOfBooksFromSql!
                                           .firstWhere((element) =>
                                               uniqueIdCreater(element) ==
                                               notesToShow[index]['bookId'])
-                                          .imageAsByte!),
+                                          .imageAsByte!)),
                                   showDeleteIcon: true,
                                   bookInfo: widget.listOfBooksFromSql!
                                       .firstWhere((element) =>
@@ -104,11 +106,11 @@ class _NotesViewState extends ConsumerState<NotesView> {
                             .title!),
                         leading: Image.memory(
                             fit: BoxFit.fill,
-                            widget.listOfBooksFromSql!
+                            base64Decode(widget.listOfBooksFromSql!
                                 .firstWhere((element) =>
                                     uniqueIdCreater(element) ==
                                     notesToShow[index]['bookId'])
-                                .imageAsByte!),
+                                .imageAsByte!)),
                         subtitle: Text(notesToShow[index]['note'],
                             maxLines: 5, overflow: TextOverflow.ellipsis),
                       ),
