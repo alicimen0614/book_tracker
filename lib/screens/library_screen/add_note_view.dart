@@ -5,6 +5,8 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 class AddNoteView extends ConsumerStatefulWidget {
   const AddNoteView(
@@ -33,6 +35,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
 
   @override
   void initState() {
+    initializeDateFormatting('tr');
     if (widget.noteId != null) {
       oldNoteId = widget.noteId!;
     }
@@ -180,7 +183,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             Expanded(
               flex: 1,
               child: Text(
-                  "${DateTime.now().day.toString()} ${monthsInYearInTurkish[DateTime.now().month]} ${DateTime.now().year} ${DateTime.now().toLocal().hour}:${DateTime.now().minute} ",
+                  "${DateFormat("dd MMMM yyy H.m").format(DateTime.now())} ",
                   style: TextStyle(color: Colors.blue)),
             ),
             Expanded(

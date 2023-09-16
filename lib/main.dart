@@ -2,6 +2,7 @@ import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Intl.defaultLocale = 'tr';
+
     return MaterialApp(
       title: 'Book Tracker',
       theme: ThemeData(

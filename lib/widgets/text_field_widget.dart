@@ -8,11 +8,11 @@ class TextFieldWidget extends StatelessWidget {
       this.autoCorrect = false,
       required this.hintText,
       this.obscureText = false,
-      required this.prefixIconData,
+      this.prefixIconData,
       this.suffixIconData = Icons.abc,
       this.useSuffixIcon = false,
       required this.controller,
-      required this.validator})
+      this.validator})
       : super(key: key);
 
   final TextInputType keyboardType;
@@ -20,8 +20,8 @@ class TextFieldWidget extends StatelessWidget {
   final bool autoCorrect;
   final String hintText;
   final bool obscureText;
-  final IconData prefixIconData;
-  final IconData suffixIconData;
+  final IconData? prefixIconData;
+  final IconData? suffixIconData;
   final bool useSuffixIcon;
   final TextEditingController controller;
   final String? Function(String?)? validator;
