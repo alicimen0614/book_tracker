@@ -83,6 +83,10 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
         Expanded(
           child: TextField(
             onEditingComplete: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.unfocus();
+              }
               setState(() {
                 pageStatus = PageStatus.search;
 
@@ -92,7 +96,6 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
             controller: searchBarController,
             keyboardType: TextInputType.text,
             autocorrect: true,
-            cursorColor: Color.fromRGBO(242, 190, 34, 1),
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(15),
               hintText: "Search",

@@ -71,7 +71,11 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 5,
         ),
-        body: PagedListView<int, BookWorkEditionsModelEntries?>.separated(
+        body: PagedGridView<int, BookWorkEditionsModelEntries?>(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 0.6,
+          ),
           pagingController: pagingController,
           builderDelegate:
               PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
@@ -95,87 +99,78 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                           ),
                         ));
                   },
-                  child: Row(children: [
-                    item!.covers != null
-                        ? Expanded(
-                            child: Card(
-                              elevation: 18,
-                              child: Hero(
-                                tag: uniqueIdCreater(item) + index,
-                                child: FadeInImage.memoryNetwork(
-                                  image:
-                                      "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
-                                  placeholder: kTransparentImage,
-                                  imageErrorBuilder: (context, error,
-                                          stackTrace) =>
-                                      Image.asset(
-                                          "lib/assets/images/error.png"),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        item!.covers != null
+                            ? Expanded(
+                                flex: 40,
+                                child: Card(
+                                  margin: EdgeInsets.zero,
+                                  color: Colors.transparent,
+                                  elevation: 10,
+                                  child: Hero(
+                                    tag: uniqueIdCreater(item) + index,
+                                    child: FadeInImage.memoryNetwork(
+                                      fit: BoxFit.fill,
+                                      image:
+                                          "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
+                                      placeholder: kTransparentImage,
+                                      imageErrorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Image.asset(
+                                        "lib/assets/images/error.png",
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                flex: 40,
+                                child: Image.asset(
+                                  "lib/assets/images/nocover.jpg",
+                                  fit: BoxFit.fill,
+                                )),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            child: Text(
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              item.title!,
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        if (item.languages != null)
+                          Expanded(
+                            flex: 8,
+                            child: SizedBox(
+                              child: Text(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                countryNameCreater(item),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
-                          )
-                        : Expanded(
-                            child:
-                                Image.asset("lib/assets/images/nocover.jpg")),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 200,
-                          child: Text(
-                            item.title!,
-                            style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        SizedBox(
-                            width: 200,
-                            child: item.numberOfPages != null
-                                ? Text(
-                                    item.numberOfPages.toString(),
-                                    style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontStyle: FontStyle.italic),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : SizedBox.shrink()),
-                        SizedBox(
-                            width: 150,
-                            child: item.publishers != null
-                                ? Text(
-                                    item.publishers!.first!,
-                                    style: const TextStyle(
-                                        color: Colors.black, fontSize: 15),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : const SizedBox.shrink()),
-                        SizedBox(
-                          width: 150,
-                          child: item.languages != null
-                              ? Text(
-                                  countryNameCreater(item),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              : SizedBox.shrink(),
-                        )
-                      ],
-                    )
-                  ]),
+                        if (item.languages == null)
+                          Expanded(
+                            child: SizedBox.shrink(),
+                            flex: 8,
+                          )
+                      ]),
                 ),
               );
             },
           ),
           physics: BouncingScrollPhysics(),
-          separatorBuilder: (context, index) => const SizedBox(
-            height: 20,
-          ),
         ),
       ),
     );

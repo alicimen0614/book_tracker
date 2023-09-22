@@ -35,7 +35,6 @@ class TextFieldWidget extends StatelessWidget {
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
       autocorrect: autoCorrect,
-      cursorColor: Color.fromRGBO(242, 190, 34, 1),
       decoration: InputDecoration(
         contentPadding: EdgeInsets.all(2),
         hintText: hintText,
