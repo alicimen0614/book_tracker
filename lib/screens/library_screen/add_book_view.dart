@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:flutter/material.dart';
@@ -71,22 +72,36 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   behavior: SnackBarBehavior.floating,
                 ));
               } else {
-                final Uint8List imageAsByte = await pickedImage!.readAsBytes();
+                BookWorkEditionsModelEntries bookInfo =
+                    BookWorkEditionsModelEntries(
+                        covers: [1],
+                        title: titleFieldController.text,
+                        isbn_10: isbnFieldController.text != ""
+                            ? [isbnFieldController.text]
+                            : null,
+                        numberOfPages: pageNumberFieldController.text != ""
+                            ? int.parse(pageNumberFieldController.text)
+                            : null,
+                        publishers: publisherFieldController.text != ""
+                            ? [publisherFieldController.text]
+                            : null);
+                Uint8List imageAsByte = Uint8List.fromList([]);
+                if (pickedImage != null) {
+                  final Uint8List imageAsByte =
+                      await pickedImage!.readAsBytes();
+                }
+
+                //insert author
+                if (authorFieldController.text != "") {
+                  ref.read(sqlProvider).insertAuthors(
+                      authorFieldController.text, uniqueIdCreater(bookInfo));
+                }
+
+                //insert book
                 ref
                     .read(sqlProvider)
                     .insertBook(
-                        BookWorkEditionsModelEntries(
-                            covers: [1],
-                            title: titleFieldController.text,
-                            isbn_10: isbnFieldController.text != ""
-                                ? [isbnFieldController.text]
-                                : null,
-                            numberOfPages: pageNumberFieldController.text != ""
-                                ? int.parse(pageNumberFieldController.text)
-                                : null,
-                            publishers: publisherFieldController.text != ""
-                                ? [publisherFieldController.text]
-                                : null),
+                        bookInfo,
                         bookStatus == BookStatus.alreadyRead
                             ? "Okuduklarım"
                             : bookStatus == BookStatus.currentlyReading
@@ -280,6 +295,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                 color: Colors.transparent,
               ),
               TextFormField(
+                keyboardType: TextInputType.number,
                 controller: pageNumberFieldController,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(10),
@@ -495,12 +511,24 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       if (image == null) {
         return;
       } else {
-        final CroppedFile? croppedFile = await cropImage(file: image);
+        final CroppedFile? croppedFile =
+            await cropImage(file: image).whenComplete(() {
+          Navigator.pop(context);
+        });
 
         if (croppedFile != null) {
-          setState(() {
-            pickedImage = File(croppedFile.path);
-          });
+          if (checkImageSize(File(croppedFile.path)) < 2.0) {
+            setState(() {
+              pickedImage = File(croppedFile.path);
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: Duration(seconds: 2),
+              content: const Text("Seçtiğiniz resim 2 MB'dan küçük olmalıdır."),
+              action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+              behavior: SnackBarBehavior.floating,
+            ));
+          }
         }
       }
     } on PlatformException catch (e) {
@@ -513,5 +541,20 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       sourcePath: file.path,
       uiSettings: [AndroidUiSettings(lockAspectRatio: false)],
     );
+  }
+
+  double checkImageSize(File image) {
+    var imageSize = image.readAsBytesSync().lengthInBytes;
+    print("$imageSize imageSize");
+    double byte = imageSize.floorToDouble();
+    print("$byte byte");
+
+    double kilobyte = (byte / 1024.0);
+    print("$kilobyte kilobyte");
+
+    double megabyte = (kilobyte / 1024.0);
+    print("$megabyte megabyte");
+
+    return megabyte;
   }
 }

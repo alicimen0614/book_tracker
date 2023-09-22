@@ -241,6 +241,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                       .imageAsByte!),
                                   cacheHeight: 270,
                                   cacheWidth: 180,
+                                  fit: BoxFit.fill,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Image.asset(
                                           "lib/assets/images/error.png"),
@@ -265,13 +266,16 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                                 .imageAsByte!),
                                             cacheHeight: 290,
                                             cacheWidth: 180,
+                                            fit: BoxFit.fill,
                                             errorBuilder: (context, error,
                                                     stackTrace) =>
                                                 Image.asset(
                                                     "lib/assets/images/error.png"),
                                           )
                                         : Image.asset(
-                                            "lib/assets/images/nocover.jpg"),
+                                            "lib/assets/images/nocover.jpg",
+                                            fit: BoxFit.fill,
+                                          ),
                                   )
                                 : Hero(
                                     tag: uniqueIdCreater(
@@ -280,6 +284,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                       image:
                                           "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
                                       placeholder: kTransparentImage,
+                                      fit: BoxFit.fill,
                                       imageErrorBuilder: (context, error,
                                               stackTrace) =>
                                           Image.asset(
@@ -290,7 +295,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     )
                   : Expanded(
                       flex: 3,
-                      child: Image.asset("lib/assets/images/nocover.jpg")),
+                      child: Image.asset(
+                        "lib/assets/images/nocover.jpg",
+                        fit: BoxFit.fill,
+                      )),
               Expanded(
                 flex: 1,
                 child: SizedBox(
@@ -366,6 +374,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       print("ilk if e girdi");
       await _sqlHelper.insertBook(
           bookInfo, bookInfo.bookStatus!, base64Decode(bookInfo.imageAsByte!));
+      await insertAuthor(bookInfo);
     } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
       print("ikinci if e girdi");
       String imageLink =
@@ -376,8 +385,18 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
       Uint8List imageAsByte = bytes;
       await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, imageAsByte);
+      await insertAuthor(bookInfo);
     } else {
       await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, null);
+      await insertAuthor(bookInfo);
+    }
+  }
+
+  Future<void> insertAuthor(BookWorkEditionsModelEntries bookInfo) async {
+    if (bookInfo.authorsNames != null) {
+      for (var element in bookInfo.authorsNames!) {
+        await _sqlHelper.insertAuthors(element!, uniqueIdCreater(bookInfo));
+      }
     }
   }
 
@@ -396,7 +415,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             "physicalFormat": bookInfo.physicalFormat,
             "publishDate": bookInfo.publishDate,
             "isbn_10": bookInfo.isbn_10,
-            "isbn_13": bookInfo.isbn_13
+            "isbn_13": bookInfo.isbn_13,
+            "authorsNames": bookInfo.authorsNames,
+            "description": bookInfo.description
           },
           userId: ref.read(authProvider).currentUser!.uid,
         );

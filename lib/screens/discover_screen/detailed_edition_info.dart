@@ -1,4 +1,5 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
@@ -6,7 +7,6 @@ import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:book_tracker/databases/sql_helper.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
@@ -29,9 +29,20 @@ class DetailedEditionInfo extends ConsumerStatefulWidget {
 }
 
 class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
-  final SqlHelper _sqlHelper = SqlHelper();
+  bool descriptionShowMore = false;
+  List<String> authorsNames = [];
+  bool isLoading = false;
 
   BookStatus bookStatus = BookStatus.wantToRead;
+
+  @override
+  void initState() {
+    if (widget.editionInfo.authors != null) {
+      getPageData();
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,115 +51,118 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     print(widget.editionInfo.title.hashCode);
     print(bookStatus);
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          widget.isNavigatingFromLibrary == true
-              ? IconButton(
-                  tooltip: "Not Ekle",
-                  splashRadius: 25,
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddNoteView(
-                              showDeleteIcon: false,
-                              bookInfo: widget.editionInfo,
-                              bookImage: widget.bookImage),
-                        ));
-                  },
-                  icon: Icon(
-                    Icons.library_add_rounded,
-                    size: 30,
-                    color: Colors.white,
-                  ))
-              : SizedBox.shrink(),
-          IconButton(
-              splashRadius: 25,
-              onPressed: () {
-                modalBottomSheetBuilderForPopUpMenu(context);
-              },
-              icon: Icon(
-                Icons.more_vert_sharp,
-                size: 30,
-              ))
-        ],
-        leadingWidth: 50,
-        leading: IconButton(
-            splashRadius: 25,
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 30,
-            )),
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
-        elevation: 0,
-      ),
-      bottomNavigationBar: widget.isNavigatingFromLibrary == false
-          ? BottomAppBar(
-              elevation: 0,
-              color: const Color.fromRGBO(195, 129, 84, 1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber.shade900),
-                      onPressed: () async {
-                        await _sqlHelper.deleteDatabasef();
-                      },
-                      icon: Icon(Icons.shopping_cart),
-                      label: Text("Kitapçılar")),
-                  ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown.shade600),
-                      onPressed: () async {
-                        bookStatusDialog(context);
-                      },
-                      icon: Icon(Icons.shelves),
-                      label: Text("Rafa ekle"))
-                ],
-              ),
-            )
-          : null,
-      backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
-      body: Padding(
-        padding: EdgeInsets.only(left: 20, right: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            widget.editionInfo.covers != null
-                ? Align(
-                    alignment: Alignment.center,
-                    child: Card(
-                        color: Colors.transparent,
-                        elevation: 18,
-                        child: Hero(
-                            tag: uniqueIdCreater(widget.editionInfo) +
-                                widget.indexOfEdition,
-                            child: widget.bookImage != null
-                                ? Image(
-                                    image: widget.bookImage!.image,
-                                    height: 270,
-                                    width: 180,
-                                  )
-                                : Image.asset(
-                                    "lib/assets/images/nocover.jpg"))),
-                  )
-                : Align(
-                    alignment: Alignment.center,
-                    child: Image.asset("lib/assets/images/nocover.jpg")),
-            SizedBox(
-              height: 20,
-            ),
-            editionInfoBodyBuilder(context)
+        appBar: AppBar(
+          actions: [
+            widget.isNavigatingFromLibrary == true
+                ? IconButton(
+                    tooltip: "Not Ekle",
+                    splashRadius: 25,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddNoteView(
+                                showDeleteIcon: false,
+                                bookInfo: widget.editionInfo,
+                                bookImage: widget.bookImage),
+                          ));
+                    },
+                    icon: Icon(
+                      Icons.library_add_rounded,
+                      size: 30,
+                      color: Colors.white,
+                    ))
+                : SizedBox.shrink(),
+            IconButton(
+                splashRadius: 25,
+                onPressed: () {
+                  modalBottomSheetBuilderForPopUpMenu(context);
+                },
+                icon: Icon(
+                  Icons.more_vert_sharp,
+                  size: 30,
+                ))
           ],
+          leadingWidth: 50,
+          leading: IconButton(
+              splashRadius: 25,
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 30,
+              )),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+          elevation: 0,
         ),
-      ),
-    );
+        bottomNavigationBar: widget.isNavigatingFromLibrary == false
+            ? BottomAppBar(
+                elevation: 0,
+                color: const Color.fromRGBO(195, 129, 84, 1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber.shade900),
+                        onPressed: () async {
+                          await ref.read(sqlProvider).deleteDatabasef();
+                        },
+                        icon: Icon(Icons.shopping_cart),
+                        label: Text("Kitapçılar")),
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown.shade600),
+                        onPressed: () async {
+                          bookStatusDialog(context);
+                        },
+                        icon: Icon(Icons.shelves),
+                        label: Text("Rafa ekle"))
+                  ],
+                ),
+              )
+            : null,
+        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+        body: Padding(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              widget.editionInfo.covers != null
+                  ? Align(
+                      alignment: Alignment.center,
+                      child: Card(
+                          color: Colors.transparent,
+                          elevation: 18,
+                          child: Hero(
+                              tag: uniqueIdCreater(widget.editionInfo) +
+                                  widget.indexOfEdition,
+                              child: widget.bookImage != null
+                                  ? Image(
+                                      image: widget.bookImage!.image,
+                                      height: 270,
+                                      width: 180,
+                                    )
+                                  : Image.asset(
+                                      "lib/assets/images/nocover.jpg"))),
+                    )
+                  : Align(
+                      alignment: Alignment.center,
+                      child: Image.asset("lib/assets/images/nocover.jpg")),
+              SizedBox(
+                height: 20,
+              ),
+              isLoading != true
+                  ? editionInfoBodyBuilder(context)
+                  : Center(
+                      child: CircularProgressIndicator(),
+                    )
+            ],
+          ),
+        ));
   }
 
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
@@ -163,6 +177,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           widget.isNavigatingFromLibrary != false
               ? ListTile(
                   onTap: () async {
+                    await deleteAuthorsFromSql(widget.editionInfo);
                     await deleteNote(widget.editionInfo);
                     await deleteBook(widget.editionInfo).whenComplete(() {
                       Navigator.pushAndRemoveUntil(
@@ -212,7 +227,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Future<void> deleteBook(BookWorkEditionsModelEntries bookInfo) async {
-    await _sqlHelper.deleteBook(uniqueIdCreater(bookInfo));
+    await ref.read(sqlProvider).deleteBook(uniqueIdCreater(bookInfo));
     if (ref.read(authProvider).currentUser != null) {
       await ref.read(firestoreProvider).deleteBook(
           referencePath: "usersBooks",
@@ -229,6 +244,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           userId: ref.read(authProvider).currentUser!.uid,
           bookId: uniqueIdCreater(bookInfo));
     }
+  }
+
+  Future<void> deleteAuthorsFromSql(
+      BookWorkEditionsModelEntries bookInfo) async {
+    ref.read(sqlProvider).deleteAuthors(uniqueIdCreater(bookInfo));
   }
 
   Future<dynamic> bookStatusDialog(BuildContext context) {
@@ -357,7 +377,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             "physicalFormat": editionInfo.physicalFormat,
             "publishDate": editionInfo.publishDate,
             "isbn_10": editionInfo.isbn_10,
-            "isbn_13": editionInfo.isbn_13
+            "isbn_13": editionInfo.isbn_13,
+            "authorsNames": authorsNames,
+            "description": editionInfo.description
           },
           userId: ref.read(authProvider).currentUser!.uid,
         );
@@ -365,7 +387,14 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   Future<void> insertToSqlDatabase(
       Uint8List? imageAsByte, BuildContext context) async {
-    await _sqlHelper
+    for (var element in authorsNames) {
+      await ref
+          .read(sqlProvider)
+          .insertAuthors(element, uniqueIdCreater(widget.editionInfo));
+    }
+
+    await ref
+        .read(sqlProvider)
         .insertBook(
             widget.editionInfo,
             bookStatus == BookStatus.alreadyRead
@@ -407,9 +436,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
                 width: MediaQuery.sizeOf(context).width - 40,
                 child: Text(
@@ -418,22 +445,87 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontSize: 17, fontWeight: FontWeight.bold),
                 ),
               ),
-              if (widget.editionInfo.authors != null)
-                SizedBox(
-                  height: 20,
+              if (widget.editionInfo.authors != null ||
+                  widget.editionInfo.authorsNames != null)
+                Divider(color: Colors.transparent, thickness: 0),
+              if (widget.editionInfo.authors != null ||
+                  widget.editionInfo.authorsNames != null)
+                Text(
+                  "Yazarlar",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
+              if (widget.editionInfo.authors != null ||
+                  widget.editionInfo.authorsNames != null)
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.authors != null)
                 SizedBox(
-                    height: 25,
-                    child: ListView.builder(
+                    height: widget.editionInfo.authors!.length * 20,
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => SizedBox(
+                        height: 5,
+                      ),
+                      physics: NeverScrollableScrollPhysics(),
                       itemCount: widget.editionInfo.authors!.length,
                       itemBuilder: (context, index) =>
-                          Text(widget.editionInfo.authors![index]!.key!),
+                          Text(authorsNames[index]),
                     )),
-              if (widget.editionInfo.languages != null)
+              if (widget.editionInfo.authorsNames != null)
                 SizedBox(
-                  height: 20,
+                    height: widget.editionInfo.authorsNames!.length * 20,
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => SizedBox(
+                        height: 5,
+                      ),
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: widget.editionInfo.authorsNames!.length,
+                      itemBuilder: (context, index) =>
+                          Text(widget.editionInfo.authorsNames![index]!),
+                    )),
+              if (widget.editionInfo.description != null)
+                Divider(color: Colors.transparent, thickness: 0),
+              if (widget.editionInfo.description != null)
+                Text(
+                  "Açıklama",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
+              if (widget.editionInfo.description != null)
+                Divider(color: Colors.transparent, thickness: 0),
+              if (widget.editionInfo.description != null)
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: descriptionShowMore == false
+                      ? Text(
+                          widget.editionInfo.description!,
+                          style: const TextStyle(fontSize: 15),
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : Text(
+                          widget.editionInfo.description!,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                ),
+              if (widget.editionInfo.description != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          descriptionShowMore = !descriptionShowMore;
+                        });
+                      },
+                      child: descriptionShowMore == false
+                          ? Text("Daha fazla göster")
+                          : Text("Daha az göster")),
+                ),
+              if (widget.editionInfo.languages != null)
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.languages != null)
                 Text(
                   "Dil",
@@ -443,9 +535,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.languages != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.languages != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
@@ -456,9 +546,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   ),
                 ),
               if (widget.editionInfo.numberOfPages != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.numberOfPages != null)
                 Text(
                   "Sayfa Sayısı",
@@ -468,9 +556,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.numberOfPages != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.numberOfPages != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -480,9 +566,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           color: Colors.grey, fontStyle: FontStyle.italic),
                     )),
               if (widget.editionInfo.publishers != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
                 Text(
                   "Yayıncı",
@@ -492,9 +576,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.publishers != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -503,9 +585,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.publishDate != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishDate != null)
                 Text(
                   "Yayınlanma tarihi",
@@ -515,9 +595,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.publishDate != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishDate != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -526,9 +604,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.physicalFormat != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physicalFormat != null)
                 Text(
                   "Format",
@@ -538,9 +614,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.physicalFormat != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physicalFormat != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
@@ -566,9 +640,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               : Text(widget.editionInfo.physicalFormat!),
                 ),
               if (widget.editionInfo.isbn_10 != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_10 != null)
                 Text(
                   "Isbn 10",
@@ -578,9 +650,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_10 != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_10 != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -589,9 +659,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.isbn_13 != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_13 != null)
                 Text(
                   "Isbn 13",
@@ -601,9 +669,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_13 != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_13 != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -612,9 +678,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.bookStatus != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
                 Text(
                   "Kitap durumu",
@@ -624,9 +688,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.bookStatus != null)
-                SizedBox(
-                  height: 20,
-                ),
+                Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -639,5 +701,35 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         ),
       ),
     );
+  }
+
+  Future getPageData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    if (widget.editionInfo.authors != null) {
+      await getAuthorsNames();
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future getAuthorsNames() async {
+    List<String> authorsNamesList = [];
+    for (var element in widget.editionInfo.authors!) {
+      AuthorsModel author =
+          await ref.read(booksProvider).getAuthorInfo(element!.key!, true);
+      if (author.name != null) {
+        authorsNamesList.add(author.name!);
+      } else if (author.personalName != null) {
+        authorsNamesList.add(author.personalName!);
+      } else if (author.alternateNames != null) {
+        authorsNamesList.add(author.alternateNames!.first!);
+      }
+    }
+
+    return authorsNames = authorsNamesList;
   }
 }

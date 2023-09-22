@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:book_tracker/models/authors_model.dart';
+import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
@@ -116,5 +118,50 @@ class BooksService extends ChangeNotifier {
   Future<int?> getBookEditionsSize(String key) async {
     var _bookEditions = await getBookWorkEditions(key, 0);
     return _bookEditions.size;
+  }
+
+  Future<AuthorsModel> getAuthorInfo(String key, bool doesContainTag) async {
+    doesContainTag == true
+        ? log("https://openlibrary.org$key.json")
+        : log("https://openlibrary.org/authors/$key.json");
+
+    var response = await http.get(doesContainTag == true
+        ? Uri.parse("https://openlibrary.org$key.json")
+        : Uri.parse("https://openlibrary.org/authors/$key.json"));
+    if (response.statusCode == 200) {
+      var result = AuthorsModel.fromJson(jsonDecode(response.body));
+      print("${result.name} authorname");
+
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
+    }
+  }
+
+  Future<AuthorsWorksModel> getAuthorsWorks(
+      String authorKey, int? limit, int offsetKey) async {
+    log("https://openlibrary.org/authors/$authorKey/works.json?limit=$limit&offset=$offsetKey");
+    var response = await http.get(Uri.parse(
+        "https://openlibrary.org/authors/$authorKey/works.json?limit=$limit&offset=$offsetKey"));
+    if (response.statusCode == 200) {
+      var result = AuthorsWorksModel.fromJson(jsonDecode(response.body));
+
+      print(result);
+      return result;
+    } else {
+      throw ("Bir sorun oluştu ${response.statusCode}");
+    }
+  }
+
+  Future<List<AuthorsWorksModelEntries?>?> getAuthorsWorksEntries(
+      String authorKey, int? limit, int offsetKey) async {
+    AuthorsWorksModel result =
+        await getAuthorsWorks(authorKey, limit, offsetKey);
+    return result.entries;
+  }
+
+  Future<int?> getAuthorsWorksSize(String authorKey) async {
+    AuthorsWorksModel result = await getAuthorsWorks(authorKey, null, 0);
+    return result.size;
   }
 }

@@ -1,10 +1,12 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/discover_screen/author_info_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
@@ -15,11 +17,16 @@ import 'package:sealed_languages/sealed_languages.dart';
 
 class BookInfoView extends ConsumerStatefulWidget {
   const BookInfoView(
-      {super.key, this.trendingBook, this.categoryBook, this.searchBook});
+      {super.key,
+      this.trendingBook,
+      this.categoryBook,
+      this.searchBook,
+      this.authorBook});
 
   final TrendingBooksWorks? trendingBook;
   final CategoryBooksWorks? categoryBook;
   final BooksModelDocs? searchBook;
+  final AuthorsWorksModelEntries? authorBook;
 
   @override
   ConsumerState<BookInfoView> createState() => _BookInfoViewState();
@@ -40,7 +47,9 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         ? widget.categoryBook
         : widget.searchBook != null
             ? widget.searchBook
-            : widget.trendingBook;
+            : widget.trendingBook != null
+                ? widget.trendingBook
+                : widget.authorBook;
     getPageData();
     super.initState();
   }
@@ -49,34 +58,33 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   Widget build(
     BuildContext context,
   ) {
-    return SafeArea(
-        child: Scaffold(
-            appBar: AppBar(
-              leadingWidth: 50,
-              leading: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 30,
-                  )),
-              automaticallyImplyLeading: false,
-              backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
-              elevation: 5,
-            ),
-            body: isDataLoading == false
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                    child: Column(
-                      children: [
-                        bookInfoBarBuilder(),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        bookInfoBodyBuilder(),
-                      ],
+    return Scaffold(
+        appBar: AppBar(
+          leadingWidth: 50,
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 30,
+              )),
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+          elevation: 5,
+        ),
+        body: isDataLoading == false
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                child: Column(
+                  children: [
+                    bookInfoBarBuilder(),
+                    const SizedBox(
+                      height: 15,
                     ),
-                  )
-                : shimmerEffectBuilder()));
+                    bookInfoBodyBuilder(),
+                  ],
+                ),
+              )
+            : shimmerEffectBuilder());
   }
 
   Expanded bookInfoBodyBuilder() {
@@ -371,11 +379,13 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           flex: 1,
           child: Container(
             color: Colors.teal,
-            child: Image.network(
-              "https://covers.openlibrary.org/b/id/${mainBook.runtimeType == CategoryBooksWorks ? mainBook!.coverId : mainBook!.coverI}-M.jpg",
-              errorBuilder: (context, error, stackTrace) =>
-                  Image.asset("lib/assets/images/error.png"),
-            ),
+            child: bookWorkModel.covers != null
+                ? Image.network(
+                    "https://covers.openlibrary.org/b/id/${bookWorkModel.covers!.first}-M.jpg",
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.asset("lib/assets/images/error.png"),
+                  )
+                : Image.asset("lib/assets/images/nocover.jpg"),
           ),
         ),
         Expanded(
@@ -396,8 +406,18 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                       mainBook.authorName != null) ||
                   (mainBook.runtimeType == BooksModelDocs &&
                       mainBook.authorName != null))
-                Text(mainBook!.authorName!.first!,
-                    style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AuthorInfoScreen(
+                                authorKey: mainBook!.authorKey.first),
+                          ));
+                    },
+                    child: Text(mainBook!.authorName!.first!,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 16))),
               if (mainBook.runtimeType == CategoryBooksWorks &&
                   mainBook!.authors != null)
                 Text(mainBook!.authors!.first!.name!,
