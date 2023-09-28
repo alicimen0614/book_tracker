@@ -5,7 +5,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
-import 'package:book_tracker/widgets/shimmer_widget.dart';
+import 'package:book_tracker/screens/library_screen/shimmer_effects/notes_view_shimmer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,8 +37,10 @@ class _NotesViewState extends ConsumerState<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
-          title: Text("Notlarım"),
+          title: Text(
+            "Notlarım",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           centerTitle: true,
           leadingWidth: 50,
           actions: [
@@ -59,7 +61,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
               splashRadius: 25,
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_sharp,
                 size: 30,
               )),
         ),
@@ -116,7 +118,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                       ),
                     )),
               )
-            : shimmerEffectBuilder());
+            : notesViewShimmerEffect());
   }
 
   Future<void> getPageData() async {
@@ -230,22 +232,5 @@ class _NotesViewState extends ConsumerState<NotesView> {
   Future<void> insertNoteToSql(Map<String, dynamic> noteFromFirestore) async {
     await ref.read(sqlProvider).insertNoteToBook(
         noteFromFirestore['note'], noteFromFirestore['bookId']);
-  }
-
-  ListView shimmerEffectBuilder() {
-    return ListView.separated(
-      padding: EdgeInsets.all(15),
-      separatorBuilder: (context, index) => SizedBox(
-        height: 15,
-      ),
-      itemCount: 5,
-      itemBuilder: (context, index) => ShimmerWidget.rounded(
-          highlightColor: Colors.grey,
-          shapeBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-          width: MediaQuery.sizeOf(context).width - 30,
-          height: MediaQuery.sizeOf(context).height / 7.3,
-          baseColor: Colors.white60),
-    );
   }
 }

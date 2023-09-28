@@ -2,6 +2,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -34,9 +35,11 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
   void fetchData(int pageKey) async {
     print("fetchdata");
     try {
-      var list = await ref
+      var editionsModel = await ref
           .read(booksProvider)
-          .bookEditionsEntriesList(widget.workId, pageKey);
+          .getBookWorkEditions(widget.workId, pageKey);
+
+      var list = editionsModel.entries;
       final isLastPage = list!.length < 50;
       if (isLastPage) {
         pagingController.appendLastPage(list);
@@ -59,26 +62,32 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
         appBar: AppBar(
           centerTitle: true,
           leadingWidth: 50,
-          title: Text("${widget.title} Baskıları"),
+          title: Text(
+            "${widget.title} Baskıları",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           leading: IconButton(
               splashRadius: 25,
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_sharp,
                 size: 30,
               )),
           automaticallyImplyLeading: false,
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 5,
         ),
         body: PagedGridView<int, BookWorkEditionsModelEntries?>(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 0.6,
-          ),
+              crossAxisCount: 3,
+              childAspectRatio: 1,
+              mainAxisExtent: 230,
+              crossAxisSpacing: 25,
+              mainAxisSpacing: 25),
           pagingController: pagingController,
           builderDelegate:
               PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
+            firstPageProgressIndicatorBuilder: (context) =>
+                gridViewBooksShimmerEffectBuilder(),
             itemBuilder: (context, item, index) {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -104,7 +113,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                       children: [
                         item!.covers != null
                             ? Expanded(
-                                flex: 40,
+                                flex: 20,
                                 child: Card(
                                   margin: EdgeInsets.zero,
                                   color: Colors.transparent,
@@ -126,14 +135,14 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                                 ),
                               )
                             : Expanded(
-                                flex: 40,
+                                flex: 20,
                                 child: Image.asset(
                                   "lib/assets/images/nocover.jpg",
                                   fit: BoxFit.fill,
                                 )),
-                        Spacer(),
+                        Spacer(flex: 1),
                         Expanded(
-                          flex: 10,
+                          flex: 6,
                           child: SizedBox(
                             child: Text(
                               maxLines: 2,
@@ -147,7 +156,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                         ),
                         if (item.languages != null)
                           Expanded(
-                            flex: 8,
+                            flex: 3,
                             child: SizedBox(
                               child: Text(
                                 maxLines: 2,
@@ -163,7 +172,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                         if (item.languages == null)
                           Expanded(
                             child: SizedBox.shrink(),
-                            flex: 8,
+                            flex: 3,
                           )
                       ]),
                 ),

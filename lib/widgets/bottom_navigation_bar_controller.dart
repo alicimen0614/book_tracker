@@ -20,13 +20,26 @@ class BottomNavigationBarController extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarControllerState
     extends ConsumerState<BottomNavigationBarController> {
-  late int currentIndex = widget.currentIndexParam;
+  late PageController _pageController;
+  late int currentIndex;
   late String value = widget.searchValue;
   final screens = [
     const HomeScreenView(),
     const DiscoverScreenView(),
     const LibraryScreenView(),
   ];
+  @override
+  void initState() {
+    currentIndex = widget.currentIndexParam;
+    _pageController = PageController(initialPage: currentIndex);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +47,19 @@ class _BottomNavigationBarControllerState
         stream: ref.read(authProvider).authState,
         builder: (context, snapshot) {
           return Scaffold(
-            body: currentIndex == 3
-                ? UserScreenView(
-                    user: snapshot.data,
-                  )
-                : currentIndex == 1
-                    ? const DiscoverScreenView()
-                    : screens[currentIndex],
+            body: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              children: [
+                currentIndex == 3
+                    ? UserScreenView(
+                        user: snapshot.data,
+                      )
+                    : currentIndex == 1
+                        ? const DiscoverScreenView()
+                        : screens[currentIndex],
+              ],
+            ),
             bottomNavigationBar: bottomNavigationBarBuilder(),
           );
         });
@@ -48,14 +67,16 @@ class _BottomNavigationBarControllerState
 
   Widget bottomNavigationBarBuilder() {
     return BottomNavigationBar(
+      selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
       iconSize: 30,
-      fixedColor: const Color.fromRGBO(195, 129, 84, 1),
+      fixedColor: Color(0xFF1B7695),
       unselectedItemColor: Colors.black54,
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: (index) {
         setState(() {
           currentIndex = index;
+          _pageController.jumpToPage(currentIndex);
         });
       },
       items: const <BottomNavigationBarItem>[

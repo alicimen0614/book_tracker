@@ -66,18 +66,17 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       child: Scaffold(
         appBar: AppBar(
             title: Text("Kitaba bir not ekle: ${widget.bookInfo.title}",
-                style: TextStyle(fontSize: 16)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             centerTitle: true,
             leadingWidth: 50,
             leading: IconButton(
                 splashRadius: 25,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(
-                  Icons.arrow_back_ios_new,
+                  Icons.arrow_back_sharp,
                   size: 30,
                 )),
             automaticallyImplyLeading: false,
-            backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
             elevation: 0,
             actions: [
               widget.showDeleteIcon == true
@@ -179,12 +178,15 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                 flex: 1,
                 child: Align(
                     alignment: Alignment.center,
-                    child: Text(widget.bookInfo.title!))),
+                    child: Text(widget.bookInfo.title!,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17)))),
             Expanded(
               flex: 1,
               child: Text(
                   "${DateFormat("dd MMMM yyy H.m").format(DateTime.now())} ",
-                  style: TextStyle(color: Colors.blue)),
+                  style: TextStyle(
+                      color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),
             Expanded(
               flex: 5,

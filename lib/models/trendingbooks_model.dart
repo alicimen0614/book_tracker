@@ -3,7 +3,6 @@ class TrendingBooksWorks {
   String? title;
   int? editionCount;
   int? firstPublishYear;
-  String? coverEditionKey;
   int? coverI;
   List<String?>? language;
   List<String?>? authorKey;
@@ -14,7 +13,6 @@ class TrendingBooksWorks {
     this.title,
     this.editionCount,
     this.firstPublishYear,
-    this.coverEditionKey,
     this.coverI,
     this.language,
     this.authorKey,
@@ -26,7 +24,6 @@ class TrendingBooksWorks {
     editionCount = json['edition_count']?.toInt();
     firstPublishYear = json['first_publish_year']?.toInt();
 
-    coverEditionKey = json['cover_edition_key']?.toString();
     coverI = json['cover_i']?.toInt();
     if (json['language'] != null) {
       final v = json['language'];
@@ -59,7 +56,6 @@ class TrendingBooksWorks {
     data['title'] = title;
     data['edition_count'] = editionCount;
     data['first_publish_year'] = firstPublishYear;
-    data['cover_edition_key'] = coverEditionKey;
     data['cover_i'] = coverI;
     if (language != null) {
       final v = language;

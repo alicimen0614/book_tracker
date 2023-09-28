@@ -6,13 +6,14 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
-import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import 'shimmer_effects/library_scrren_shimmer.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 
@@ -23,7 +24,8 @@ class LibraryScreenView extends ConsumerStatefulWidget {
   ConsumerState<LibraryScreenView> createState() => _LibraryScreenViewState();
 }
 
-class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
+class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
+    with AutomaticKeepAliveClientMixin<LibraryScreenView> {
   bool isDataLoading = false;
   ConnectivityResult connectivityResult = ConnectivityResult.none;
   bool isConnected = false;
@@ -31,7 +33,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirestore = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
-
+  @override
+  bool get wantKeepAlive => true;
   @override
   void initState() {
     getPageData();
@@ -40,6 +43,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
@@ -78,14 +82,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   size: 30,
                 ))
           ],
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           centerTitle: true,
-          title: Text("Kitaplığım"),
+          title: Text(
+            "Kitaplığım",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           bottom: TabBar(
               labelColor: Colors.black87,
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelStyle: TextStyle(fontSize: 15),
+              labelStyle: TextStyle(
+                fontSize: 15,
+                fontFamily: "Nunito Sans",
+                fontWeight: FontWeight.bold,
+              ),
               tabs: [
                 Tab(
                   text: "Tümü",
@@ -115,23 +125,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               ]),
         ),
         body: isDataLoading == true
-            ? GridView.builder(
-                padding: EdgeInsets.all(20),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.6,
-                    crossAxisSpacing: 25,
-                    mainAxisSpacing: 25),
-                itemBuilder: (context, index) {
-                  return Column(children: [
-                    ShimmerWidget.rectangular(width: 75, height: 100),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    ShimmerWidget.rectangular(width: 75, height: 10)
-                  ]);
-                },
-              )
+            ? libraryScreenShimmerEffect()
             : TabBarView(
                 children: [
                   tabBarViewItem(
@@ -227,7 +221,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             child: Column(children: [
               listOfTheCurrentBookStatus[index].covers != null
                   ? Expanded(
-                      flex: 3,
+                      flex: 5,
                       child: Card(
                         color: Colors.transparent,
                         elevation: 10,
@@ -236,15 +230,20 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                             ? Hero(
                                 tag: uniqueIdCreater(
                                     listOfTheCurrentBookStatus[index]),
-                                child: Image.memory(
-                                  base64Decode(listOfTheCurrentBookStatus[index]
-                                      .imageAsByte!),
-                                  cacheHeight: 270,
-                                  cacheWidth: 180,
-                                  fit: BoxFit.fill,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Image.asset(
-                                          "lib/assets/images/error.png"),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.memory(
+                                    base64Decode(
+                                        listOfTheCurrentBookStatus[index]
+                                            .imageAsByte!),
+                                    cacheHeight: 270,
+                                    cacheWidth: 180,
+                                    fit: BoxFit.fill,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                                "lib/assets/images/error.png"),
+                                  ),
                                 ),
                               )
                             /* if there is a list of books coming from firebase it doesn't
@@ -260,17 +259,21 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                     child: listOfBooksFromSql![indexOfMatching]
                                                 .imageAsByte !=
                                             null
-                                        ? Image.memory(
-                                            base64Decode(listOfBooksFromSql![
-                                                    indexOfMatching]
-                                                .imageAsByte!),
-                                            cacheHeight: 290,
-                                            cacheWidth: 180,
-                                            fit: BoxFit.fill,
-                                            errorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                Image.asset(
-                                                    "lib/assets/images/error.png"),
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.memory(
+                                              base64Decode(listOfBooksFromSql![
+                                                      indexOfMatching]
+                                                  .imageAsByte!),
+                                              cacheHeight: 290,
+                                              cacheWidth: 180,
+                                              fit: BoxFit.fill,
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Image.asset(
+                                                      "lib/assets/images/error.png"),
+                                            ),
                                           )
                                         : Image.asset(
                                             "lib/assets/images/nocover.jpg",
@@ -280,27 +283,33 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                 : Hero(
                                     tag: uniqueIdCreater(
                                         listOfTheCurrentBookStatus[index]),
-                                    child: FadeInImage.memoryNetwork(
-                                      image:
-                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                      placeholder: kTransparentImage,
-                                      fit: BoxFit.fill,
-                                      imageErrorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Image.asset(
-                                              "lib/assets/images/error.png"),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: FadeInImage.memoryNetwork(
+                                        image:
+                                            "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                        placeholder: kTransparentImage,
+                                        fit: BoxFit.fill,
+                                        imageErrorBuilder: (context, error,
+                                                stackTrace) =>
+                                            Image.asset(
+                                                "lib/assets/images/error.png"),
+                                      ),
                                     ),
                                   ),
                       ),
                     )
                   : Expanded(
-                      flex: 3,
-                      child: Image.asset(
-                        "lib/assets/images/nocover.jpg",
-                        fit: BoxFit.fill,
+                      flex: 5,
+                      child: Card(
+                        elevation: 10,
+                        child: Image.asset(
+                          "lib/assets/images/nocover.jpg",
+                          fit: BoxFit.fill,
+                        ),
                       )),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: SizedBox(
                   width: 200,
                   child: Text(
@@ -308,7 +317,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     style: const TextStyle(
                         fontSize: 12, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
-                    maxLines: 3,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

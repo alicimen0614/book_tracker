@@ -16,8 +16,11 @@ class UserScreenView extends ConsumerStatefulWidget {
   ConsumerState<UserScreenView> createState() => _UserScreenViewState();
 }
 
-class _UserScreenViewState extends ConsumerState<UserScreenView> {
+class _UserScreenViewState extends ConsumerState<UserScreenView>
+    with AutomaticKeepAliveClientMixin<UserScreenView> {
   late bool isUserLoggedIn;
+  @override
+  bool get wantKeepAlive => true;
   @override
   void initState() {
     widget.user != null ? isUserLoggedIn = true : isUserLoggedIn = false;
@@ -89,6 +92,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   Widget build(
     BuildContext context,
   ) {
+    super.build(context);
     print("yenilendi");
     print("$isUserLoggedIn -1");
 

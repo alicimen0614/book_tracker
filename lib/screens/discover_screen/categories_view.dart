@@ -3,6 +3,7 @@ import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/categories_view_shimmer.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +64,11 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
         physics: const BouncingScrollPhysics(),
         itemCount: mainCategories.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          mainAxisSpacing: 50,
-          crossAxisSpacing: 25,
-          mainAxisExtent: 250,
-          childAspectRatio: 0.1,
-          crossAxisCount: 2,
-        ),
+            crossAxisSpacing: 25,
+            mainAxisExtent: 230,
+            childAspectRatio: 1,
+            crossAxisCount: 2,
+            mainAxisSpacing: 25),
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(10),
@@ -86,20 +86,27 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   ));
                 },
                 child: Column(children: [
-                  Image.asset(
-                      "lib/assets/images/${mainCategoriesImages[index]}"),
+                  Expanded(
+                    flex: 10,
+                    child: Image.asset(
+                        "lib/assets/images/${mainCategoriesImages[index]}"),
+                  ),
                   const SizedBox(
                     width: double.infinity,
                     height: 10,
                   ),
-                  Text(
-                    mainCategoriesNames[index],
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        overflow: TextOverflow.fade),
-                    textAlign: TextAlign.center,
+                  Spacer(),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      mainCategoriesNames[index],
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                          overflow: TextOverflow.fade),
+                      textAlign: TextAlign.center,
+                    ),
                   )
                 ]),
               ),
@@ -127,7 +134,10 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   TextButton(
-                      child: const Text("Daha fazla"),
+                      child: const Text(
+                        "Daha fazla",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
@@ -168,7 +178,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                         flex: 3,
                                         child: FadeInImage.memoryNetwork(
                                           image:
-                                              "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-S.jpg",
+                                              "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-M.jpg",
                                           placeholder: kTransparentImage,
                                           imageErrorBuilder: (context, error,
                                                   stackTrace) =>
@@ -188,7 +198,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                             ),
                           );
                         }))
-                : shimmerEffectBuilder(),
+                : categoriesViewShimmerEffect(),
             const Text(
               "Kategoriler",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -199,31 +209,6 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
           ],
         ),
       ),
-    );
-  }
-
-  Container shimmerEffectBuilder() {
-    return Container(
-      height: 100,
-      width: double.infinity,
-      child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          separatorBuilder: (context, index) => SizedBox(
-                width: 25,
-              ),
-          itemCount: 10,
-          itemBuilder: (context, index) => SizedBox(
-              width: 85,
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Column(children: [
-                  ShimmerWidget.rectangular(width: 40, height: 58),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  ShimmerWidget.rectangular(width: 75, height: 10)
-                ]),
-              ))),
     );
   }
 }

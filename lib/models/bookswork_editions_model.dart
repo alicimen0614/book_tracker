@@ -115,7 +115,7 @@ class BookWorkEditionsModelEntries {
       });
       authors = arr0;
     }
-    translationOf = json['translationOf']?.toString();
+    translationOf = json['translation_of']?.toString();
     if (json['languages'] != null) {
       final v = json['languages'];
       final arr0 = <BookWorkEditionsModelLanguages>[];
@@ -124,17 +124,17 @@ class BookWorkEditionsModelEntries {
       });
       languages = arr0;
     }
-    if (json['translatedFrom'] != null) {
-      final v = json['translatedFrom'];
+    if (json['translated_from'] != null) {
+      final v = json['translated_from'];
       final arr0 = <BookWorkEditionsModelTranslatedFrom>[];
       v.forEach((v) {
         arr0.add(BookWorkEditionsModelTranslatedFrom.fromJson(v));
       });
       translatedFrom = arr0;
     }
-    publishDate = json['publishDate']?.toString();
+    publishDate = json['publish_date']?.toString();
 
-    numberOfPages = json['numberOfPages']?.toInt();
+    numberOfPages = json['number_of_pages']?.toInt();
     if (json['publishers'] != null) {
       final v = json['publishers'];
       final arr0 = <String>[];
@@ -167,7 +167,7 @@ class BookWorkEditionsModelEntries {
       });
       isbn_13 = arr0;
     }
-    physicalFormat = json['physicalFormat']?.toString();
+    physicalFormat = json['physical_format']?.toString();
     bookStatus = json['bookStatus']?.toString();
     imageAsByte = json['imageAsByte']?.toString();
     description = json['description']?.toString();
@@ -202,9 +202,9 @@ class BookWorkEditionsModelEntries {
       });
       data['authors'] = arr0;
     }
-    data['publishDate'] = publishDate;
+    data['publish_date'] = publishDate;
 
-    data['numberOfPages'] = numberOfPages;
+    data['number_of_pages'] = numberOfPages;
     if (publishers != null) {
       final v = publishers;
       final arr0 = [];
@@ -241,7 +241,7 @@ class BookWorkEditionsModelEntries {
     data['imageAsByte'] = imageAsByte;
     data['description'] = description;
 
-    data['physicalFormat'] = physicalFormat;
+    data['physical_format'] = physicalFormat;
     if (covers != null) {
       final v = covers;
       final arr0 = [];

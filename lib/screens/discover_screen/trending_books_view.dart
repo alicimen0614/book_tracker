@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
-import 'package:book_tracker/widgets/shimmer_widget.dart';
+import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -24,6 +24,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
     if (work!.coverI != null) {
       log("https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg");
       return FadeInImage.memoryNetwork(
+        fit: BoxFit.fill,
         placeholder: kTransparentImage,
         image: "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
         imageErrorBuilder: (context, error, stackTrace) =>
@@ -71,15 +72,17 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
         appBar: AppBar(
           centerTitle: true,
           leadingWidth: 50,
-          title: Text("${widget.date} Trending Books"),
+          title: Text(
+            "${widget.date} Trending Books",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_sharp,
                 size: 30,
               )),
           automaticallyImplyLeading: false,
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 5,
         ),
         body: PagedGridView<int, TrendingBooksWorks?>(
@@ -89,7 +92,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
             pagingController: pagingController,
             builderDelegate: PagedChildBuilderDelegate<TrendingBooksWorks?>(
               firstPageProgressIndicatorBuilder: (context) {
-                return shimmerEffectBuilder();
+                return gridViewBooksShimmerEffectBuilder();
               },
               itemBuilder: (context, item, index) {
                 return Padding(
@@ -105,13 +108,15 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                           ));
                     },
                     child: Column(children: [
-                      Expanded(flex: 3, child: getBookCover(item)),
-                      Flexible(
-                        flex: 1,
+                      Expanded(flex: 12, child: getBookCover(item)),
+                      Spacer(),
+                      Expanded(
+                        flex: 3,
                         child: Text(
                           maxLines: 3,
                           item!.title!,
                           overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       )
                     ]),
@@ -122,35 +127,9 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 childAspectRatio: 1,
-                mainAxisExtent: 250,
+                mainAxisExtent: 230,
                 crossAxisSpacing: 25,
                 mainAxisSpacing: 25)),
-      ),
-    );
-  }
-
-  SizedBox shimmerEffectBuilder() {
-    return SizedBox(
-      height: 500,
-      width: 500,
-      child: GridView.builder(
-        physics: BouncingScrollPhysics(),
-        itemCount: 12,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 25,
-            childAspectRatio: 0.5,
-            mainAxisSpacing: 25),
-        itemBuilder: (context, index) => Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(children: [
-            ShimmerWidget.rectangular(width: 180, height: 150),
-            SizedBox(
-              height: 5,
-            ),
-            ShimmerWidget.rectangular(width: 180, height: 10)
-          ]),
-        ),
       ),
     );
   }

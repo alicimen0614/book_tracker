@@ -3,28 +3,24 @@ import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
-import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/author_info_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
-import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
+import 'package:transparent_image/transparent_image.dart';
+
+import 'shimmer_effect_builders/book_info_view_shimmer.dart';
 
 class BookInfoView extends ConsumerStatefulWidget {
   const BookInfoView(
-      {super.key,
-      this.trendingBook,
-      this.categoryBook,
-      this.searchBook,
-      this.authorBook});
+      {super.key, this.trendingBook, this.searchBook, this.authorBook});
 
   final TrendingBooksWorks? trendingBook;
-  final CategoryBooksWorks? categoryBook;
   final BooksModelDocs? searchBook;
   final AuthorsWorksModelEntries? authorBook;
 
@@ -43,13 +39,11 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
   @override
   void initState() {
-    mainBook = widget.categoryBook != null
-        ? widget.categoryBook
-        : widget.searchBook != null
-            ? widget.searchBook
-            : widget.trendingBook != null
-                ? widget.trendingBook
-                : widget.authorBook;
+    mainBook = widget.searchBook != null
+        ? widget.searchBook
+        : widget.trendingBook != null
+            ? widget.trendingBook
+            : widget.authorBook;
     getPageData();
     super.initState();
   }
@@ -61,30 +55,31 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
     return Scaffold(
         appBar: AppBar(
           leadingWidth: 50,
+          title: Text(
+            "Kitap Detayı",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
           leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_sharp,
                 size: 30,
               )),
           automaticallyImplyLeading: false,
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 5,
         ),
         body: isDataLoading == false
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                child: Column(
-                  children: [
-                    bookInfoBarBuilder(),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    bookInfoBodyBuilder(),
-                  ],
-                ),
+            ? Column(
+                children: [
+                  bookInfoBarBuilder(),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  bookInfoBodyBuilder(),
+                ],
               )
-            : shimmerEffectBuilder());
+            : shimmerEffectForBookInfoView());
   }
 
   Expanded bookInfoBodyBuilder() {
@@ -94,9 +89,10 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
     print("$itemCount-1");
     return Expanded(
       child: Scrollbar(
-        thickness: 2,
+        thickness: 3,
         radius: Radius.circular(20),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
           physics: BouncingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -108,10 +104,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 (mainBook.runtimeType == BooksModelDocs &&
                     mainBook.language != null))
               availableLanguagesBuilder(),
-            if (mainBook.runtimeType == CategoryBooksWorks) SizedBox.shrink(),
-            bookWorkModel.firstSentence != null
-                ? firstSentenceBuilder()
-                : const SizedBox.shrink(),
+            if (mainBook.runtimeType == BooksModelDocs &&
+                mainBook.firstSentence != null &&
+                bookWorkModel.firstSentence == null)
+              firstSentenceBuilder(mainBook.firstSentence!.first!),
+            if (bookWorkModel.firstSentence != null)
+              firstSentenceBuilder(bookWorkModel.firstSentence!.value!),
             isThereMoreEditionsThanFive == true
                 ? editionsBuilder(5)
                 : editionsBuilder(itemCount)
@@ -131,7 +129,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 child: Text(
                   "Mevcut Diller",
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
                       fontSize: 18),
                 )),
@@ -149,7 +147,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           height: 10,
         ),
         Container(
-          height: 16,
+          height: 20,
           width: double.infinity,
           child: ListView.separated(
             physics: BouncingScrollPhysics(),
@@ -198,7 +196,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             child: Text(
               "Baskılar",
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 18),
             )),
@@ -207,7 +205,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         ),
         Container(
           width: double.infinity,
-          height: 100,
+          height: 150,
           child: ListView.separated(
             physics: BouncingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
@@ -234,23 +232,46 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 },
                 child: Column(children: [
                   Expanded(
+                      flex: 10,
                       child: editionsList![index]!.covers != null
                           ? Hero(
                               tag:
                                   uniqueIdCreater(editionsList![index]) + index,
-                              child: Image.network(
-                                "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Image.asset("lib/assets/images/error.png"),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: FadeInImage.memoryNetwork(
+                                  placeholder: kTransparentImage,
+                                  image:
+                                      "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                  imageErrorBuilder: (context, error,
+                                          stackTrace) =>
+                                      Image.asset(
+                                          "lib/assets/images/error.png"),
+                                  fit: BoxFit.fill,
+                                ),
                               ),
                             )
-                          : Image.asset("lib/assets/images/nocover.jpg")),
-                  SizedBox(
-                    width: 75,
-                    child: Text(
-                      editionsList![index]!.title!,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
+                          : Hero(
+                              tag: uniqueIdCreater(editionsList![index]),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image.asset(
+                                  "lib/assets/images/nocover.jpg",
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            )),
+                  Spacer(),
+                  Expanded(
+                    flex: 4,
+                    child: SizedBox(
+                      width: 75,
+                      child: Text(
+                        editionsList![index]!.title!,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   )
                 ]),
@@ -271,12 +292,15 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                     },
                   ));
                 },
-                child: Text("${bookEditionsSize} Baskının Tümünü Görüntüle")))
+                child: Text(
+                  "${bookEditionsSize} Baskının Tümünü Görüntüle",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )))
       ],
     );
   }
 
-  Column firstSentenceBuilder() {
+  Column firstSentenceBuilder(String firstSentence) {
     return Column(
       children: [
         const Align(
@@ -284,7 +308,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             child: Text(
               "İlk Cümle",
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 18),
             )),
@@ -292,12 +316,15 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           height: 10,
         ),
         textShowMoreForFirstSentence == false
-            ? Text(
-                bookWorkModel.firstSentence!.value!,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
+            ? Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  firstSentence,
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                ),
               )
-            : Text(bookWorkModel.firstSentence!.value!),
+            : Text(firstSentence),
         Align(
           alignment: Alignment.topRight,
           child: TextButton(
@@ -307,8 +334,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 });
               },
               child: textShowMoreForFirstSentence == false
-                  ? const Text("Daha fazla")
-                  : const Text("Daha az")),
+                  ? const Text(
+                      "Daha fazla",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : const Text(
+                      "Daha az",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
         ),
       ],
     );
@@ -324,7 +357,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             child: Text(
               "Açıklama",
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 18),
             )),
@@ -364,95 +397,127 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 });
               },
               child: textShowMoreForDescription == false
-                  ? const Text("Daha fazla")
-                  : const Text("Daha az")),
+                  ? const Text(
+                      "Daha fazla",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : const Text(
+                      "Daha az",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )),
         ),
       ],
     );
   }
 
-  Row bookInfoBarBuilder() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          flex: 1,
-          child: Container(
-            color: Colors.teal,
-            child: bookWorkModel.covers != null
-                ? Image.network(
-                    "https://covers.openlibrary.org/b/id/${bookWorkModel.covers!.first}-M.jpg",
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.asset("lib/assets/images/error.png"),
-                  )
-                : Image.asset("lib/assets/images/nocover.jpg"),
+  Padding bookInfoBarBuilder() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            flex: 1,
+            child: Container(
+              color: Colors.transparent,
+              child: bookWorkModel.covers != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: FadeInImage.memoryNetwork(
+                        image:
+                            "https://covers.openlibrary.org/b/id/${bookWorkModel.covers!.first}-M.jpg",
+                        placeholder: kTransparentImage,
+                        imageErrorBuilder: (context, error, stackTrace) =>
+                            Image.asset("lib/assets/images/error.png"),
+                      ),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.asset("lib/assets/images/nocover.jpg")),
+            ),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: SizedBox(
-                  child: Text(
-                    mainBook!.title!,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 20),
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: SizedBox(
+                    child: Text(
+                      mainBook!.title!,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
                   ),
                 ),
-              ),
-              if ((mainBook.runtimeType == TrendingBooksWorks &&
-                      mainBook.authorName != null) ||
-                  (mainBook.runtimeType == BooksModelDocs &&
-                      mainBook.authorName != null))
-                TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AuthorInfoScreen(
-                                authorKey: mainBook!.authorKey.first),
-                          ));
-                    },
-                    child: Text(mainBook!.authorName!.first!,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 16))),
-              if (mainBook.runtimeType == CategoryBooksWorks &&
-                  mainBook!.authors != null)
-                Text(mainBook!.authors!.first!.name!,
-                    style: const TextStyle(color: Colors.grey, fontSize: 16)),
-              const SizedBox(height: 10),
-              Container(
-                height: 50,
-                width: 200,
-                child: bookWorkModel.subjects != null
-                    ? ListView.builder(
-                        physics: BouncingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: bookWorkModel.subjects!.length,
-                        itemBuilder: (context, index) {
-                          return TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailedCategoriesView(
-                                              categoryName: bookWorkModel
-                                                  .subjects![index]!,
-                                              categoryKey: bookWorkModel
-                                                  .subjects![index]!),
-                                    ));
-                              },
-                              child: Text(bookWorkModel.subjects![index]!));
-                        })
-                    : const SizedBox.shrink(),
-              )
-            ],
-          ),
-        )
-      ],
+                if ((mainBook.runtimeType == TrendingBooksWorks &&
+                        mainBook.authorName != null) ||
+                    (mainBook.runtimeType == BooksModelDocs &&
+                        mainBook.authorName != null))
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AuthorInfoScreen(
+                                      authorKey: mainBook!.authorKey.first),
+                                ));
+                          },
+                          child: Text(mainBook!.authorName!.first!,
+                              style: const TextStyle(
+                                  color: Colors.grey, fontSize: 16))),
+                      Tooltip(
+                          showDuration: Duration(seconds: 3),
+                          triggerMode: TooltipTriggerMode.tap,
+                          message:
+                              "Yazar hakkında bilgi almak için isme tıklayın",
+                          child: Icon(Icons.info_outline))
+                    ],
+                  ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 30,
+                  width: 200,
+                  child: bookWorkModel.subjects != null
+                      ? ListView.separated(
+                          separatorBuilder: (context, index) => VerticalDivider(
+                              color: Colors.transparent, thickness: 0),
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: bookWorkModel.subjects!.length,
+                          itemBuilder: (context, index) {
+                            return TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.all(5),
+                                  backgroundColor: Colors.grey.shade300,
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailedCategoriesView(
+                                                categoryName: bookWorkModel
+                                                    .subjects![index]!,
+                                                categoryKey: bookWorkModel
+                                                    .subjects![index]!),
+                                      ));
+                                },
+                                child: Text(
+                                  "#${bookWorkModel.subjects![index]!}",
+                                  style: TextStyle(color: Colors.black),
+                                ));
+                          })
+                      : const SizedBox.shrink(),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -463,7 +528,6 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
     await getBookEditionEntriesList();
     await getBookWorkModel();
-    await getBookEditionsSize();
 
     setState(() {
       isDataLoading = false;
@@ -471,162 +535,18 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   }
 
   Future<void> getBookEditionEntriesList() async {
-    editionsList =
-        await ref.read(booksProvider).bookEditionsEntriesList(mainBook!.key, 0);
-  }
+    BookWorkEditionsModel editionsModel;
 
-  Future<void> getBookEditionsSize() async {
-    bookEditionsSize =
-        await ref.read(booksProvider).getBookEditionsSize(mainBook!.key);
+    editionsModel =
+        await ref.read(booksProvider).getBookWorkEditions(mainBook!.key, 0);
+
+    editionsList = editionsModel.entries;
+
+    bookEditionsSize = editionsModel.size;
   }
 
   Future<void> getBookWorkModel() async {
     bookWorkModel =
         await ref.read(booksProvider).getBooksWorkModel(mainBook!.key!);
-  }
-
-  Padding shimmerEffectBuilder() {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ShimmerWidget.rectangular(width: 125, height: 170),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ShimmerWidget.rectangular(width: 150, height: 20),
-                    SizedBox(
-                      height: 7,
-                    ),
-                    ShimmerWidget.rectangular(width: 100, height: 15),
-                    SizedBox(
-                      height: 7,
-                    ),
-                    Row(
-                      children: [
-                        ShimmerWidget.rectangular(width: 50, height: 10),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        ShimmerWidget.rectangular(width: 50, height: 10)
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ShimmerWidget.rectangular(width: 50, height: 13),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            ListView.separated(
-                shrinkWrap: true,
-                itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                    width: MediaQuery.sizeOf(context).width - 40, height: 10),
-                separatorBuilder: (context, index) => SizedBox(height: 10),
-                itemCount: 5),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ShimmerWidget.rectangular(width: 50, height: 10),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ShimmerWidget.rectangular(width: 70, height: 13),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Container(
-              height: 7,
-              child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                      width: MediaQuery.sizeOf(context).width - 40, height: 10),
-                  separatorBuilder: (context, index) => SizedBox(height: 10),
-                  itemCount: 5),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ShimmerWidget.rectangular(width: 70, height: 13),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            ListView.separated(
-                shrinkWrap: true,
-                itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                    width: MediaQuery.sizeOf(context).width - 40, height: 10),
-                separatorBuilder: (context, index) => SizedBox(height: 10),
-                itemCount: 5),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ShimmerWidget.rectangular(width: 50, height: 10),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: ShimmerWidget.rectangular(width: 70, height: 13),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Container(
-              height: 100,
-              child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => Column(
-                        children: [
-                          ShimmerWidget.rectangular(width: 50, height: 70),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          ShimmerWidget.rectangular(width: 50, height: 10),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          ShimmerWidget.rectangular(width: 30, height: 10),
-                        ],
-                      ),
-                  separatorBuilder: (context, index) => SizedBox(width: 10),
-                  itemCount: 6),
-            ),
-            SizedBox(
-              height: 7,
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ShimmerWidget.rectangular(width: 100, height: 10),
-            )
-          ],
-        ),
-      ),
-    );
   }
 }

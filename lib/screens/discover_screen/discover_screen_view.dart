@@ -7,18 +7,26 @@ import 'package:flutter/material.dart';
 enum PageStatus { search, categories, trending }
 
 class DiscoverScreenView extends ConsumerStatefulWidget {
-  const DiscoverScreenView({
-    super.key,
-  });
-
+  const DiscoverScreenView({super.key, this.searchValue = ""});
+  final String searchValue;
   @override
   ConsumerState<DiscoverScreenView> createState() => _DiscoverScreenViewState();
 }
 
-class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
+class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
+    with AutomaticKeepAliveClientMixin<DiscoverScreenView> {
   PageStatus pageStatus = PageStatus.categories;
   TextEditingController searchBarController = TextEditingController();
   @override
+  bool get wantKeepAlive => true;
+  @override
+  void initState() {
+    if (widget.searchValue != "") {
+      searchBarController.text = widget.searchValue;
+    }
+    super.initState();
+  }
+
   void dispose() {
     searchBarController.dispose();
     super.dispose();
@@ -26,6 +34,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     print("çalıştı");
 
     return SafeArea(
@@ -34,8 +43,9 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          pageStatus == PageStatus.categories ||
-                  pageStatus == PageStatus.trending
+          (pageStatus == PageStatus.categories ||
+                  pageStatus == PageStatus.trending ||
+                  widget.searchValue != "")
               ? Column(
                   children: [
                     Padding(
@@ -63,12 +73,19 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
                               searchBarController.clear();
                             });
                           },
-                          child: Text("Vazgeç")),
+                          child: Text(
+                            "Vazgeç",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
                     ),
                   )
                 ]),
-          pageStatus == PageStatus.search
-              ? SearchScreenView(searchValue: searchBarController.text)
+          pageStatus == PageStatus.search || widget.searchValue != ""
+              ? SearchScreenView(
+                  searchValue: widget.searchValue == "" ||
+                          searchBarController.text != widget.searchValue
+                      ? searchBarController.text
+                      : widget.searchValue)
               : pageStatus == PageStatus.trending
                   ? TrendingBooksView(date: "monthly")
                   : CategoriesView()
@@ -88,9 +105,9 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
                 currentFocus.unfocus();
               }
               setState(() {
-                pageStatus = PageStatus.search;
+                print("setstate girdi");
 
-                SearchScreenView(searchValue: searchBarController.text);
+                pageStatus = PageStatus.search;
               });
             },
             controller: searchBarController,
@@ -101,20 +118,19 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView> {
               hintText: "Search",
               focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Colors.teal.shade700,
+                    color: Color(0xFF1B7695),
                   ),
                   borderRadius: BorderRadius.circular(50)),
               suffixIcon: IconButton(
                 onPressed: (() {
                   setState(() {
                     pageStatus = PageStatus.search;
-                    SearchScreenView(searchValue: searchBarController.text);
                   });
                 }),
                 icon: Icon(
                   Icons.search,
                   size: 35,
-                  color: Colors.teal,
+                  color: Color(0xFF1B7695),
                 ),
               ),
               border:

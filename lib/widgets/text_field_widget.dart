@@ -39,10 +39,7 @@ class TextFieldWidget extends StatelessWidget {
         contentPadding: EdgeInsets.all(2),
         hintText: hintText,
         focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.teal.shade700,
-            ),
-            borderRadius: BorderRadius.circular(50)),
+            borderSide: BorderSide(), borderRadius: BorderRadius.circular(50)),
         prefixIcon: Icon(
           prefixIconData,
           size: 35,

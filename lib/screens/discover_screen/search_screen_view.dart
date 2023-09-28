@@ -1,5 +1,6 @@
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -43,7 +44,10 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
   void didUpdateWidget(covariant SearchScreenView oldWidget) {
     print("didupdatewidget çalıştı");
     if (widget.searchValue != oldWidget.searchValue) {
-      list!.clear();
+      if (list != null) {
+        list!.clear();
+      }
+
       pagingController.refresh();
 
       setState(() {});
@@ -61,16 +65,17 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
     print("${widget.searchValue}---fetchBooks çalıştı");
 
     try {
-      list = await ref
-          .read(booksProvider)
-          .bookSearchDocsList(widget.searchValue, pageKey);
+      var searchModel =
+          await ref.read(booksProvider).bookSearch(widget.searchValue, pageKey);
+
+      var list = searchModel.docs;
 
       final isLastPage = list!.length < 10;
       if (isLastPage) {
-        pagingController.appendLastPage(list!);
+        pagingController.appendLastPage(list);
       } else {
         final nextPageKey = pageKey + 1;
-        pagingController.appendPage(list!, nextPageKey);
+        pagingController.appendPage(list, nextPageKey);
       }
     } catch (e) {
       pagingController.error = e;
@@ -85,12 +90,19 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
     return Expanded(
       child: PagedGridView<int, BooksModelDocs?>(
+          showNewPageProgressIndicatorAsGridChild: false,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3, childAspectRatio: 0.5),
+              crossAxisCount: 3,
+              childAspectRatio: 1,
+              crossAxisSpacing: 25,
+              mainAxisExtent: 230,
+              mainAxisSpacing: 25),
           pagingController: pagingController,
           physics: const BouncingScrollPhysics(),
           builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
+            firstPageProgressIndicatorBuilder: (context) =>
+                gridViewBooksShimmerEffectBuilder(),
             itemBuilder: (context, item, index) {
               return Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -116,7 +128,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
-                  flex: 40,
+                  flex: 20,
                   child: Ink.image(
                       alignment: Alignment.center,
                       fit: BoxFit.fill,
@@ -124,7 +136,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                 ),
                 Spacer(),
                 Expanded(
-                  flex: 10,
+                  flex: 6,
                   child: Text(
                     "${item?.title!} ",
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -135,19 +147,21 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                 ),
                 if (item!.authorName != null)
                   Expanded(
-                    flex: 8,
-                    child: Text(
-                      "${item.authorName!.first}",
-                      style: const TextStyle(
-                          color: Colors.grey, fontStyle: FontStyle.italic),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      textAlign: TextAlign.center,
+                    flex: 6,
+                    child: SizedBox(
+                      child: Text(
+                        "${item.authorName!.first}",
+                        style: const TextStyle(
+                            color: Colors.grey, fontStyle: FontStyle.italic),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 if (item.authorName == null)
-                  Expanded(flex: 8, child: SizedBox.shrink())
+                  Expanded(flex: 6, child: SizedBox.shrink())
               ],
             )));
   }

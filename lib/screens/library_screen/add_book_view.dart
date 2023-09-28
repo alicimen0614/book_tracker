@@ -142,7 +142,6 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           )
         ],
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
         elevation: 0,
       ),
       body: Padding(
@@ -339,9 +338,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: ElevatedButton.styleFrom(
                 foregroundColor: bookStatus == BookStatus.wantToRead
                     ? Colors.white
-                    : Colors.teal,
+                    : Color(0xFF1B7695),
                 backgroundColor: bookStatus == BookStatus.wantToRead
-                    ? Colors.teal
+                    ? Color(0xFF1B7695)
                     : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -362,9 +361,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: ElevatedButton.styleFrom(
                 foregroundColor: bookStatus == BookStatus.currentlyReading
                     ? Colors.white
-                    : Colors.teal,
+                    : Color(0xFF1B7695),
                 backgroundColor: bookStatus == BookStatus.currentlyReading
-                    ? Colors.teal
+                    ? Color(0xFF1B7695)
                     : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -383,9 +382,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: ElevatedButton.styleFrom(
                 foregroundColor: bookStatus == BookStatus.alreadyRead
                     ? Colors.white
-                    : Colors.teal,
+                    : Color(0xFF1B7695),
                 backgroundColor: bookStatus == BookStatus.alreadyRead
-                    ? Colors.teal
+                    ? Color(0xFF1B7695)
                     : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -412,9 +411,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: ElevatedButton.styleFrom(
                 foregroundColor: bookFormat == BookFormat.paperBook
                     ? Colors.white
-                    : Colors.teal,
+                    : Color(0xFF1B7695),
                 backgroundColor: bookFormat == BookFormat.paperBook
-                    ? Colors.teal
+                    ? Color(0xFF1B7695)
                     : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
@@ -434,10 +433,12 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                       : Colors.black54),
             ),
             style: ElevatedButton.styleFrom(
-                foregroundColor:
-                    bookFormat == BookFormat.ebook ? Colors.white : Colors.teal,
-                backgroundColor:
-                    bookFormat == BookFormat.ebook ? Colors.teal : Colors.white,
+                foregroundColor: bookFormat == BookFormat.ebook
+                    ? Colors.white
+                    : Color(0xFF1B7695),
+                backgroundColor: bookFormat == BookFormat.ebook
+                    ? Color(0xFF1B7695)
+                    : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ))),
@@ -456,9 +457,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: ElevatedButton.styleFrom(
                 foregroundColor: bookFormat == BookFormat.audioBook
                     ? Colors.white
-                    : Colors.teal,
+                    : Color(0xFF1B7695),
                 backgroundColor: bookFormat == BookFormat.audioBook
-                    ? Colors.teal
+                    ? Color(0xFF1B7695)
                     : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),

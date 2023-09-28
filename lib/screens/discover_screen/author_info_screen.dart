@@ -36,52 +36,106 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               splashRadius: 25,
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_sharp,
                 size: 30,
+                color: Colors.black,
               )),
           automaticallyImplyLeading: false,
-          backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
           elevation: 0,
         ),
-        backgroundColor: const Color.fromRGBO(195, 129, 84, 1),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: isLoading != true
             ? SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 20, right: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      authorsModel.photos != null
-                          ? Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                  decoration:
-                                      BoxDecoration(color: Colors.transparent),
-                                  height: 200,
-                                  width: 150,
-                                  child: FadeInImage.memoryNetwork(
-                                      placeholder: kTransparentImage,
-                                      image:
-                                          "https://covers.openlibrary.org/a/id/${authorsModel.photos!.first}-M.jpg")),
-                            )
-                          : Align(
-                              alignment: Alignment.center,
-                              child:
-                                  Image.asset("lib/assets/images/nocover.jpg")),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      authorInfoBodyBuilder(context)
-                    ],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    authorImageAndDetailsBuilder(),
+                    authorInfoBodyBuilder(context)
+                  ],
                 ),
               )
             : Center(
                 child: CircularProgressIndicator(),
               ));
+  }
+
+  Container authorImageAndDetailsBuilder() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color: Color(0xFF1B7695),
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(50),
+              bottomRight: Radius.circular(50))),
+      child: Column(
+        children: [
+          authorsModel.photos != null
+              ? Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                      decoration: BoxDecoration(color: Colors.transparent),
+                      height: 200,
+                      width: 150,
+                      child: FadeInImage.memoryNetwork(
+                          placeholder: kTransparentImage,
+                          image:
+                              "https://covers.openlibrary.org/a/id/${authorsModel.photos!.first}-M.jpg")),
+                )
+              : Align(
+                  alignment: Alignment.center,
+                  child: Image.asset("lib/assets/images/nocover.jpg")),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(15)),
+            width: MediaQuery.sizeOf(context).width - 50,
+            height: 50,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: 150,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Doğum Tarihi",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                            authorsModel.birthDate != null
+                                ? "${authorsModel.birthDate}"
+                                : "-",
+                            textAlign: TextAlign.center)
+                      ],
+                    ),
+                  ),
+                  VerticalDivider(),
+                  SizedBox(
+                    width: 150,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Ölüm Tarihi",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          authorsModel.deathDate != null
+                              ? authorsModel.deathDate!
+                              : "-",
+                          style: const TextStyle(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                ]),
+          ),
+        ],
+      ),
+    );
   }
 
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
@@ -119,16 +173,14 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
         thickness: 2,
         radius: Radius.circular(20),
         child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
           physics: BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "Yazar Adı",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
@@ -136,7 +188,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                 child: Text(
                   authorsModel.name!,
                   style: const TextStyle(
-                      fontSize: 17, fontWeight: FontWeight.bold),
+                    fontSize: 15,
+                  ),
                 ),
               ),
               if (authorsModel.bio != null)
@@ -144,10 +197,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               if (authorsModel.bio != null)
                 Text(
                   "Biyografi",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               if (authorsModel.bio != null)
                 Divider(color: Colors.transparent, thickness: 0),
@@ -156,59 +206,14 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: Text(
                     authorsModel.bio!,
-                    style: const TextStyle(fontSize: 17),
+                    style: const TextStyle(fontSize: 15),
                   ),
                 ),
               if (authorsModel.birthDate != null)
                 Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.birthDate != null)
-                Text(
-                  "Doğum Tarihi",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (authorsModel.birthDate != null)
-                Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.birthDate != null)
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 40,
-                  child: Text(
-                    authorsModel.birthDate!,
-                    style: const TextStyle(
-                        fontSize: 17, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              if (authorsModel.deathDate != null)
-                Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.deathDate != null)
-                Text(
-                  "Ölüm Tarihi",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (authorsModel.deathDate != null)
-                Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.deathDate != null)
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 40,
-                    child: Text(
-                      authorsModel.deathDate!,
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    )),
-              Divider(color: Colors.transparent, thickness: 0),
               Text(
                 "Yazara Ait Kitaplar",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
@@ -262,13 +267,16 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                AuthorsBooksScreen(authorKey: widget.authorKey),
+                            builder: (context) => AuthorsBooksScreen(
+                                authorKey: widget.authorKey,
+                                authorName: authorsModel.name!),
                           ));
                     },
                     child: Text(
                       "${authorsWorksSize} Kitabın Tümünü Görüntüle",
-                      style: TextStyle(color: Colors.amberAccent.shade200),
+                      style: TextStyle(
+                          color: Color(0xFF1B7695),
+                          fontWeight: FontWeight.bold),
                     )),
               )
             ],
@@ -284,7 +292,6 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
     });
     await getAuthorInfo();
     await getAuthorsWorks();
-    await getAuthorsWorksSize();
 
     setState(() {
       isLoading = false;
@@ -297,13 +304,12 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   }
 
   Future<List<AuthorsWorksModelEntries?>?> getAuthorsWorks() async {
-    return authorsWorks = await ref
-        .read(booksProvider)
-        .getAuthorsWorksEntries(widget.authorKey, 5, 0);
-  }
+    AuthorsWorksModel authorsWorksModel;
+    authorsWorksModel =
+        await ref.read(booksProvider).getAuthorsWorks(widget.authorKey, 5, 0);
 
-  Future<int?> getAuthorsWorksSize() async {
-    return authorsWorksSize =
-        await ref.read(booksProvider).getAuthorsWorksSize(widget.authorKey);
+    authorsWorks = authorsWorksModel.entries;
+    authorsWorksSize = authorsWorksModel.size;
+    return authorsWorks;
   }
 }

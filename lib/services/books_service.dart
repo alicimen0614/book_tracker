@@ -6,7 +6,6 @@ import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
-import 'package:book_tracker/models/categorybooks_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -15,8 +14,8 @@ class BooksService extends ChangeNotifier {
   Future<BooksModel> bookSearch(String searchItem, int page) async {
     print("booksearch api girdi");
     var response = await http.get(Uri.parse(
-        'https://openlibrary.org/search.json?mode=everything&q=$searchItem&limit=10&page=$page'));
-    log('https://openlibrary.org/search.json?mode=everything&q=$searchItem&limit=10&page=$page');
+        "https://openlibrary.org/search.json?q=$searchItem&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$page"));
+    log('https://openlibrary.org/search.json?q=$searchItem&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$page');
     if (response.statusCode == 200) {
       var result = BooksModel.fromJson(jsonDecode(response.body));
       log("${result.numFound.toString()}-1");
@@ -28,35 +27,18 @@ class BooksService extends ChangeNotifier {
     }
   }
 
-  Future<CategoryBooks> categoryBooks(String categoryName, int offset) async {
+  Future<BooksModel> getCategoryBooks(String categoryName, int pageKey) async {
     print("categorybooks api girdi");
     var response = await http.get(Uri.parse(
-        "https://openlibrary.org/subjects/${categoryName.toLowerCase()}.json?limit=20&offset=$offset&published_in=2000-2023"));
-    log("https://openlibrary.org/subjects/$categoryName.json?limit=20&offset=$offset");
+        "https://openlibrary.org/search.json?subject=${categoryName.toLowerCase()}&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$pageKey"));
+    log("https://openlibrary.org/search.json?subject=${categoryName.toLowerCase()}&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$pageKey");
     if (response.statusCode == 200) {
-      var result = CategoryBooks.fromJson(jsonDecode(response.body));
-      log(result.workCount.toString());
+      var result = BooksModel.fromJson(jsonDecode(response.body));
 
-      print(result);
       return result;
     } else {
       throw ("Bir sorun oluştu ${response.statusCode}");
     }
-  }
-
-  Future<List<BooksModelDocs?>?> bookSearchDocsList(
-      String searchItem, int page) async {
-    print("booksmodeldocslist çalıştı");
-
-    var _searchBooks = await bookSearch(searchItem, page);
-    log(_searchBooks.docs.toString());
-    return _searchBooks.docs;
-  }
-
-  Future<List<CategoryBooksWorks?>?> categoryBookWorksList(
-      String categoryName, int pageKey) async {
-    var _categoryBooks = await categoryBooks(categoryName, pageKey);
-    return _categoryBooks.works;
   }
 
   Future<TrendingBooks> trendingBooks(String date, int pageKey) async {
@@ -68,7 +50,6 @@ class BooksService extends ChangeNotifier {
       var result = TrendingBooks.fromJson(jsonDecode(response.body));
       log(result.works.toString());
 
-      print(result);
       return result;
     } else {
       throw ("Bir sorun oluştu ${response.statusCode}");
@@ -82,12 +63,12 @@ class BooksService extends ChangeNotifier {
   }
 
   Future<BookWorkModel> getBooksWorkModel(String key) async {
+    log("https://openlibrary.org$key.json");
     var response =
         await http.get(Uri.parse("https://openlibrary.org$key.json"));
     if (response.statusCode == 200) {
       var result = BookWorkModel.fromJson(jsonDecode(response.body));
 
-      print(result);
       return result;
     } else {
       throw ("Bir sorun oluştu ${response.statusCode}");
@@ -102,22 +83,10 @@ class BooksService extends ChangeNotifier {
     if (response.statusCode == 200) {
       var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
 
-      print(result);
       return result;
     } else {
       throw ("Bir sorun oluştu ${response.statusCode}");
     }
-  }
-
-  Future<List<BookWorkEditionsModelEntries?>?> bookEditionsEntriesList(
-      String key, int offset) async {
-    var _bookEditions = await getBookWorkEditions(key, offset);
-    return _bookEditions.entries;
-  }
-
-  Future<int?> getBookEditionsSize(String key) async {
-    var _bookEditions = await getBookWorkEditions(key, 0);
-    return _bookEditions.size;
   }
 
   Future<AuthorsModel> getAuthorInfo(String key, bool doesContainTag) async {
@@ -130,7 +99,6 @@ class BooksService extends ChangeNotifier {
         : Uri.parse("https://openlibrary.org/authors/$key.json"));
     if (response.statusCode == 200) {
       var result = AuthorsModel.fromJson(jsonDecode(response.body));
-      print("${result.name} authorname");
 
       return result;
     } else {
@@ -146,22 +114,9 @@ class BooksService extends ChangeNotifier {
     if (response.statusCode == 200) {
       var result = AuthorsWorksModel.fromJson(jsonDecode(response.body));
 
-      print(result);
       return result;
     } else {
       throw ("Bir sorun oluştu ${response.statusCode}");
     }
-  }
-
-  Future<List<AuthorsWorksModelEntries?>?> getAuthorsWorksEntries(
-      String authorKey, int? limit, int offsetKey) async {
-    AuthorsWorksModel result =
-        await getAuthorsWorks(authorKey, limit, offsetKey);
-    return result.entries;
-  }
-
-  Future<int?> getAuthorsWorksSize(String authorKey) async {
-    AuthorsWorksModel result = await getAuthorsWorks(authorKey, null, 0);
-    return result.size;
   }
 }
