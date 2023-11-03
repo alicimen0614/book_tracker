@@ -28,7 +28,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
             ));
 
     // ignore: unused_local_variable
-    final user = await ref.read(authProvider).signInWithGoogle();
+
+    await ref.read(authProvider).signInWithGoogle(context);
   }
 
   final signInFormKey = GlobalKey<FormState>();

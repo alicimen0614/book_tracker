@@ -6,6 +6,7 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'shimmer_effects/library_scrren_shimmer.dart';
+import 'shimmer_effects/library_screen_shimmer.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 
@@ -26,6 +27,8 @@ class LibraryScreenView extends ConsumerStatefulWidget {
 
 class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
     with AutomaticKeepAliveClientMixin<LibraryScreenView> {
+  @override
+  bool get wantKeepAlive => true;
   bool isDataLoading = false;
   ConnectivityResult connectivityResult = ConnectivityResult.none;
   bool isConnected = false;
@@ -33,10 +36,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirestore = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
-  @override
-  bool get wantKeepAlive => true;
+
   @override
   void initState() {
+    print("library screen init çalıştı");
+
     getPageData();
     super.initState();
   }
@@ -88,7 +92,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           bottom: TabBar(
-              labelColor: Colors.black87,
+              labelColor: Colors.white,
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
               labelStyle: TextStyle(
@@ -183,7 +187,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
           indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
               element == uniqueIdCreater(listOfTheCurrentBookStatus[index]));
           return InkWell(
-            onTap: () {
+            customBorder:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            onTap: () async {
               indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
                   element ==
                   uniqueIdCreater(listOfTheCurrentBookStatus[index]));
@@ -191,7 +197,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
 
               print(
                   "${uniqueIdCreater(listOfTheCurrentBookStatus[index]) + index}-libraryscreen");
-              Navigator.push(
+              final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => DetailedEditionInfo(
@@ -217,6 +223,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                                     "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")
                             : null),
                   ));
+              //if there has been a change in the page we have popped we will get all the info again with new values
+              if (result == true) {
+                getPageData();
+              }
             },
             child: Column(children: [
               listOfTheCurrentBookStatus[index].covers != null
@@ -224,7 +234,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                       flex: 5,
                       child: Card(
                         color: Colors.transparent,
-                        elevation: 10,
+                        elevation: 15,
                         child: listOfTheCurrentBookStatus[index].imageAsByte !=
                                 null
                             ? Hero(
@@ -275,9 +285,13 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                                                       "lib/assets/images/error.png"),
                                             ),
                                           )
-                                        : Image.asset(
-                                            "lib/assets/images/nocover.jpg",
-                                            fit: BoxFit.fill,
+                                        : ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.asset(
+                                              "lib/assets/images/nocover.jpg",
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
                                   )
                                 : Hero(
@@ -302,10 +316,14 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                   : Expanded(
                       flex: 5,
                       child: Card(
-                        elevation: 10,
-                        child: Image.asset(
-                          "lib/assets/images/nocover.jpg",
-                          fit: BoxFit.fill,
+                        color: Colors.transparent,
+                        elevation: 15,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset(
+                            "lib/assets/images/nocover.jpg",
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       )),
               Expanded(
@@ -331,26 +349,13 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   Future<void> deleteBook(
       List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus,
       int index) async {
-    await _sqlHelper
-        .deleteBook(uniqueIdCreater(listOfTheCurrentBookStatus[index]));
+    await _sqlHelper.deleteBook(
+        uniqueIdCreater(listOfTheCurrentBookStatus[index]), context);
 
-    await ref.read(firestoreProvider).deleteBook(
+    await ref.read(firestoreProvider).deleteBook(context,
         referencePath: "usersBooks",
         userId: ref.read(authProvider).currentUser!.uid,
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
-  }
-
-  Future<bool> checkForInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile) {
-      print("connected from mobile");
-      return true;
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      print("connected from wifi");
-      return true;
-    }
-
-    return false;
   }
 
   Future<void> insertingProcesses() async {
@@ -381,8 +386,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   Future<void> insertBookToSql(BookWorkEditionsModelEntries bookInfo) async {
     if (bookInfo.imageAsByte != null) {
       print("ilk if e girdi");
-      await _sqlHelper.insertBook(
-          bookInfo, bookInfo.bookStatus!, base64Decode(bookInfo.imageAsByte!));
+      await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!,
+          base64Decode(bookInfo.imageAsByte!), context);
       await insertAuthor(bookInfo);
     } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
       print("ikinci if e girdi");
@@ -393,10 +398,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
       final Uint8List bytes = data.buffer.asUint8List();
 
       Uint8List imageAsByte = bytes;
-      await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, imageAsByte);
+      await _sqlHelper.insertBook(
+          bookInfo, bookInfo.bookStatus!, imageAsByte, context);
       await insertAuthor(bookInfo);
     } else {
-      await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!, null);
+      await _sqlHelper.insertBook(
+          bookInfo, bookInfo.bookStatus!, null, context);
       await insertAuthor(bookInfo);
     }
   }
@@ -404,7 +411,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   Future<void> insertAuthor(BookWorkEditionsModelEntries bookInfo) async {
     if (bookInfo.authorsNames != null) {
       for (var element in bookInfo.authorsNames!) {
-        await _sqlHelper.insertAuthors(element!, uniqueIdCreater(bookInfo));
+        await _sqlHelper.insertAuthors(
+            element!, uniqueIdCreater(bookInfo), context);
       }
     }
   }
@@ -414,6 +422,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
     //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
     await ref.read(firestoreProvider).setBookData(
+          context,
           collectionPath: "usersBooks",
           bookAsMap: {
             "title": bookInfo.title,
@@ -443,65 +452,51 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
       isUserAvailable = false;
     }
 
-    checkForInternetConnection().then((internet) {
-      print(internet);
-      print("$isConnected -1");
-      if (internet == true) {
-        if (isConnected == false) {
-          setState(() {
-            isConnected = true;
-          });
-        }
-        print("$isConnected -2");
-      } else {
-        if (isConnected == true) {
-          setState(() {
-            isConnected = false;
-          });
-        }
-        print("$isConnected -3");
-      }
-    });
-
     await getSqlBookList();
+    print("${isConnected}-1");
+    isConnected = await checkForInternetConnection();
+    print("${isConnected}-2");
 
-    if (isUserAvailable == true && isConnected == true) {
+    if (isUserAvailable == true && isConnected == true && mounted) {
       await getFirestoreBookList();
       await insertingProcesses();
       await getSqlBookList();
-      setState(() {
-        isDataLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isDataLoading = false;
+        });
     } else {
-      setState(() {
-        isDataLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isDataLoading = false;
+        });
     }
   }
 
   Future<void> getFirestoreBookList() async {
-    var data = await ref
-        .read(firestoreProvider)
-        .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
+    var data = await ref.read(firestoreProvider).getBooks(
+        "usersBooks", ref.read(authProvider).currentUser!.uid, context);
 
-    listOfBooksFromFirestore = data.docs
-        .map(
-          (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-        )
-        .toList();
-
-    if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
-      listOfBooksToShow = data.docs
+    if (data != null) {
+      listOfBooksFromFirestore = data.docs
           .map(
             (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
           )
           .toList();
-      print("gösterilen kitaplar firestore");
+
+      if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
+        listOfBooksToShow = data.docs
+            .map(
+              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+            )
+            .toList();
+        print("gösterilen kitaplar firestore");
+      }
     }
   }
 
   Future<void> getSqlBookList() async {
-    var data = await _sqlHelper.getBookShelf();
+    var data = await _sqlHelper.getBookShelf(context);
 
     listOfBooksFromSql = data;
     print("gösterilen kitaplar sql");

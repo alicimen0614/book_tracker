@@ -1,11 +1,13 @@
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/books_list_error.dart';
+import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 import 'shimmer_effect_builders/grid_view_books_shimmer.dart';
 
@@ -23,17 +25,14 @@ class DetailedCategoriesView extends ConsumerStatefulWidget {
 
 class _DetailedCategoriesViewState
     extends ConsumerState<DetailedCategoriesView> {
-  Widget getBookCover(BooksModelDocs? doc) {
+  bool isConnected = false;
+  ImageProvider<Object> getBookCover(BooksModelDocs? doc) {
     if (doc!.coverI != null) {
-      return FadeInImage.memoryNetwork(
-        image: "https://covers.openlibrary.org/b/id/${doc.coverI}-M.jpg",
-        placeholder: kTransparentImage,
-        imageErrorBuilder: (context, error, stackTrace) =>
-            Image.asset("lib/assets/images/error.png"),
-        fit: BoxFit.fill,
+      return NetworkImage(
+        "https://covers.openlibrary.org/b/id/${doc.coverI}-M.jpg",
       );
     } else {
-      return Image.asset("lib/assets/images/nocover.jpg");
+      return NetworkImage("lib/assets/images/nocover.jpg");
     }
   }
 
@@ -50,10 +49,15 @@ class _DetailedCategoriesViewState
 
   void fetchData(int pageKey) async {
     print("fetchdata");
+    isConnected = await checkForInternetConnection();
     try {
-      var categoryBooksModel = await ref
+      Map<String, dynamic>? categoryBooksModelAsJson = await ref
           .read(booksProvider)
-          .getCategoryBooks(widget.categoryKey, pageKey);
+          .getBooksFromApi(widget.categoryKey, pageKey, "subject", context);
+      if (categoryBooksModelAsJson != null) {}
+
+      BooksModel? categoryBooksModel =
+          BooksModel.fromJson(categoryBooksModelAsJson!);
 
       var list = categoryBooksModel.docs;
       final isLastPage = list!.length < 10;
@@ -93,12 +97,32 @@ class _DetailedCategoriesViewState
             showNoMoreItemsIndicatorAsGridChild: false,
             pagingController: pagingController,
             builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
+              newPageErrorIndicatorBuilder: (context) =>
+                  newPageErrorIndicatorBuilder(
+                      () => pagingController.retryLastFailedRequest()),
+              firstPageErrorIndicatorBuilder: (context) {
+                if (!isConnected) {
+                  return booksListError(
+                    true,
+                    context,
+                    () {
+                      pagingController.retryLastFailedRequest();
+                    },
+                  );
+                } else {
+                  return booksListError(false, context, () {
+                    pagingController.retryLastFailedRequest();
+                  });
+                }
+              },
               firstPageProgressIndicatorBuilder: (context) =>
                   gridViewBooksShimmerEffectBuilder(),
               itemBuilder: (context, item, index) {
                 return Padding(
                   padding: const EdgeInsets.all(10),
                   child: InkWell(
+                    customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -108,10 +132,27 @@ class _DetailedCategoriesViewState
                           ));
                     },
                     child: Column(children: [
-                      Expanded(flex: 12, child: getBookCover(item)),
-                      Spacer(),
                       Expanded(
-                        flex: 3,
+                          flex: 15,
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: DecorationImage(
+                                      onError: (exception, stackTrace) =>
+                                          AssetImage(
+                                              "lib/assets/images/error.png"),
+                                      image: getBookCover(item),
+                                      fit: BoxFit.fill)),
+                              padding: EdgeInsets.zero,
+                            ),
+                          )),
+                      Spacer(
+                        flex: 1,
+                      ),
+                      Expanded(
+                        flex: 7,
                         child: Text(
                           style: TextStyle(fontWeight: FontWeight.bold),
                           item!.title!,

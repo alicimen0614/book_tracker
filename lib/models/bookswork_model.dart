@@ -24,8 +24,12 @@ class BookWorkModelAuthorsType {
   BookWorkModelAuthorsType({
     this.key,
   });
-  BookWorkModelAuthorsType.fromJson(Map<String, dynamic> json) {
-    key = json['key']?.toString();
+  BookWorkModelAuthorsType.fromJson(dynamic authorType) {
+    if (authorType.runtimeType == Map<String, dynamic>) {
+      key = authorType['key']?.toString();
+    } else {
+      key = authorType.toString();
+    }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};

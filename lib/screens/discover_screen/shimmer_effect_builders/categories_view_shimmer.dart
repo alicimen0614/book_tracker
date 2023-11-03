@@ -16,11 +16,17 @@ Container categoriesViewShimmerEffect() {
             child: Padding(
               padding: EdgeInsets.all(10),
               child: Column(children: [
-                ShimmerWidget.rectangular(width: 40, height: 58),
+                ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: ShimmerWidget.rectangular(width: 40, height: 58)),
                 SizedBox(
                   height: 5,
                 ),
-                ShimmerWidget.rectangular(width: 75, height: 10)
+                ShimmerWidget.rounded(
+                    width: 75,
+                    height: 10,
+                    shapeBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)))
               ]),
             ))),
   );

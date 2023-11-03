@@ -32,9 +32,9 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
   void fetchData(int pageKey) async {
     print("fetchdata");
     try {
-      var worksModel = await ref
+      AuthorsWorksModel worksModel = await ref
           .read(booksProvider)
-          .getAuthorsWorks(widget.authorKey, 25, pageKey);
+          .getAuthorsWorks(widget.authorKey, 25, pageKey, context);
       var list = worksModel.entries;
 
       final isLastPage = list!.length < 25;
@@ -86,6 +86,8 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
           firstPageProgressIndicatorBuilder: (context) =>
               gridViewBooksShimmerEffectBuilder(),
           itemBuilder: (context, item, index) => InkWell(
+            customBorder:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             onTap: () {
               Navigator.push(
                   context,
@@ -94,19 +96,24 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
                   ));
             },
             child: Column(children: [
-              item!.covers != null
-                  ? Expanded(
-                      flex: 12,
-                      child: Image.network(
-                        "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
-                        fit: BoxFit.fill,
-                      ),
-                    )
-                  : Expanded(
-                      flex: 12,
-                      child: Image.asset("lib/assets/images/nocover.jpg",
-                          fit: BoxFit.fill),
+              Expanded(
+                  flex: 12,
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          image: item!.covers != null
+                              ? DecorationImage(
+                                  image: NetworkImage(
+                                      "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
+                                  fit: BoxFit.fill)
+                              : DecorationImage(
+                                  image: AssetImage(
+                                      "lib/assets/images/nocover.jpg"),
+                                  fit: BoxFit.fill)),
                     ),
+                  )),
               Spacer(),
               Expanded(
                   flex: 3,

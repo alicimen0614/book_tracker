@@ -1,6 +1,8 @@
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -29,6 +31,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
   bool isLoading = false;
   bool hasMore = true;
+  bool isConnected = false;
   List<BooksModelDocs?>? list;
   final PagingController<int, BooksModelDocs?> pagingController =
       PagingController(firstPageKey: 1);
@@ -63,10 +66,14 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
   void fetchBooks(int pageKey) async {
     print("${widget.searchValue}---fetchBooks çalıştı");
+    isConnected = await checkForInternetConnection();
 
     try {
-      var searchModel =
-          await ref.read(booksProvider).bookSearch(widget.searchValue, pageKey);
+      var searchModelAsJson = await ref
+          .read(booksProvider)
+          .getBooksFromApi(widget.searchValue, pageKey, "q", context);
+
+      var searchModel = BooksModel.fromJson(searchModelAsJson);
 
       var list = searchModel.docs;
 
@@ -96,11 +103,26 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
               crossAxisCount: 3,
               childAspectRatio: 1,
               crossAxisSpacing: 25,
-              mainAxisExtent: 230,
+              mainAxisExtent: 250,
               mainAxisSpacing: 25),
           pagingController: pagingController,
           physics: const BouncingScrollPhysics(),
           builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
+            firstPageErrorIndicatorBuilder: (context) {
+              if (!isConnected) {
+                return booksListError(
+                  true,
+                  context,
+                  () {
+                    pagingController.retryLastFailedRequest();
+                  },
+                );
+              } else {
+                return booksListError(false, context, () {
+                  pagingController.retryLastFailedRequest();
+                });
+              }
+            },
             firstPageProgressIndicatorBuilder: (context) =>
                 gridViewBooksShimmerEffectBuilder(),
             itemBuilder: (context, item, index) {
@@ -116,6 +138,8 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
     return Material(
         color: Theme.of(context).scaffoldBackgroundColor,
         child: InkWell(
+            customBorder:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             onTap: () {
               Navigator.push(
                   context,
@@ -128,13 +152,22 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
-                  flex: 20,
-                  child: Ink.image(
-                      alignment: Alignment.center,
-                      fit: BoxFit.fill,
-                      image: getBookCover(item)),
+                  flex: 18,
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: getBookCover(item), fit: BoxFit.fill),
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.transparent,
+                      ),
+                    ),
+                  ),
                 ),
-                Spacer(),
+                Spacer(
+                  flex: 1,
+                ),
                 Expanded(
                   flex: 6,
                   child: Text(

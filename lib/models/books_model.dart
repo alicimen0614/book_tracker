@@ -86,9 +86,7 @@ class BooksModelDocs {
   String? key;
   String? title;
   int? editionCount;
-
   int? firstPublishYear;
-
   int? coverI;
   List<String?>? language;
   List<String?>? authorKey;

@@ -188,7 +188,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                 onPressed: () {
                   print("$isUserLoggedIn -2");
 
-                  ref.read(authProvider).signOut().whenComplete(() {
+                  ref.read(authProvider).signOut(context).whenComplete(() {
                     setState(() {
                       isUserLoggedIn = false;
                     });

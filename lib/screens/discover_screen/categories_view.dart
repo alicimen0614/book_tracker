@@ -5,10 +5,13 @@ import 'package:book_tracker/screens/discover_screen/detailed_categories_view.da
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/categories_view_shimmer.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
-import 'package:book_tracker/widgets/shimmer_widget.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/error_snack_bar.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class CategoriesView extends ConsumerStatefulWidget {
   const CategoriesView({super.key});
@@ -18,8 +21,14 @@ class CategoriesView extends ConsumerStatefulWidget {
 }
 
 class _CategoriesViewState extends ConsumerState<CategoriesView> {
+  bool isConnected = false;
   bool isLoading = true;
   List<TrendingBooksWorks?>? items = [];
+
+  final customCacheManager = CacheManager(
+    Config("customCacheKey",
+        maxNrOfCacheObjects: 25, stalePeriod: Duration(days: 15)),
+  );
   @override
   void initState() {
     getTrendingBooks();
@@ -30,16 +39,28 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     setState(() {
       isLoading = true;
     });
-    items = await ref
-        .read(booksProvider)
-        .trendingBookDocsList("monthly", 1)
-        .whenComplete(() {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
+    try {
+      isConnected = await checkForInternetConnection();
+      if (isConnected == true) {
+        items = await ref
+            .read(booksProvider)
+            .getTrendingBooks("monthly", 1, context)
+            .whenComplete(() {
+          if (mounted) {
+            setState(() {
+              isLoading = false;
+            });
+          }
         });
+      } else {
+        items = [];
+        internetConnectionErrorDialog(context);
       }
-    });
+    } catch (e) {
+      if (mounted) errorSnackBar(context, e.toString());
+      print("categories view hata $e");
+    }
+
     print(items);
   }
 
@@ -87,10 +108,14 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                 },
                 child: Column(children: [
                   Expanded(
-                    flex: 10,
-                    child: Image.asset(
-                        "lib/assets/images/${mainCategoriesImages[index]}"),
-                  ),
+                      flex: 10,
+                      child: Ink(
+                        decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            image: DecorationImage(
+                                image: AssetImage(
+                                    "lib/assets/images/${mainCategoriesImages[index]}"))),
+                      )),
                   const SizedBox(
                     width: double.infinity,
                     height: 10,
@@ -152,12 +177,12 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
             ),
             isLoading == false
                 ? Container(
-                    height: 100,
+                    height: 120,
                     width: double.infinity,
                     child: ListView.builder(
                         physics: BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
-                        itemCount: items!.length,
+                        itemCount: items?.length,
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.all(10),
@@ -168,7 +193,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
                                         return BookInfoView(
-                                            trendingBook: items![index]);
+                                            trendingBook: items?[index]);
                                       },
                                     ));
                                   },
@@ -176,22 +201,31 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                     children: [
                                       Expanded(
                                         flex: 3,
-                                        child: FadeInImage.memoryNetwork(
-                                          image:
-                                              "https://covers.openlibrary.org/b/id/${items![index]!.coverI}-M.jpg",
-                                          placeholder: kTransparentImage,
-                                          imageErrorBuilder: (context, error,
-                                                  stackTrace) =>
-                                              Image.asset(
-                                                  "lib/assets/images/error.png"),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
+                                            placeholder: (context, url) => Center(
+                                                child:
+                                                    CircularProgressIndicator()),
+                                            cacheManager: customCacheManager,
+                                            errorWidget: (context, url,
+                                                    error) =>
+                                                Image.asset(
+                                                    "lib/assets/images/error.png"),
+                                          ),
                                         ),
                                       ),
                                       Expanded(
                                         flex: 1,
-                                        child: Text(
-                                          items![index]!.title!,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        child: items != null
+                                            ? Text(
+                                                items![index]!.title!,
+                                                overflow: TextOverflow.ellipsis,
+                                              )
+                                            : SizedBox.shrink(),
                                       )
                                     ],
                                   )),
@@ -204,7 +238,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(
-              height: 5,
+              height: 10,
             )
           ],
         ),

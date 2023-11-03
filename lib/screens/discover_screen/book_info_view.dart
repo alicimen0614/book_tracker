@@ -9,6 +9,8 @@ import 'package:book_tracker/screens/discover_screen/author_info_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
@@ -33,9 +35,10 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   bool isDataLoading = false;
   List<BookWorkEditionsModelEntries?>? editionsList = [];
   bool textShowMoreForDescription = false;
-  BookWorkModel bookWorkModel = BookWorkModel();
+  BookWorkModel? bookWorkModel = BookWorkModel();
   bool textShowMoreForFirstSentence = false;
   int? bookEditionsSize;
+  bool isConnected = false;
 
   @override
   void initState() {
@@ -96,7 +99,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           physics: BouncingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            bookWorkModel.description != null
+            bookWorkModel?.description != null
                 ? descriptionInfoBuilder()
                 : const SizedBox.shrink(),
             if ((mainBook.runtimeType == TrendingBooksWorks &&
@@ -106,13 +109,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               availableLanguagesBuilder(),
             if (mainBook.runtimeType == BooksModelDocs &&
                 mainBook.firstSentence != null &&
-                bookWorkModel.firstSentence == null)
+                bookWorkModel?.firstSentence == null)
               firstSentenceBuilder(mainBook.firstSentence!.first!),
-            if (bookWorkModel.firstSentence != null)
-              firstSentenceBuilder(bookWorkModel.firstSentence!.value!),
-            isThereMoreEditionsThanFive == true
-                ? editionsBuilder(5)
-                : editionsBuilder(itemCount)
+            if (bookWorkModel?.firstSentence != null)
+              firstSentenceBuilder(bookWorkModel!.firstSentence!.value!),
+            if (isConnected == true)
+              isThereMoreEditionsThanFive == true
+                  ? editionsBuilder(5)
+                  : editionsBuilder(itemCount)
           ]),
         ),
       ),
@@ -214,67 +218,58 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             scrollDirection: Axis.horizontal,
             itemCount: itemCount,
             itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailedEditionInfo(
-                          editionInfo: editionsList![index]!,
-                          isNavigatingFromLibrary: false,
-                          bookImage: editionsList![index]!.covers != null
-                              ? Image.network(
-                                  "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg")
-                              : null,
-                          indexOfEdition: index,
+              return Container(
+                child: InkWell(
+                  customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailedEditionInfo(
+                            editionInfo: editionsList![index]!,
+                            isNavigatingFromLibrary: false,
+                            bookImage: editionsList![index]!.covers != null
+                                ? Image.network(
+                                    "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                  )
+                                : null,
+                            indexOfEdition: index,
+                          ),
+                        ));
+                  },
+                  child: Column(children: [
+                    Expanded(
+                        flex: 10,
+                        child: Hero(
+                            tag: uniqueIdCreater(editionsList![index]) + index,
+                            child: Ink(
+                              width: 70,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: editionsList![index]!.covers != null
+                                      ? DecorationImage(
+                                          image: NetworkImage(
+                                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"))
+                                      : DecorationImage(
+                                          image: AssetImage(
+                                              "lib/assets/images/nocover.jpg"))),
+                            ))),
+                    Spacer(),
+                    Expanded(
+                      flex: 4,
+                      child: SizedBox(
+                        width: 75,
+                        child: Text(
+                          editionsList![index]!.title!,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ));
-                },
-                child: Column(children: [
-                  Expanded(
-                      flex: 10,
-                      child: editionsList![index]!.covers != null
-                          ? Hero(
-                              tag:
-                                  uniqueIdCreater(editionsList![index]) + index,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: FadeInImage.memoryNetwork(
-                                  placeholder: kTransparentImage,
-                                  image:
-                                      "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                                  imageErrorBuilder: (context, error,
-                                          stackTrace) =>
-                                      Image.asset(
-                                          "lib/assets/images/error.png"),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            )
-                          : Hero(
-                              tag: uniqueIdCreater(editionsList![index]),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.asset(
-                                  "lib/assets/images/nocover.jpg",
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            )),
-                  Spacer(),
-                  Expanded(
-                    flex: 4,
-                    child: SizedBox(
-                      width: 75,
-                      child: Text(
-                        editionsList![index]!.title!,
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  )
-                ]),
+                    )
+                  ]),
+                ),
               );
             },
           ),
@@ -348,7 +343,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   }
 
   Column descriptionInfoBuilder() {
-    String textAsString = bookWorkModel.description!.replaceRange(0, 26, "");
+    String textAsString = bookWorkModel!.description!.replaceRange(0, 26, "");
 
     return Column(
       children: [
@@ -375,18 +370,18 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   model if it was a map it was starting with  "{type: /type/text, value: " so it is 26 characters and ı used replaceRange
                   method and if it was a map that is coming from api "{type: /type/text, value: " was being deleted and the last character "}" 
                   was also being deleted*/
-                    bookWorkModel.description!.startsWith("{")
+                    bookWorkModel!.description!.startsWith("{")
                         ? textAsString.replaceRange(
                             textAsString.length - 1, textAsString.length, "")
-                        : bookWorkModel.description!,
+                        : bookWorkModel!.description!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
                   )
                 : Text(
-                    bookWorkModel.description!.startsWith("{")
+                    bookWorkModel!.description!.startsWith("{")
                         ? textAsString.replaceRange(
                             textAsString.length - 1, textAsString.length, "")
-                        : bookWorkModel.description!,
+                        : bookWorkModel!.description!,
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -420,12 +415,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             flex: 1,
             child: Container(
               color: Colors.transparent,
-              child: bookWorkModel.covers != null
+              child: bookWorkModel?.covers != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: FadeInImage.memoryNetwork(
                         image:
-                            "https://covers.openlibrary.org/b/id/${bookWorkModel.covers!.first}-M.jpg",
+                            "https://covers.openlibrary.org/b/id/${bookWorkModel?.covers!.first}-M.jpg",
                         placeholder: kTransparentImage,
                         imageErrorBuilder: (context, error, stackTrace) =>
                             Image.asset("lib/assets/images/error.png"),
@@ -457,37 +452,46 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AuthorInfoScreen(
-                                      authorKey: mainBook!.authorKey.first),
-                                ));
-                          },
-                          child: Text(mainBook!.authorName!.first!,
+                      Spacer(),
+                      Expanded(
+                        flex: 5,
+                        child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AuthorInfoScreen(
+                                        authorKey: mainBook!.authorKey.first),
+                                  ));
+                            },
+                            child: Text(
+                              mainBook!.authorName!.first!,
                               style: const TextStyle(
-                                  color: Colors.grey, fontSize: 16))),
-                      Tooltip(
-                          showDuration: Duration(seconds: 3),
-                          triggerMode: TooltipTriggerMode.tap,
-                          message:
-                              "Yazar hakkında bilgi almak için isme tıklayın",
-                          child: Icon(Icons.info_outline))
+                                  color: Colors.grey, fontSize: 16),
+                            )),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Tooltip(
+                            showDuration: Duration(seconds: 3),
+                            triggerMode: TooltipTriggerMode.tap,
+                            message:
+                                "Yazar hakkında bilgi almak için ismine tıklayın",
+                            child: Icon(Icons.info_outline)),
+                      )
                     ],
                   ),
                 const SizedBox(height: 10),
                 Container(
                   height: 30,
                   width: 200,
-                  child: bookWorkModel.subjects != null
+                  child: bookWorkModel?.subjects != null
                       ? ListView.separated(
                           separatorBuilder: (context, index) => VerticalDivider(
                               color: Colors.transparent, thickness: 0),
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
-                          itemCount: bookWorkModel.subjects!.length,
+                          itemCount: bookWorkModel!.subjects!.length,
                           itemBuilder: (context, index) {
                             return TextButton(
                                 style: TextButton.styleFrom(
@@ -500,14 +504,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             DetailedCategoriesView(
-                                                categoryName: bookWorkModel
+                                                categoryName: bookWorkModel!
                                                     .subjects![index]!,
-                                                categoryKey: bookWorkModel
+                                                categoryKey: bookWorkModel!
                                                     .subjects![index]!),
                                       ));
                                 },
                                 child: Text(
-                                  "#${bookWorkModel.subjects![index]!}",
+                                  "#${bookWorkModel?.subjects![index]!}",
                                   style: TextStyle(color: Colors.black),
                                 ));
                           })
@@ -522,31 +526,39 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   }
 
   Future<void> getPageData() async {
+    isConnected = await checkForInternetConnection();
     setState(() {
       isDataLoading = true;
     });
-
-    await getBookEditionEntriesList();
-    await getBookWorkModel();
-
-    setState(() {
-      isDataLoading = false;
-    });
+    if (isConnected == true) {
+      await getBookEditionEntriesList();
+      await getBookWorkModel();
+    } else {
+      internetConnectionErrorDialog(context);
+    }
+    if (mounted) {
+      setState(() {
+        isDataLoading = false;
+      });
+    }
   }
 
   Future<void> getBookEditionEntriesList() async {
-    BookWorkEditionsModel editionsModel;
+    BookWorkEditionsModel? editionsModel;
 
-    editionsModel =
-        await ref.read(booksProvider).getBookWorkEditions(mainBook!.key, 0);
+    editionsModel = await ref
+        .read(booksProvider)
+        .getBookWorkEditions(mainBook!.key, 0, context);
 
-    editionsList = editionsModel.entries;
+    if (editionsModel == null) {}
 
-    bookEditionsSize = editionsModel.size;
+    editionsList = editionsModel?.entries;
+
+    bookEditionsSize = editionsModel?.size;
   }
 
   Future<void> getBookWorkModel() async {
     bookWorkModel =
-        await ref.read(booksProvider).getBooksWorkModel(mainBook!.key!);
+        await ref.read(booksProvider).getWorkDetail(mainBook!.key!, context);
   }
 }

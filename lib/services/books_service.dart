@@ -3,120 +3,94 @@ import 'dart:developer';
 
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
-import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:book_tracker/widgets/error_snack_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class BooksService extends ChangeNotifier {
-  Future<BooksModel> bookSearch(String searchItem, int page) async {
-    print("booksearch api girdi");
+class BooksService {
+  String baseUrl = "https://openlibrary.org";
+  String fields =
+      "fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject";
+  Future<dynamic> getBooksFromApi(
+      String item, int page, String apiName, BuildContext context) async {
     var response = await http.get(Uri.parse(
-        "https://openlibrary.org/search.json?q=$searchItem&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$page"));
-    log('https://openlibrary.org/search.json?q=$searchItem&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$page');
-    if (response.statusCode == 200) {
-      var result = BooksModel.fromJson(jsonDecode(response.body));
-      log("${result.numFound.toString()}-1");
-      log("${result.start.toString()}-2");
+        "$baseUrl/search.json?$apiName=${item.toLowerCase()}&$fields&limit=10&page=$page"));
 
-      return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
-    }
+    return jsonDecode(response.body);
   }
 
-  Future<BooksModel> getCategoryBooks(String categoryName, int pageKey) async {
-    print("categorybooks api girdi");
-    var response = await http.get(Uri.parse(
-        "https://openlibrary.org/search.json?subject=${categoryName.toLowerCase()}&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$pageKey"));
-    log("https://openlibrary.org/search.json?subject=${categoryName.toLowerCase()}&fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject&limit=10&page=$pageKey");
-    if (response.statusCode == 200) {
-      var result = BooksModel.fromJson(jsonDecode(response.body));
-
-      return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
-    }
-  }
-
-  Future<TrendingBooks> trendingBooks(String date, int pageKey) async {
-    print("categorybooks api girdi");
-    var response = await http.get(Uri.parse(
-        "https://openlibrary.org/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey"));
-    log("https://openlibrary.org/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey");
-    if (response.statusCode == 200) {
+  Future<dynamic> getTrendingBooks(
+      String date, int pageKey, BuildContext context) async {
+    log("$baseUrl/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey");
+    try {
+      var response = await http.get(Uri.parse(
+          "$baseUrl/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey"));
       var result = TrendingBooks.fromJson(jsonDecode(response.body));
-      log(result.works.toString());
-
-      return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
+      return result.works;
+    } catch (e) {
+      print("hata yakalandı gettrendingbooks $e");
+      errorSnackBar(context, e.toString());
     }
   }
 
-  Future<List<TrendingBooksWorks?>?> trendingBookDocsList(
-      String date, int pageKey) async {
-    var _trendingBooks = await trendingBooks(date, pageKey);
-    return _trendingBooks.works;
-  }
-
-  Future<BookWorkModel> getBooksWorkModel(String key) async {
-    log("https://openlibrary.org$key.json");
-    var response =
-        await http.get(Uri.parse("https://openlibrary.org$key.json"));
-    if (response.statusCode == 200) {
+  Future<dynamic> getWorkDetail(String key, BuildContext context) async {
+    try {
+      var response = await http.get(Uri.parse("$baseUrl$key.json"));
       var result = BookWorkModel.fromJson(jsonDecode(response.body));
 
       return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
+    } catch (e) {
+      print("hata yakalandı getworkdetail $e");
+      errorSnackBar(context, e.toString());
     }
   }
 
-  Future<BookWorkEditionsModel> getBookWorkEditions(
-      String key, int offset) async {
-    log("https://openlibrary.org$key/editions.json?offset=$offset");
-    var response = await http.get(
-        Uri.parse("https://openlibrary.org$key/editions.json?offset=$offset"));
-    if (response.statusCode == 200) {
+  Future<dynamic> getBookWorkEditions(
+      String key, int offset, BuildContext context) async {
+    try {
+      var response = await http
+          .get(Uri.parse("$baseUrl$key/editions.json?offset=$offset"));
+
       var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
 
       return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
+    } catch (e) {
+      print("hata yakalandı getbookworkeditions $e");
+      errorSnackBar(context, e.toString());
     }
   }
 
-  Future<AuthorsModel> getAuthorInfo(String key, bool doesContainTag) async {
-    doesContainTag == true
-        ? log("https://openlibrary.org$key.json")
-        : log("https://openlibrary.org/authors/$key.json");
+  Future<dynamic> getAuthorInfo(
+      String key, bool doesContainTag, BuildContext context) async {
+    try {
+      var response = await http.get(doesContainTag == true
+          ? Uri.parse("$baseUrl$key.json")
+          : Uri.parse("$baseUrl/authors/$key.json"));
 
-    var response = await http.get(doesContainTag == true
-        ? Uri.parse("https://openlibrary.org$key.json")
-        : Uri.parse("https://openlibrary.org/authors/$key.json"));
-    if (response.statusCode == 200) {
       var result = AuthorsModel.fromJson(jsonDecode(response.body));
 
       return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
+    } catch (e) {
+      print("hata yakalandı authorinfo $e");
+      errorSnackBar(context, e.toString());
     }
   }
 
-  Future<AuthorsWorksModel> getAuthorsWorks(
-      String authorKey, int? limit, int offsetKey) async {
-    log("https://openlibrary.org/authors/$authorKey/works.json?limit=$limit&offset=$offsetKey");
-    var response = await http.get(Uri.parse(
-        "https://openlibrary.org/authors/$authorKey/works.json?limit=$limit&offset=$offsetKey"));
-    if (response.statusCode == 200) {
+  Future<dynamic> getAuthorsWorks(
+      String authorKey, int? limit, int offsetKey, BuildContext context) async {
+    try {
+      var response = await http.get(Uri.parse(
+          "$baseUrl/authors/$authorKey/works.json?limit=$limit&offset=$offsetKey"));
+
       var result = AuthorsWorksModel.fromJson(jsonDecode(response.body));
 
       return result;
-    } else {
-      throw ("Bir sorun oluştu ${response.statusCode}");
+    } catch (e) {
+      print("hata yakalandı authors work $e");
+      errorSnackBar(context, e.toString());
     }
   }
 }

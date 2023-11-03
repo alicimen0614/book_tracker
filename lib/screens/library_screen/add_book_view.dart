@@ -46,6 +46,12 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          "Kitap ekle",
+          textAlign: TextAlign.left,
+          style: TextStyle(
+              fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         centerTitle: true,
         leadingWidth: 50,
         leading: IconButton(
@@ -53,7 +59,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             splashRadius: 25,
             onPressed: () => Navigator.pop(context),
             icon: const Icon(
-              Icons.arrow_back_ios_new,
+              Icons.arrow_back_sharp,
               size: 30,
             )),
         actions: [
@@ -87,14 +93,15 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                             : null);
                 Uint8List imageAsByte = Uint8List.fromList([]);
                 if (pickedImage != null) {
-                  final Uint8List imageAsByte =
-                      await pickedImage!.readAsBytes();
+                  imageAsByte = await pickedImage!.readAsBytes();
                 }
 
                 //insert author
                 if (authorFieldController.text != "") {
                   ref.read(sqlProvider).insertAuthors(
-                      authorFieldController.text, uniqueIdCreater(bookInfo));
+                      authorFieldController.text,
+                      uniqueIdCreater(bookInfo),
+                      context);
                 }
 
                 //insert book
@@ -107,11 +114,12 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                             : bookStatus == BookStatus.currentlyReading
                                 ? "Şu an okuduklarım"
                                 : "Okumak istediklerim",
-                        pickedImage != null ? imageAsByte : null)
+                        pickedImage != null ? imageAsByte : null,
+                        context)
                     .whenComplete(() => Navigator.pop(context));
 
                 if (ref.read(authProvider).currentUser != null) {
-                  ref.read(firestoreProvider).setBookData(
+                  ref.read(firestoreProvider).setBookData(context,
                       collectionPath: "usersBooks",
                       bookAsMap: {
                         "title": titleFieldController.text,
@@ -144,176 +152,173 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
         automaticallyImplyLeading: false,
         elevation: 0,
       ),
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              Text(
-                "Kitap ekle",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54),
-              ),
-              Center(
-                child: Container(
-                  height: 220,
-                  width: 140,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: [
-                      pickedImage == null
-                          ? Center(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade400,
-                                    border: Border.all(color: Colors.white),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
+      body: Scrollbar(
+        thickness: 3,
+        radius: Radius.circular(20),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                Center(
+                  child: Container(
+                    height: 220,
+                    width: 140,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        pickedImage == null
+                            ? Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey.shade400,
+                                      border: Border.all(color: Colors.white),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  height: 200,
+                                  width: 120,
+                                ),
+                              )
+                            : Image.file(
+                                pickedImage!,
+                                fit: BoxFit.cover,
                                 height: 200,
                                 width: 120,
+                                filterQuality: FilterQuality.medium,
                               ),
-                            )
-                          : Image.file(
-                              pickedImage!,
-                              fit: BoxFit.cover,
-                              height: 200,
-                              width: 120,
-                              filterQuality: FilterQuality.medium,
-                            ),
-                      pickedImage == null
-                          ? Icon(
-                              Icons.photo,
-                              color: Colors.grey,
-                            )
-                          : SizedBox.shrink(),
-                      Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Material(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(color: Colors.white)),
-                            child: ClipOval(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade400,
+                        pickedImage == null
+                            ? Icon(
+                                Icons.photo,
+                                color: Colors.grey,
+                              )
+                            : SizedBox.shrink(),
+                        Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Material(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(color: Colors.white)),
+                              child: ClipOval(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  padding: EdgeInsets.all(0),
+                                  height: 40,
+                                  width: 40,
+                                  child: IconButton(
+                                      padding: EdgeInsets.all(0),
+                                      splashRadius: 25,
+                                      onPressed: () {
+                                        modalBottomSheetBuilderForPopUpMenu(
+                                            context);
+                                      },
+                                      icon: Icon(
+                                        Icons.add_a_photo_rounded,
+                                        size: 23,
+                                      )),
                                 ),
-                                padding: EdgeInsets.all(0),
-                                height: 40,
-                                width: 40,
-                                child: IconButton(
-                                    padding: EdgeInsets.all(0),
-                                    splashRadius: 25,
-                                    onPressed: () {
-                                      modalBottomSheetBuilderForPopUpMenu(
-                                          context);
-                                    },
-                                    icon: Icon(
-                                      Icons.add_a_photo_rounded,
-                                      size: 23,
-                                    )),
                               ),
-                            ),
-                          ))
-                    ],
+                            ))
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                controller: titleFieldController,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10),
-                    hintText: "Başlık",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30))),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              TextFormField(
-                controller: authorFieldController,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10),
-                    hintText: "Yazar",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30))),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              TextFormField(
-                controller: publisherFieldController,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10),
-                    hintText: "Yayıncı",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30))),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              Text(
-                "Kitap türü",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              bookTypeSelectionSection(),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              TextFormField(
-                controller: isbnFieldController,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10),
-                    hintText: "ISBN",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30))),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              TextFormField(
-                keyboardType: TextInputType.number,
-                controller: pageNumberFieldController,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10),
-                    hintText: "Sayfa sayısı",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30))),
-              ),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              Text("Kitap durumu",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              Divider(
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              bookStatusSelectionSection(),
-            ],
+                SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  controller: titleFieldController,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "Başlık",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                TextFormField(
+                  controller: authorFieldController,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "Yazar",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                TextFormField(
+                  controller: publisherFieldController,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "Yayıncı",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                Text(
+                  "Kitap türü",
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                bookTypeSelectionSection(),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                TextFormField(
+                  controller: isbnFieldController,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "ISBN",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  controller: pageNumberFieldController,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "Sayfa sayısı",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30))),
+                ),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                Text("Kitap durumu",
+                    style:
+                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                Divider(
+                  thickness: 0,
+                  color: Colors.transparent,
+                ),
+                bookStatusSelectionSection(),
+              ],
+            ),
           ),
         ),
       ),
@@ -322,150 +327,103 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
 
   Row bookStatusSelectionSection() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookStatus = BookStatus.wantToRead;
-              });
-            },
-            child: Text("Okumak İstiyorum",
-                style: TextStyle(
-                    color: bookStatus == BookStatus.wantToRead
-                        ? Colors.white
-                        : Colors.black54)),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookStatus == BookStatus.wantToRead
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookStatus == BookStatus.wantToRead
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ))),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookStatus = BookStatus.currentlyReading;
-              });
-            },
-            child: Text(
-              "Şu an okuyorum",
-              style: TextStyle(
-                  color: bookStatus == BookStatus.currentlyReading
-                      ? Colors.white
-                      : Colors.black54),
-            ),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookStatus == BookStatus.currentlyReading
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookStatus == BookStatus.currentlyReading
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ))),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookStatus = BookStatus.alreadyRead;
-              });
-            },
-            child: Text("Okudum",
-                style: TextStyle(
-                    color: bookStatus == BookStatus.alreadyRead
-                        ? Colors.white
-                        : Colors.black54)),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookStatus == BookStatus.alreadyRead
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookStatus == BookStatus.alreadyRead
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                )))
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookStatusCustomElevatedButton(
+              text: "Okumak İstiyorum", bookStatusName: BookStatus.wantToRead),
+        ),
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookStatusCustomElevatedButton(
+              text: "Şu an okuyorum",
+              bookStatusName: BookStatus.currentlyReading),
+        ),
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookStatusCustomElevatedButton(
+              text: "Okudum", bookStatusName: BookStatus.alreadyRead),
+        ),
+        Spacer()
       ],
     );
+  }
+
+  ElevatedButton bookStatusCustomElevatedButton(
+      {required String text, required BookStatus bookStatusName}) {
+    return ElevatedButton(
+        onPressed: () {
+          setState(() {
+            bookStatus = bookStatusName;
+          });
+        },
+        child: Text(text,
+            style: TextStyle(
+                color: bookStatus == bookStatusName
+                    ? Colors.white
+                    : Colors.black54)),
+        style: ElevatedButton.styleFrom(
+            foregroundColor:
+                bookStatus == bookStatusName ? Colors.white : Color(0xFF1B7695),
+            backgroundColor:
+                bookStatus == bookStatusName ? Color(0xFF1B7695) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            )));
   }
 
   Row bookTypeSelectionSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookFormat = BookFormat.paperBook;
-              });
-            },
-            child: Text("Kağıt kitap",
-                style: TextStyle(
-                    color: bookFormat == BookFormat.paperBook
-                        ? Colors.white
-                        : Colors.black54)),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookFormat == BookFormat.paperBook
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookFormat == BookFormat.paperBook
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ))),
-        VerticalDivider(),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookFormat = BookFormat.ebook;
-              });
-            },
-            child: Text(
-              "E-kitap",
-              style: TextStyle(
-                  color: bookFormat == BookFormat.ebook
-                      ? Colors.white
-                      : Colors.black54),
-            ),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookFormat == BookFormat.ebook
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookFormat == BookFormat.ebook
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ))),
-        VerticalDivider(),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                bookFormat = BookFormat.audioBook;
-              });
-            },
-            child: Text("Sesli kitap",
-                style: TextStyle(
-                    color: bookFormat == BookFormat.audioBook
-                        ? Colors.white
-                        : Colors.black54)),
-            style: ElevatedButton.styleFrom(
-                foregroundColor: bookFormat == BookFormat.audioBook
-                    ? Colors.white
-                    : Color(0xFF1B7695),
-                backgroundColor: bookFormat == BookFormat.audioBook
-                    ? Color(0xFF1B7695)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                )))
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookTypeCustomElevatedButton(
+              text: "Kağıt kitap", bookFormatName: BookFormat.paperBook),
+        ),
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookTypeCustomElevatedButton(
+              text: "E-kitap", bookFormatName: BookFormat.ebook),
+        ),
+        Spacer(),
+        Expanded(
+          flex: 4,
+          child: bookTypeCustomElevatedButton(
+              text: "Sesli kitap", bookFormatName: BookFormat.audioBook),
+        ),
+        Spacer()
       ],
     );
+  }
+
+  ElevatedButton bookTypeCustomElevatedButton(
+      {required String text, required BookFormat bookFormatName}) {
+    return ElevatedButton(
+        onPressed: () {
+          setState(() {
+            bookFormat = bookFormatName;
+          });
+        },
+        child: Text(text,
+            style: TextStyle(
+                color: bookFormat == bookFormatName
+                    ? Colors.white
+                    : Colors.black54)),
+        style: ElevatedButton.styleFrom(
+            foregroundColor:
+                bookFormat == bookFormatName ? Colors.white : Color(0xFF1B7695),
+            backgroundColor:
+                bookFormat == bookFormatName ? Color(0xFF1B7695) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            )));
   }
 
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {

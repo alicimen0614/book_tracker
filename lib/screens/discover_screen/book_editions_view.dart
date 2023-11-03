@@ -6,7 +6,6 @@ import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/gri
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class BookEditionsView extends ConsumerStatefulWidget {
   const BookEditionsView(
@@ -35,9 +34,9 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
   void fetchData(int pageKey) async {
     print("fetchdata");
     try {
-      var editionsModel = await ref
+      BookWorkEditionsModel editionsModel = await ref
           .read(booksProvider)
-          .getBookWorkEditions(widget.workId, pageKey);
+          .getBookWorkEditions(widget.workId, pageKey, context);
 
       var list = editionsModel.entries;
       final isLastPage = list!.length < 50;
@@ -80,7 +79,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 1,
-              mainAxisExtent: 230,
+              mainAxisExtent: 250,
               crossAxisSpacing: 25,
               mainAxisSpacing: 25),
           pagingController: pagingController,
@@ -92,6 +91,8 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: InkWell(
+                  customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -111,35 +112,26 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        item!.covers != null
-                            ? Expanded(
-                                flex: 20,
-                                child: Card(
-                                  margin: EdgeInsets.zero,
-                                  color: Colors.transparent,
-                                  elevation: 10,
-                                  child: Hero(
-                                    tag: uniqueIdCreater(item) + index,
-                                    child: FadeInImage.memoryNetwork(
-                                      fit: BoxFit.fill,
-                                      image:
-                                          "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
-                                      placeholder: kTransparentImage,
-                                      imageErrorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Image.asset(
-                                        "lib/assets/images/error.png",
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Expanded(
-                                flex: 20,
-                                child: Image.asset(
-                                  "lib/assets/images/nocover.jpg",
-                                  fit: BoxFit.fill,
-                                )),
+                        Expanded(
+                          flex: 15,
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: item!.covers != null
+                                      ? DecorationImage(
+                                          image: NetworkImage(
+                                              "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
+                                          fit: BoxFit.fill,
+                                        )
+                                      : DecorationImage(
+                                          image: AssetImage(
+                                              "lib/assets/images/nocover.jpg"),
+                                          fit: BoxFit.fill)),
+                            ),
+                          ),
+                        ),
                         Spacer(flex: 1),
                         Expanded(
                           flex: 6,

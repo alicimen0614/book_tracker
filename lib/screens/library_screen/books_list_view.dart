@@ -40,6 +40,8 @@ class BooksListView extends StatelessWidget {
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
           return InkWell(
+            customBorder:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             onTap: () {
               Navigator.push(
                   context,
@@ -64,18 +66,20 @@ class BooksListView extends StatelessWidget {
                       flex: 10,
                       child: Hero(
                         tag: uniqueIdCreater(listOfBooksFromSql![index]),
-                        child: Card(
-                          elevation: 15,
-                          color: Colors.transparent,
-                          child: listOfBooksFromSql![index].imageAsByte != null
-                              ? Image.memory(
+                        child: listOfBooksFromSql![index].imageAsByte != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image.memory(
                                   base64Decode(
                                       listOfBooksFromSql![index].imageAsByte!),
                                   errorBuilder: (context, error, stackTrace) =>
                                       Image.asset(
                                           "lib/assets/images/error.png"),
-                                )
-                              : FadeInImage.memoryNetwork(
+                                ),
+                              )
+                            : ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: FadeInImage.memoryNetwork(
                                   image:
                                       "https://covers.openlibrary.org/b/id/${listOfBooksFromSql![index].covers!.first!}-M.jpg",
                                   placeholder: kTransparentImage,
@@ -84,12 +88,14 @@ class BooksListView extends StatelessWidget {
                                       Image.asset(
                                           "lib/assets/images/error.png"),
                                 ),
-                        ),
+                              ),
                       ),
                     )
                   : Expanded(
                       flex: 10,
-                      child: Image.asset("lib/assets/images/nocover.jpg")),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset("lib/assets/images/nocover.jpg"))),
               Spacer(),
               Expanded(
                 flex: 5,

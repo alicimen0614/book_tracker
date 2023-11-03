@@ -12,7 +12,7 @@ ListView notesViewShimmerEffect() {
       shapeBorder:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       width: MediaQuery.sizeOf(context).width - 30,
-      height: MediaQuery.sizeOf(context).height / 7.3,
+      height: MediaQuery.sizeOf(context).height / 6,
     ),
   );
 }

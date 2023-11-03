@@ -1,13 +1,12 @@
-import 'dart:developer';
-
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class TrendingBooksView extends ConsumerStatefulWidget {
   const TrendingBooksView({super.key, required this.date});
@@ -20,18 +19,15 @@ class TrendingBooksView extends ConsumerStatefulWidget {
 
 class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
   List<TrendingBooksWorks?>? itemList = [];
-  Widget getBookCover(TrendingBooksWorks? work) {
+  bool isConnected = false;
+
+  ImageProvider<Object> getBookCover(TrendingBooksWorks? work) {
     if (work!.coverI != null) {
-      log("https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg");
-      return FadeInImage.memoryNetwork(
-        fit: BoxFit.fill,
-        placeholder: kTransparentImage,
-        image: "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
-        imageErrorBuilder: (context, error, stackTrace) =>
-            Image.asset("lib/assets/images/error.png"),
+      return NetworkImage(
+        "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
       );
     } else {
-      return Image.asset("lib/assets/images/nocover.jpg");
+      return AssetImage("lib/assets/images/nocover.jpg");
     }
   }
 
@@ -48,10 +44,12 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
 
   void fetchData(int pageKey) async {
     print("fetchdata");
+    isConnected = await checkForInternetConnection();
+
     try {
-      var list = await ref
+      List<TrendingBooksWorks?>? list = await ref
           .read(booksProvider)
-          .trendingBookDocsList(widget.date, pageKey);
+          .getTrendingBooks(widget.date, pageKey, context);
       final isLastPage = list!.length < 10;
       if (isLastPage) {
         pagingController.appendLastPage(list);
@@ -73,7 +71,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
           centerTitle: true,
           leadingWidth: 50,
           title: Text(
-            "${widget.date} Trending Books",
+            "Aylık Trend Kitaplar",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
@@ -94,10 +92,23 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
               firstPageProgressIndicatorBuilder: (context) {
                 return gridViewBooksShimmerEffectBuilder();
               },
+              firstPageErrorIndicatorBuilder: (context) {
+                if (!isConnected) {
+                  return booksListError(true, context, () {
+                    pagingController.retryLastFailedRequest();
+                  });
+                } else {
+                  return booksListError(false, context, () {
+                    pagingController.retryLastFailedRequest();
+                  });
+                }
+              },
               itemBuilder: (context, item, index) {
                 return Padding(
                   padding: const EdgeInsets.all(10),
                   child: InkWell(
+                    customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
                     onTap: () {
                       Navigator.push(
                           context,
@@ -108,12 +119,27 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                           ));
                     },
                     child: Column(children: [
-                      Expanded(flex: 12, child: getBookCover(item)),
-                      Spacer(),
                       Expanded(
-                        flex: 3,
+                          flex: 15,
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      onError: (exception, stackTrace) =>
+                                          AssetImage(
+                                              "lib/assets/images/error.png"),
+                                      image: getBookCover(item),
+                                      fit: BoxFit.fill),
+                                  borderRadius: BorderRadius.circular(15)),
+                            ),
+                          )),
+                      Spacer(flex: 1),
+                      Expanded(
+                        flex: 7,
                         child: Text(
-                          maxLines: 3,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
                           item!.title!,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(fontWeight: FontWeight.bold),

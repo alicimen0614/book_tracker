@@ -16,11 +16,28 @@ SizedBox gridViewBooksShimmerEffectBuilder() {
       itemBuilder: (context, index) => Padding(
         padding: EdgeInsets.all(10),
         child: Column(children: [
-          ShimmerWidget.rectangular(width: 180, height: 150),
+          ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: ShimmerWidget.rectangular(width: 180, height: 150)),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
-          ShimmerWidget.rectangular(width: 180, height: 10)
+          ShimmerWidget.rounded(
+            width: 180,
+            height: 10,
+            shapeBorder:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Align(
+              alignment: Alignment.center,
+              child: ShimmerWidget.rounded(
+                  width: 60,
+                  height: 10,
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))))
         ]),
       ),
     ),

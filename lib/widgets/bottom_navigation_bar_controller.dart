@@ -20,7 +20,7 @@ class BottomNavigationBarController extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarControllerState
     extends ConsumerState<BottomNavigationBarController> {
-  late PageController _pageController;
+  PageController _pageController = PageController();
   late int currentIndex;
   late String value = widget.searchValue;
   final screens = [
@@ -31,7 +31,7 @@ class _BottomNavigationBarControllerState
   @override
   void initState() {
     currentIndex = widget.currentIndexParam;
-    _pageController = PageController(initialPage: currentIndex);
+    _pageController = PageController(initialPage: currentIndex, keepPage: true);
     super.initState();
   }
 
@@ -47,19 +47,13 @@ class _BottomNavigationBarControllerState
         stream: ref.read(authProvider).authState,
         builder: (context, snapshot) {
           return Scaffold(
-            body: PageView(
-              physics: NeverScrollableScrollPhysics(),
-              controller: _pageController,
-              children: [
-                currentIndex == 3
-                    ? UserScreenView(
-                        user: snapshot.data,
-                      )
-                    : currentIndex == 1
-                        ? const DiscoverScreenView()
-                        : screens[currentIndex],
-              ],
-            ),
+            body: currentIndex == 3
+                ? UserScreenView(
+                    user: snapshot.data,
+                  )
+                : currentIndex == 1
+                    ? const DiscoverScreenView()
+                    : screens[currentIndex],
             bottomNavigationBar: bottomNavigationBarBuilder(),
           );
         });
@@ -76,7 +70,6 @@ class _BottomNavigationBarControllerState
       onTap: (index) {
         setState(() {
           currentIndex = index;
-          _pageController.jumpToPage(currentIndex);
         });
       },
       items: const <BottomNavigationBarItem>[

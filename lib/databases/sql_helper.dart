@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -16,7 +17,7 @@ class SqlHelper {
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
       join(await getDatabasesPath(), 'bookshelf_database.db'),
-      // When the database is first created, create a table to store dogs.
+      // When the database is first created, create a table to store books.
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
         await db.execute(
@@ -42,241 +43,300 @@ class SqlHelper {
   }
 
   Future<void> insertBook(BookWorkEditionsModelEntries bookEditionInfo,
-      String bookStatus, Uint8List? imageAsByte) async {
-    print("sql e yazdı");
-    print(bookEditionInfo.title);
-    // Get a reference to the database.
-    final db = await _openDatabase();
-    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
+      String bookStatus, Uint8List? imageAsByte, BuildContext context) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
+      //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
-    // Insert the Dog into the correct table. You might also specify the
-    // `conflictAlgorithm` to use in case the same dog is inserted twice.
-    //
-    // In this case, replace any previous data.
-    await db.insert(
-      'bookshelf',
-      {
-        "id": uniqueIdCreater(bookEditionInfo),
-        "imageAsByte": imageAsByte != null ? base64Encode(imageAsByte) : null,
-        "bookStatus": bookStatus,
-        "title": bookEditionInfo.title,
-        "publishDate": bookEditionInfo.publishDate ?? null,
-        "numberOfPages": bookEditionInfo.numberOfPages ?? null,
-        "publishers": bookEditionInfo.publishers != null
-            ? bookEditionInfo.publishers!.first
-            : null,
-        "physicalFormat": bookEditionInfo.physicalFormat ?? null,
-        "isbn_10": bookEditionInfo.isbn_10 != null
-            ? bookEditionInfo.isbn_10!.first
-            : null,
-        "isbn_13": bookEditionInfo.isbn_13 != null
-            ? bookEditionInfo.isbn_13!.first
-            : null,
-        "covers": bookEditionInfo.covers != null
-            ? bookEditionInfo.covers!.first
-            : null,
-        "language": bookEditionInfo.languages != null
-            ? bookEditionInfo.languages!.first!.value
-            : null,
-        "description": bookEditionInfo.description != null
-            ? bookEditionInfo.description
-            : null
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+      await db.insert(
+        'bookshelf',
+        {
+          "id": uniqueIdCreater(bookEditionInfo),
+          "imageAsByte": imageAsByte != null ? base64Encode(imageAsByte) : null,
+          "bookStatus": bookStatus,
+          "title": bookEditionInfo.title,
+          "publishDate": bookEditionInfo.publishDate ?? null,
+          "numberOfPages": bookEditionInfo.numberOfPages ?? null,
+          "publishers": bookEditionInfo.publishers != null
+              ? bookEditionInfo.publishers!.first
+              : null,
+          "physicalFormat": bookEditionInfo.physicalFormat ?? null,
+          "isbn_10": bookEditionInfo.isbn_10 != null
+              ? bookEditionInfo.isbn_10!.first
+              : null,
+          "isbn_13": bookEditionInfo.isbn_13 != null
+              ? bookEditionInfo.isbn_13!.first
+              : null,
+          "covers": bookEditionInfo.covers != null
+              ? bookEditionInfo.covers!.first
+              : null,
+          "language": bookEditionInfo.languages != null
+              ? bookEditionInfo.languages!.first!.value
+              : null,
+          "description": bookEditionInfo.description != null
+              ? bookEditionInfo.description
+              : null
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+    }
   }
 
-  Future<void> insertNoteToBook(String note, int bookId) async {
-    print("note a yazdı");
+  Future<void> updateBook(
+    int bookId,
+    String newBookStatus,
+    BuildContext context,
+  ) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
+      //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
-    // Get a reference to the database.
-    final db = await _openDatabase();
-    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-
-    // Insert the Dog into the correct table. You might also specify the
-    // `conflictAlgorithm` to use in case the same dog is inserted twice.
-    //
-    // In this case, replace any previous data.
-    await db.insert(
-      'notes',
-      {
-        "id": bookId + note.hashCode,
-        "bookId": bookId,
-        "note": note,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    print(note);
-    print(bookId);
+      await db.rawUpdate('UPDATE bookshelf SET bookStatus = ? WHERE id = ?',
+          ['$newBookStatus', '$bookId']);
+      print(await db.rawQuery("SELECT * FROM bookshelf"));
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+    }
   }
 
-  Future<void> insertAuthors(String authorName, int bookId) async {
-    print("author a yazdı");
+  Future<void> insertNoteToBook(
+      String note, int bookId, BuildContext context) async {
+    try {
+      print("not eklenen kitabın id'si $bookId");
+      // Get a reference to the database.
+      final db = await _openDatabase();
 
-    // Get a reference to the database.
-    final db = await _openDatabase();
-    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-
-    // Insert the Dog into the correct table. You might also specify the
-    // `conflictAlgorithm` to use in case the same dog is inserted twice.
-    //
-    // In this case, replace any previous data.
-    await db.insert(
-      'authors',
-      {
-        "id": bookId + authorName.hashCode,
-        "bookId": bookId,
-        "authorName": authorName,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    print(authorName);
-    print(bookId);
+      await db.insert(
+        'notes',
+        {
+          "id": bookId + note.hashCode,
+          "bookId": bookId,
+          "note": note,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Not yazdırılırken bir hata oluştu");
+    }
   }
 
-  Future<List<String>?>? getAuthors(int bookId) async {
+  Future<void> insertAuthors(
+      String authorName, int bookId, BuildContext context) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
+
+      await db.insert(
+        'authors',
+        {
+          "id": bookId + authorName.hashCode,
+          "bookId": bookId,
+          "authorName": authorName,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      errorSnackBar(
+        context,
+        e.toString(),
+      );
+    }
+  }
+
+  Future<List<String>?>? getAuthors(int bookId, BuildContext context) async {
     // Get a reference to the database.
     final db = await _openDatabase();
 
-    // Query the table for all The Dogs.
+    // Query the table for all the Authors.
     final List<Map<String, dynamic>> maps = await db.query('authors');
-    print("aa $maps ");
 
-    // Convert the List<Map<String, dynamic> into a List<Dog>.
+    // Convert the List<Map<String, dynamic> into a List<String>.
     List<Map<String, dynamic>> matchedAuthors =
         maps.where((element) => element['bookId'] == bookId).toList();
 
     return matchedAuthors.map((e) => e['authorName'] as String).toList();
   }
 
-  Future<List<BookWorkEditionsModelEntries>> getBookShelf() async {
-    // Get a reference to the database.
-    final db = await _openDatabase();
+  Future<List<BookWorkEditionsModelEntries>?> getBookShelf(
+      BuildContext context) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
 
-    List<BookWorkEditionsModelEntries?>? booksList = [];
-    List<BookWorkEditionsModelEntries> booksListReal = [];
+      List<BookWorkEditionsModelEntries?>? booksList = [];
+      List<BookWorkEditionsModelEntries> booksListReal = [];
 
-    // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('bookshelf');
-    print(maps);
+      // Query the table for all The Books.
+      final List<Map<String, dynamic>> maps = await db.query('bookshelf');
+      print(maps);
 
-    // Convert the List<Map<String, dynamic> into a List<Dog>.
-    booksList = List.generate(maps.length, (i) {
-      List<int?>? coverList = [];
-      if (maps[i]['covers'] != null) {
-        coverList.add(maps[i]['covers']);
-      } else {
-        coverList = null;
+      // Convert the List<Map<String, dynamic> into a List<BookWorkEditionsModelEntries>.
+      booksList = List.generate(maps.length, (i) {
+        List<int?>? coverList = [];
+        if (maps[i]['covers'] != null) {
+          coverList.add(maps[i]['covers']);
+        } else {
+          coverList = null;
+        }
+        List<String?>? publisherList = [];
+        if (maps[i]['publishers'] != null) {
+          publisherList.add(maps[i]['publishers']);
+        } else {
+          publisherList = null;
+        }
+        List<String?>? isbn10_List = [];
+        if (maps[i]['isbn_10'] != null) {
+          isbn10_List.add(maps[i]['isbn_10']);
+        } else {
+          isbn10_List = null;
+        }
+
+        List<String?>? isbn13_List = [];
+        if (maps[i]['isbn_13'] != null) {
+          isbn13_List.add(maps[i]['isbn_13']);
+          ;
+        } else {
+          isbn13_List = null;
+        }
+
+        return BookWorkEditionsModelEntries(
+            imageAsByte: maps[i]['imageAsByte'],
+            bookStatus: maps[i]['bookStatus'],
+            covers: coverList,
+            title: maps[i]['title'],
+            publishDate: maps[i]['publishDate'],
+            numberOfPages: maps[i]['numberOfPages'],
+            publishers: publisherList,
+            physicalFormat: maps[i]['physicalFormat'],
+            isbn_10: isbn10_List,
+            isbn_13: isbn13_List,
+            description: maps[i]['description']);
+      });
+
+      for (var element in booksList) {
+        booksListReal.add(BookWorkEditionsModelEntries(
+            imageAsByte: element?.imageAsByte,
+            bookStatus: element!.bookStatus,
+            covers: element.covers,
+            title: element.title,
+            publishDate: element.publishDate,
+            numberOfPages: element.numberOfPages,
+            publishers: element.publishers,
+            physicalFormat: element.physicalFormat,
+            isbn_10: element.isbn_10,
+            isbn_13: element.isbn_13,
+            description: element.description,
+            authorsNames: await getAuthors(uniqueIdCreater(element), context)));
       }
-      List<String?>? publisherList = [];
-      if (maps[i]['publishers'] != null) {
-        publisherList.add(maps[i]['publishers']);
-      } else {
-        publisherList = null;
-      }
-      List<String?>? isbn10_List = [];
-      if (maps[i]['isbn_10'] != null) {
-        isbn10_List.add(maps[i]['isbn_10']);
-      } else {
-        isbn10_List = null;
-      }
 
-      List<String?>? isbn13_List = [];
-      if (maps[i]['isbn_13'] != null) {
-        isbn13_List.add(maps[i]['isbn_13']);
-        ;
-      } else {
-        isbn13_List = null;
-      }
-
-      return BookWorkEditionsModelEntries(
-          imageAsByte: maps[i]['imageAsByte'],
-          bookStatus: maps[i]['bookStatus'],
-          covers: coverList,
-          title: maps[i]['title'],
-          publishDate: maps[i]['publishDate'],
-          numberOfPages: maps[i]['numberOfPages'],
-          publishers: publisherList,
-          physicalFormat: maps[i]['physicalFormat'],
-          isbn_10: isbn10_List,
-          isbn_13: isbn13_List,
-          description: maps[i]['description']);
-    });
-
-    for (var element in booksList) {
-      booksListReal.add(BookWorkEditionsModelEntries(
-          imageAsByte: element?.imageAsByte,
-          bookStatus: element!.bookStatus,
-          covers: element.covers,
-          title: element.title,
-          publishDate: element.publishDate,
-          numberOfPages: element.numberOfPages,
-          publishers: element.publishers,
-          physicalFormat: element.physicalFormat,
-          isbn_10: element.isbn_10,
-          isbn_13: element.isbn_13,
-          description: element.description,
-          authorsNames: await getAuthors(uniqueIdCreater(element))));
-
-      print("${await getAuthors(uniqueIdCreater(element))} laa");
+      return booksListReal;
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitaplar getirilirken bir hata oluştu");
+      return null;
     }
-
-    return booksListReal;
   }
 
-  Future<List<Map<String, dynamic>>> getNotes() async {
-    // Get a reference to the database.
-    final db = await _openDatabase();
+  Future<dynamic> getNewStatus(BuildContext context, int bookId) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
 
-    // Query the table for all The Dogs.
-    final List<Map<String, dynamic>> maps = await db.query('notes');
-    print(maps);
-    print(List.generate(maps.length, (i) {
-      return maps[i]['note'];
-    }));
+      // Query the table for all The Books.
+      List<Map<String, Object?>> newStatus = await db
+          .rawQuery('SELECT bookStatus FROM bookshelf WHERE id= $bookId');
+      print(newStatus);
 
-    // Convert the List<Map<String, dynamic> into a List<Dog>.
-    return maps;
+      return newStatus.first.values.first;
+    } catch (e) {
+      print(e);
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitaplar getirilirken bir hata oluştu");
+      return null;
+    }
   }
 
-  Future<void> deleteBook(int id) async {
-    // Get a reference to the database.
-    final db = await _openDatabase();
+  Future<List<Map<String, dynamic>>?> getNotes(BuildContext context,
+      {int? bookId}) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
 
-    // Remove the Dog from the database.
-    await db.delete(
-      'bookshelf',
-      // Use a `where` clause to delete a specific dog.
-      where: 'id = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [id],
-    ).whenComplete(() => print("sql document deleted"));
+      // Query the table for all The Notes.
+      final List<Map<String, dynamic>> maps = await db.query('notes');
+
+      print("gelen bookid=$bookId first $maps");
+      if (bookId == null) {
+        print(maps);
+        return maps;
+      } else {
+        print(maps.where((element) => element['bookId'] == bookId).toList());
+        return maps.where((element) => element['bookId'] == bookId).toList();
+      }
+
+      // Convert the List<Map<String, dynamic> into a List<Notes>.
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Notlar getirilirken bir hata oluştu");
+      return null;
+    }
   }
 
-  Future<void> deleteNote(int id) async {
-    // Get a reference to the database.
-    final db = await _openDatabase();
+  Future<void> deleteBook(int id, BuildContext context) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
 
-    // Remove the Dog from the database.
-    await db.delete(
-      'notes',
-      // Use a `where` clause to delete a specific dog.
-      where: 'id = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
-      whereArgs: [id],
-    ).whenComplete(() => print("sql document deleted"));
+      // Remove the Book from the database.
+      await db.delete(
+        'bookshelf',
+        // Use a `where` clause to delete a specific book.
+        where: 'id = ?',
+        // Pass the Book's id as a whereArg to prevent SQL injection.
+        whereArgs: [id],
+      );
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitap silinirken bir hata oluştu");
+    }
+  }
+
+  Future<void> deleteNote(int id, BuildContext context) async {
+    try {
+      // Get a reference to the database.
+      final db = await _openDatabase();
+
+      // Remove the Note from the database.
+      await db.delete(
+        'notes',
+        // Use a `where` clause to delete a specific Note.
+        where: 'id = ?',
+        // Pass the Note's id as a whereArg to prevent SQL injection.
+        whereArgs: [id],
+      );
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Not silinirken bir hata oluştu");
+    }
   }
 
   Future<void> deleteAuthors(int bookId) async {
     // Get a reference to the database.
     final db = await _openDatabase();
 
-    // Remove the Dog from the database.
+    // Remove the Author from the database.
     await db.delete(
       'authors',
-      // Use a `where` clause to delete a specific dog.
+      // Use a `where` clause to delete a specific Author.
       where: 'bookId = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
+      // Pass the Author's id as a whereArg to prevent SQL injection.
       whereArgs: [bookId],
     ).whenComplete(() => print("sql document deleted"));
   }
@@ -285,12 +345,10 @@ class SqlHelper {
     // Get a reference to the database.
     final db = await _openDatabase();
 
-    // Remove the Dog from the database.
+    // remove all the notes belong to a specific book by passing bookId as a whereArg.
     await db.delete(
       'notes',
-      // Use a `where` clause to delete a specific dog.
       where: 'bookId = ?',
-      // Pass the Dog's id as a whereArg to prevent SQL injection.
       whereArgs: [bookId],
     ).whenComplete(() => print("sql document deleted"));
   }

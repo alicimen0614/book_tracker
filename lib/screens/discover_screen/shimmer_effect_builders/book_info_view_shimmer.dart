@@ -11,25 +11,47 @@ Padding shimmerEffectForBookInfoView() {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ShimmerWidget.rectangular(width: 125, height: 170),
+              ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: ShimmerWidget.rounded(
+                      width: 125,
+                      height: 170,
+                      shapeBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)))),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ShimmerWidget.rectangular(width: 150, height: 20),
+                  ShimmerWidget.rounded(
+                      width: 150,
+                      height: 20,
+                      shapeBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15))),
                   SizedBox(
-                    height: 7,
+                    height: 10,
                   ),
-                  ShimmerWidget.rectangular(width: 100, height: 15),
+                  ShimmerWidget.rounded(
+                      width: 100,
+                      height: 15,
+                      shapeBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15))),
                   SizedBox(
-                    height: 7,
+                    height: 10,
                   ),
                   Row(
                     children: [
-                      ShimmerWidget.rectangular(width: 50, height: 10),
+                      ShimmerWidget.rounded(
+                          width: 50,
+                          height: 10,
+                          shapeBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15))),
                       SizedBox(
                         width: 5,
                       ),
-                      ShimmerWidget.rectangular(width: 50, height: 10)
+                      ShimmerWidget.rounded(
+                          width: 50,
+                          height: 10,
+                          shapeBorder: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)))
                     ],
                   )
                 ],
@@ -37,108 +59,161 @@ Padding shimmerEffectForBookInfoView() {
             ],
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.topLeft,
-            child: ShimmerWidget.rectangular(width: 50, height: 13),
+            child: ShimmerWidget.rounded(
+                width: 50,
+                height: 13,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                  width: MediaQuery.sizeOf(context).width - 40, height: 10),
+              itemBuilder: (context, index) => ShimmerWidget.rounded(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  height: 10,
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))),
               separatorBuilder: (context, index) => SizedBox(height: 10),
               itemCount: 5),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: ShimmerWidget.rectangular(width: 50, height: 10),
+            child: ShimmerWidget.rounded(
+                width: 50,
+                height: 10,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.topLeft,
-            child: ShimmerWidget.rectangular(width: 70, height: 13),
+            child: ShimmerWidget.rounded(
+                width: 70,
+                height: 13,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Container(
-            height: 7,
+            height: 10,
             child: ListView.separated(
+                physics: NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
-                itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                    width: MediaQuery.sizeOf(context).width - 40, height: 10),
-                separatorBuilder: (context, index) => SizedBox(height: 10),
-                itemCount: 5),
+                itemBuilder: (context, index) => ShimmerWidget.rounded(
+                    width: 50,
+                    height: 10,
+                    shapeBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15))),
+                separatorBuilder: (context, index) => SizedBox(width: 10),
+                itemCount: 12),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.topLeft,
-            child: ShimmerWidget.rectangular(width: 70, height: 13),
+            child: ShimmerWidget.rounded(
+                width: 70,
+                height: 13,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemBuilder: (context, index) => ShimmerWidget.rectangular(
-                  width: MediaQuery.sizeOf(context).width - 40, height: 10),
+              itemBuilder: (context, index) => ShimmerWidget.rounded(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  height: 10,
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))),
               separatorBuilder: (context, index) => SizedBox(height: 10),
               itemCount: 5),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: ShimmerWidget.rectangular(width: 50, height: 10),
+            child: ShimmerWidget.rounded(
+                width: 50,
+                height: 10,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
             height: 7,
           ),
           Align(
             alignment: Alignment.topLeft,
-            child: ShimmerWidget.rectangular(width: 70, height: 13),
+            child: ShimmerWidget.rounded(
+                width: 70,
+                height: 13,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Container(
             height: 100,
             child: ListView.separated(
+                physics: NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
                 itemBuilder: (context, index) => Column(
                       children: [
-                        ShimmerWidget.rectangular(width: 50, height: 70),
+                        ShimmerWidget.rounded(
+                            width: 50,
+                            height: 70,
+                            shapeBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15))),
                         SizedBox(
                           height: 5,
                         ),
-                        ShimmerWidget.rectangular(width: 50, height: 10),
+                        ShimmerWidget.rounded(
+                            width: 50,
+                            height: 10,
+                            shapeBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15))),
                         SizedBox(
                           height: 5,
                         ),
-                        ShimmerWidget.rectangular(width: 30, height: 10),
+                        ShimmerWidget.rounded(
+                            width: 30,
+                            height: 10,
+                            shapeBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15))),
                       ],
                     ),
                 separatorBuilder: (context, index) => SizedBox(width: 10),
                 itemCount: 6),
           ),
           SizedBox(
-            height: 7,
+            height: 10,
           ),
           Align(
             alignment: Alignment.bottomRight,
-            child: ShimmerWidget.rectangular(width: 100, height: 10),
+            child: ShimmerWidget.rounded(
+                width: 100,
+                height: 10,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))),
           )
         ],
       ),

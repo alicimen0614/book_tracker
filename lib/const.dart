@@ -82,9 +82,9 @@ int uniqueIdCreater(BookWorkEditionsModelEntries? bookEditionInfo) {
     uniqueId = int.parse(bookEditionInfo.isbn_13!.first!);
   } else if (bookEditionInfo.publishers != null) {
     uniqueId = int.parse(
-        "${bookEditionInfo.title.hashCode}${bookEditionInfo.publishers!.first.hashCode}");
+        "${bookEditionInfo.title.hashCode.toString().substring(1, 6)}${bookEditionInfo.publishers!.first.hashCode.toString().substring(1, 6)}");
   } else {
-    uniqueId = int.parse("${bookEditionInfo.title.hashCode}");
+    uniqueId = int.parse("${bookEditionInfo.title.hashCode}").floor();
   }
   return uniqueId;
 }

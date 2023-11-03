@@ -3,9 +3,15 @@ import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/authors_books_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/author_info_body_shimmer.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/error_snack_bar.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import 'shimmer_effect_builders/author_image_and_details_shimmer.dart';
 
 class AuthorInfoScreen extends ConsumerStatefulWidget {
   AuthorInfoScreen({super.key, required this.authorKey});
@@ -21,6 +27,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   bool isLoading = false;
   List<AuthorsWorksModelEntries?>? authorsWorks = [];
   int? authorsWorksSize;
+  bool biographyShowMore = false;
+  bool isConnected = false;
   @override
   void initState() {
     getPageData();
@@ -38,25 +46,25 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               icon: const Icon(
                 Icons.arrow_back_sharp,
                 size: 30,
-                color: Colors.black,
+                color: Colors.white,
               )),
           automaticallyImplyLeading: false,
           elevation: 0,
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: isLoading != true
-            ? SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    authorImageAndDetailsBuilder(),
-                    authorInfoBodyBuilder(context)
-                  ],
-                ),
-              )
-            : Center(
-                child: CircularProgressIndicator(),
-              ));
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              isLoading != true
+                  ? authorImageAndDetailsBuilder()
+                  : authorImageAndDetailsShimmerBuilder(context),
+              isLoading != true
+                  ? authorInfoBodyBuilder(context)
+                  : authorInfoBodyShimmerBuilder(context)
+            ],
+          ),
+        ));
   }
 
   Container authorImageAndDetailsBuilder() {
@@ -77,6 +85,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       height: 200,
                       width: 150,
                       child: FadeInImage.memoryNetwork(
+                          imageErrorBuilder: (context, error, stackTrace) =>
+                              Image.asset("lib/assets/images/error.png"),
                           placeholder: kTransparentImage,
                           image:
                               "https://covers.openlibrary.org/a/id/${authorsModel.photos!.first}-M.jpg")),
@@ -90,8 +100,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
           Container(
             decoration: BoxDecoration(
                 color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(15)),
-            width: MediaQuery.sizeOf(context).width - 50,
+                borderRadius: BorderRadius.circular(50)),
+            width: MediaQuery.sizeOf(context).width - 30,
             height: 50,
             child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -168,6 +178,11 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   }
 
   Expanded authorInfoBodyBuilder(BuildContext context) {
+    String textAsString = "";
+    if (authorsModel.bio != null) {
+      textAsString = authorsModel.bio!.replaceRange(0, 26, "");
+    }
+
     return Expanded(
       child: Scrollbar(
         thickness: 2,
@@ -183,15 +198,17 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Divider(color: Colors.transparent, thickness: 0),
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width - 40,
-                child: Text(
-                  authorsModel.name!,
-                  style: const TextStyle(
-                    fontSize: 15,
+              if (authorsModel.name != null)
+                SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: Text(
+                    authorsModel.name!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                    ),
                   ),
                 ),
-              ),
+              Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.bio != null)
                 Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.bio != null)
@@ -205,9 +222,26 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: Text(
-                    authorsModel.bio!,
+                    authorsModel.bio!.startsWith("{")
+                        ? textAsString.replaceRange(
+                            textAsString.length - 1, textAsString.length, "")
+                        : authorsModel.bio!,
                     style: const TextStyle(fontSize: 15),
+                    maxLines: biographyShowMore != true ? 5 : null,
                   ),
+                ),
+              if (authorsModel.bio != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          biographyShowMore = !biographyShowMore;
+                        });
+                      },
+                      child: biographyShowMore != true
+                          ? Text("Daha fazla göster")
+                          : Text("Daha az göster")),
                 ),
               if (authorsModel.birthDate != null)
                 Divider(color: Colors.transparent, thickness: 0),
@@ -217,15 +251,20 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               ),
               Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
-                  height: 120,
+                  height: 150,
                   width: double.infinity,
-                  child: ListView.builder(
+                  child: ListView.separated(
+                      separatorBuilder: (context, index) => SizedBox(
+                            width: 10,
+                          ),
                       physics: BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) => Container(
                             height: 100,
-                            width: 100,
+                            width: 80,
                             child: InkWell(
+                                customBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
                                 onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -234,20 +273,28 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                     )),
                                 child: Column(
                                   children: [
-                                    authorsWorks![index]!.covers != null
-                                        ? Expanded(
-                                            flex: 2,
-                                            child: Image.network(
-                                                "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
-                                          )
-                                        : Expanded(
-                                            flex: 2,
-                                            child: Image.asset(
-                                              "lib/assets/images/nocover.jpg",
-                                            ),
-                                          ),
                                     Expanded(
-                                        flex: 1,
+                                        flex: 10,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(5),
+                                          child: Ink(
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                image: authorsWorks![index]!
+                                                            .covers !=
+                                                        null
+                                                    ? DecorationImage(
+                                                        image: NetworkImage(
+                                                            "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
+                                                        fit: BoxFit.fill)
+                                                    : DecorationImage(
+                                                        image: AssetImage(
+                                                            "lib/assets/images/nocover.jpg"))),
+                                          ),
+                                        )),
+                                    Expanded(
+                                        flex: 4,
                                         child: Text(
                                           textAlign: TextAlign.center,
                                           authorsWorks![index]!.title!,
@@ -287,26 +334,38 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   }
 
   Future getPageData() async {
+    isConnected = await checkForInternetConnection();
     setState(() {
       isLoading = true;
     });
-    await getAuthorInfo();
-    await getAuthorsWorks();
-
-    setState(() {
-      isLoading = false;
-    });
+    if (isConnected == true) {
+      try {
+        await getAuthorInfo();
+        await getAuthorsWorks();
+      } catch (e) {
+        if (mounted) errorSnackBar(context, e.toString());
+      }
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } else {
+      internetConnectionErrorDialog(context);
+    }
   }
 
   Future<AuthorsModel> getAuthorInfo() async {
-    return authorsModel =
-        await ref.read(booksProvider).getAuthorInfo(widget.authorKey, false);
+    return authorsModel = await ref
+        .read(booksProvider)
+        .getAuthorInfo(widget.authorKey, false, context);
   }
 
   Future<List<AuthorsWorksModelEntries?>?> getAuthorsWorks() async {
     AuthorsWorksModel authorsWorksModel;
-    authorsWorksModel =
-        await ref.read(booksProvider).getAuthorsWorks(widget.authorKey, 5, 0);
+    authorsWorksModel = await ref
+        .read(booksProvider)
+        .getAuthorsWorks(widget.authorKey, 5, 0, context);
 
     authorsWorks = authorsWorksModel.entries;
     authorsWorksSize = authorsWorksModel.size;

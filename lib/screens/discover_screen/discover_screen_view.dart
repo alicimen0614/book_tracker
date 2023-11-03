@@ -15,12 +15,15 @@ class DiscoverScreenView extends ConsumerStatefulWidget {
 
 class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
     with AutomaticKeepAliveClientMixin<DiscoverScreenView> {
-  PageStatus pageStatus = PageStatus.categories;
-  TextEditingController searchBarController = TextEditingController();
   @override
   bool get wantKeepAlive => true;
+  PageStatus pageStatus = PageStatus.categories;
+  TextEditingController searchBarController = TextEditingController();
+
   @override
   void initState() {
+    print("discover screen init çalıştı");
+
     if (widget.searchValue != "") {
       searchBarController.text = widget.searchValue;
     }
@@ -39,57 +42,65 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
 
     return SafeArea(
       child: Scaffold(
-          body: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          (pageStatus == PageStatus.categories ||
-                  pageStatus == PageStatus.trending ||
-                  widget.searchValue != "")
-              ? Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-                      child: searchBarBuilder(),
-                    ),
-                  ],
-                )
-              : Row(mainAxisSize: MainAxisSize.min, children: [
-                  Expanded(
-                    flex: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                      child: searchBarBuilder(),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 4),
-                      child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              pageStatus = PageStatus.categories;
-                              searchBarController.clear();
-                            });
-                          },
-                          child: Text(
-                            "Vazgeç",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )),
-                    ),
+          body: GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            (pageStatus == PageStatus.categories ||
+                    pageStatus == PageStatus.trending ||
+                    widget.searchValue != "")
+                ? Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+                        child: searchBarBuilder(),
+                      ),
+                    ],
                   )
-                ]),
-          pageStatus == PageStatus.search || widget.searchValue != ""
-              ? SearchScreenView(
-                  searchValue: widget.searchValue == "" ||
-                          searchBarController.text != widget.searchValue
-                      ? searchBarController.text
-                      : widget.searchValue)
-              : pageStatus == PageStatus.trending
-                  ? TrendingBooksView(date: "monthly")
-                  : CategoriesView()
-        ],
+                : Row(mainAxisSize: MainAxisSize.min, children: [
+                    Expanded(
+                      flex: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                        child: searchBarBuilder(),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                pageStatus = PageStatus.categories;
+                                searchBarController.clear();
+                              });
+                            },
+                            child: Text(
+                              "Vazgeç",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                      ),
+                    )
+                  ]),
+            pageStatus == PageStatus.search || widget.searchValue != ""
+                ? SearchScreenView(
+                    searchValue: widget.searchValue == "" ||
+                            searchBarController.text != widget.searchValue
+                        ? searchBarController.text
+                        : widget.searchValue)
+                : pageStatus == PageStatus.trending
+                    ? TrendingBooksView(date: "monthly")
+                    : CategoriesView()
+          ],
+        ),
       )),
     );
   }
@@ -115,12 +126,12 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
             autocorrect: true,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(15),
-              hintText: "Search",
+              hintText: "Ara",
               focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFF1B7695),
                   ),
-                  borderRadius: BorderRadius.circular(50)),
+                  borderRadius: BorderRadius.circular(15)),
               suffixIcon: IconButton(
                 onPressed: (() {
                   setState(() {
@@ -134,7 +145,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                 ),
               ),
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
             ),
           ),
         ),

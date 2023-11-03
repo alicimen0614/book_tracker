@@ -1,3 +1,4 @@
+import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -16,38 +17,48 @@ class AuthService {
     return "";
   }
 
-  Future<void> signOut() async {
-    await _firebaseAuth.signOut();
-    await GoogleSignIn().signOut();
+  Future<void> signOut(BuildContext context) async {
+    try {
+      await _firebaseAuth.signOut();
+      await GoogleSignIn().signOut();
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Çıkış yapılırken bir hata meydana geldi");
+    }
   }
 
   Stream<User?> get authState {
     return _firebaseAuth.authStateChanges();
   }
 
-  Future<User?> signInWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  Future<User?> signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    // Obtain the auth details from the request
-    if (googleUser != null) {
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      // Obtain the auth details from the request
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
 
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+        // Create a new credential
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-      // Once signed in, return the UserCredential
-      UserCredential userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+        // Once signed in, return the UserCredential
+        UserCredential userCredential =
+            await _firebaseAuth.signInWithCredential(credential);
 
-      return userCredential.user;
-    } else {
+        return userCredential.user;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      errorSnackBar(context, e.toString());
       return null;
     }
+    // Trigger the authentication flow
   }
 
   Future createUserWithEmailAndPassword(
@@ -88,7 +99,8 @@ class AuthService {
           break;
       }
     } catch (e) {
-      rethrow;
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Hesap oluşturulurken bir hata meydana geldi");
     }
   }
 
@@ -136,6 +148,10 @@ class AuthService {
               content: Text('Bilinmeyen bir hata meydana geldi')));
           break;
       }
+      return null;
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Giriş yapılırken bir hata meydana geldi");
       return null;
     }
   }
