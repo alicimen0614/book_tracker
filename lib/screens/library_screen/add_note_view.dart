@@ -104,8 +104,10 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
               IconButton(
                 splashRadius: 25,
                 onPressed: () async {
+                  // note update condition
                   if (widget.initialNoteValue != noteFieldController.text &&
-                      widget.initialNoteValue != "") {
+                      widget.initialNoteValue != "" &&
+                      noteFieldController.text != "") {
                     FocusScope.of(context).unfocus();
                     //deleting the old note from sql if there is any
                     if (widget.noteId != null) {
@@ -144,7 +146,9 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         Navigator.pop(context);
                       },
                     );
-                  } else if (widget.initialNoteValue == "" &&
+                  }
+                  //new note condition
+                  else if (widget.initialNoteValue == "" &&
                       noteFieldController.text != "") {
                     FocusScope.of(context).unfocus();
                     //inserting the note to sql
@@ -177,10 +181,18 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         },
                       );
                     }
-                  } else if (widget.initialNoteValue == "" &&
+                  } //no note written and trying to save
+                  else if (widget.initialNoteValue == "" &&
                       noteFieldController.text == "") {
                     FocusScope.of(context).unfocus();
                     showSnackBar(context, "Lütfen Önce Bir Not Ekleyin");
+                  }
+                  //there is initial note but trying to save when its empty
+                  else if (widget.initialNoteValue != "" &&
+                      noteFieldController.text == "") {
+                    FocusScope.of(context).unfocus();
+                    showSnackBar(
+                        context, "Lütfen Önce Bir Not Ekleyin Yada Notu Silin");
                   } else {
                     FocusScope.of(context).unfocus();
                     Future.delayed(
