@@ -49,10 +49,11 @@ class BooksService {
   }
 
   Future<dynamic> getBookWorkEditions(
-      String key, int offset, BuildContext context) async {
+      String key, int offset, BuildContext context, int limit) async {
     try {
-      var response = await http
-          .get(Uri.parse("$baseUrl$key/editions.json?offset=$offset"));
+      var response = await http.get(
+          Uri.parse("$baseUrl$key/editions.json?offset=$offset&limit=$limit"));
+      print("$baseUrl$key/editions.json?offset=$offset&limit=$limit");
 
       var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
 

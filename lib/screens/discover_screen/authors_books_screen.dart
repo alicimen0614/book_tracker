@@ -41,7 +41,7 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
       if (isLastPage) {
         pagingController.appendLastPage(list);
       } else {
-        final nextPageKey = pageKey + list.length + 1;
+        final nextPageKey = pageKey + list.length;
         pagingController.appendPage(list, nextPageKey);
       }
     } catch (e) {

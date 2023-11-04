@@ -548,7 +548,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
     editionsModel = await ref
         .read(booksProvider)
-        .getBookWorkEditions(mainBook!.key, 0, context);
+        .getBookWorkEditions(mainBook!.key, 0, context, 5);
 
     if (editionsModel == null) {}
 

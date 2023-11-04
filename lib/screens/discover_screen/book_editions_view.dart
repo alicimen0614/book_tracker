@@ -36,14 +36,14 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
     try {
       BookWorkEditionsModel editionsModel = await ref
           .read(booksProvider)
-          .getBookWorkEditions(widget.workId, pageKey, context);
+          .getBookWorkEditions(widget.workId, pageKey, context, 50);
 
       var list = editionsModel.entries;
       final isLastPage = list!.length < 50;
       if (isLastPage) {
         pagingController.appendLastPage(list);
       } else {
-        final nextPageKey = pageKey + list.length + 1;
+        final nextPageKey = pageKey + list.length;
         pagingController.appendPage(list, nextPageKey);
       }
     } catch (e) {
