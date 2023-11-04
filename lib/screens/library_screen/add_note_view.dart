@@ -16,7 +16,8 @@ class AddNoteView extends ConsumerStatefulWidget {
       required this.bookInfo,
       this.initialNoteValue = "",
       this.noteId,
-      this.isNavigatingFromNotesView = false});
+      this.isNavigatingFromNotesView = false,
+      this.noteDate = ""});
 
   final bool showDeleteIcon;
   final Image? bookImage;
@@ -24,6 +25,7 @@ class AddNoteView extends ConsumerStatefulWidget {
   final String initialNoteValue;
   final int? noteId;
   final bool isNavigatingFromNotesView;
+  final String noteDate;
 
   @override
   ConsumerState<AddNoteView> createState() => _AddNoteViewState();
@@ -32,6 +34,7 @@ class AddNoteView extends ConsumerStatefulWidget {
 class _AddNoteViewState extends ConsumerState<AddNoteView> {
   final noteFieldController = TextEditingController();
   int oldNoteId = 0;
+  String date = "";
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
     if (widget.noteId != null) {
       oldNoteId = widget.noteId!;
     }
+    date = DateFormat("dd MMMM yyy H.m").format(DateTime.now());
 
     print(oldNoteId);
     noteFieldController.text = widget.initialNoteValue;
@@ -113,7 +117,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     await ref.read(sqlProvider).insertNoteToBook(
                         noteFieldController.text,
                         uniqueIdCreater(widget.bookInfo),
-                        context);
+                        context,
+                        date);
 
                     if (ref.read(authProvider).currentUser != null) {
                       if (widget.noteId != null) {
@@ -128,7 +133,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                           collectionPath: 'usersBooks',
                           note: noteFieldController.text,
                           userId: ref.read(authProvider).currentUser!.uid,
-                          uniqueBookId: uniqueIdCreater(widget.bookInfo));
+                          uniqueBookId: uniqueIdCreater(widget.bookInfo),
+                          noteDate: date);
                     }
 
                     showSnackBar(context, "Not Başarıyla Güncellendi");
@@ -145,13 +151,15 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     await ref.read(sqlProvider).insertNoteToBook(
                         noteFieldController.text,
                         uniqueIdCreater(widget.bookInfo),
-                        context);
+                        context,
+                        date);
                     if (ref.read(authProvider).currentUser != null) {
                       await ref.read(firestoreProvider).setNoteData(context,
                           collectionPath: 'usersBooks',
                           note: noteFieldController.text,
                           userId: ref.read(authProvider).currentUser!.uid,
-                          uniqueBookId: uniqueIdCreater(widget.bookInfo));
+                          uniqueBookId: uniqueIdCreater(widget.bookInfo),
+                          noteDate: date);
                     }
 
                     showSnackBar(context, "Not Başarıyla Eklendi");
@@ -220,7 +228,9 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             Expanded(
               flex: 1,
               child: Text(
-                  "${DateFormat("dd MMMM yyy H.m").format(DateTime.now())} ",
+                  widget.noteDate != ""
+                      ? widget.noteDate
+                      : "${DateFormat("dd MMMM yyy H.m").format(DateTime.now())} ",
                   style: TextStyle(
                       color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),

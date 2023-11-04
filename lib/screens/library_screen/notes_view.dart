@@ -87,20 +87,22 @@ class _NotesViewState extends ConsumerState<NotesView> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => AddNoteView(
-                                  noteId: notesToShow[index]['id'],
-                                  initialNoteValue: notesToShow[index]['note'],
-                                  bookImage: getImage != null
-                                      ? Image.memory(
-                                          base64Decode(getImage),
-                                          fit: BoxFit.fill,
-                                        )
-                                      : null,
-                                  showDeleteIcon: true,
-                                  bookInfo: widget.listOfBooksFromSql!
-                                      .firstWhere((element) =>
-                                          uniqueIdCreater(element) ==
-                                          notesToShow[index]['bookId'])))).then(
-                          (value) => getPageData());
+                                    noteId: notesToShow[index]['id'],
+                                    initialNoteValue: notesToShow[index]
+                                        ['note'],
+                                    bookImage: getImage != null
+                                        ? Image.memory(
+                                            base64Decode(getImage),
+                                            fit: BoxFit.fill,
+                                          )
+                                        : null,
+                                    showDeleteIcon: true,
+                                    bookInfo: widget.listOfBooksFromSql!
+                                        .firstWhere((element) =>
+                                            uniqueIdCreater(element) ==
+                                            notesToShow[index]['bookId']),
+                                    noteDate: notesToShow[index]['noteDate'],
+                                  ))).then((value) => getPageData());
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -164,13 +166,12 @@ class _NotesViewState extends ConsumerState<NotesView> {
         print("$isConnected -3");
       }
     });
-
-    await getNotesFromSql();
-
     if (isConnected != false && ref.read(authProvider).currentUser != null) {
       await getNotesFromFirestore();
       await insertingProcesses();
     }
+
+    await getNotesFromSql();
 
     setState(() {
       isLoading = false;
@@ -254,11 +255,12 @@ class _NotesViewState extends ConsumerState<NotesView> {
         collectionPath: 'usersBooks',
         note: noteFromSql['note'],
         userId: ref.read(authProvider).currentUser!.uid,
-        uniqueBookId: noteFromSql['bookId']);
+        uniqueBookId: noteFromSql['bookId'],
+        noteDate: noteFromSql['noteDate']);
   }
 
   Future<void> insertNoteToSql(Map<String, dynamic> noteFromFirestore) async {
-    await ref.read(sqlProvider).insertNoteToBook(
-        noteFromFirestore['note'], noteFromFirestore['bookId'], context);
+    await ref.read(sqlProvider).insertNoteToBook(noteFromFirestore['note'],
+        noteFromFirestore['bookId'], context, noteFromFirestore['noteDate']);
   }
 }

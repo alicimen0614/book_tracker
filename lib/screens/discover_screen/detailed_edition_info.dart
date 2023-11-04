@@ -971,15 +971,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             onTap: () {
               Image? getImage = widget.bookImage ?? null;
               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddNoteView(
-                              noteId: notesList![index]['id'],
-                              initialNoteValue: notesList![index]['note'],
-                              bookImage: getImage != null ? getImage : null,
-                              showDeleteIcon: true,
-                              bookInfo: widget.editionInfo)))
-                  .then((value) => getPageData());
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddNoteView(
+                            noteId: notesList![index]['id'],
+                            initialNoteValue: notesList![index]['note'],
+                            bookImage: getImage != null ? getImage : null,
+                            showDeleteIcon: true,
+                            bookInfo: widget.editionInfo,
+                            noteDate: notesList![index]['noteDate'],
+                          ))).then((value) => getPageData());
             },
             child: Container(
               decoration: BoxDecoration(

@@ -155,7 +155,8 @@ class FirestoreDatabase extends ChangeNotifier {
       {required String collectionPath,
       required String note,
       required String userId,
-      required int uniqueBookId}) async {
+      required int uniqueBookId,
+      required String noteDate}) async {
     try {
       await _firestore
           .collection(collectionPath)
@@ -165,7 +166,8 @@ class FirestoreDatabase extends ChangeNotifier {
           .set({
         'id': (uniqueBookId + note.hashCode).toString(),
         'bookId': uniqueBookId,
-        'note': note
+        'note': note,
+        'noteDate': noteDate
       });
     } catch (e) {
       errorSnackBar(context, e.toString(),

@@ -25,7 +25,7 @@ class SqlHelper {
         );
 
         await db.execute(
-            'CREATE TABLE notes(id INTEGER PRIMARY KEY UNIQUE, bookId INTEGER, note TEXT)');
+            'CREATE TABLE notes(id INTEGER PRIMARY KEY UNIQUE, bookId INTEGER, note TEXT, noteDate TEXT)');
 
         await db.execute(
             'CREATE TABLE authors(id INTEGER PRIMARY KEY UNIQUE,authorName TEXT,bookId INTEGER)');
@@ -106,7 +106,7 @@ class SqlHelper {
   }
 
   Future<void> insertNoteToBook(
-      String note, int bookId, BuildContext context) async {
+      String note, int bookId, BuildContext context, String noteDate) async {
     try {
       print("not eklenen kitabın id'si $bookId");
       // Get a reference to the database.
@@ -118,6 +118,7 @@ class SqlHelper {
           "id": bookId + note.hashCode,
           "bookId": bookId,
           "note": note,
+          "noteDate": noteDate
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
