@@ -6,7 +6,7 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/shimmer_effects/notes_view_shimmer.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -150,25 +150,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
       isLoading = true;
     });
 
-    checkForInternetConnection().then((internet) {
-      print(internet);
-      print("$isConnected -1");
-      if (internet == true) {
-        if (isConnected == false) {
-          setState(() {
-            isConnected = true;
-          });
-        }
-        print("$isConnected -2");
-      } else {
-        if (isConnected == true) {
-          setState(() {
-            isConnected = false;
-          });
-        }
-        print("$isConnected -3");
-      }
-    });
+    isConnected = await checkForInternetConnection();
     if (isConnected != false && ref.read(authProvider).currentUser != null) {
       await getNotesFromFirestore();
       await insertingProcesses();
@@ -205,19 +187,6 @@ class _NotesViewState extends ConsumerState<NotesView> {
     }
 
     print("notlar firestoredan gösteriliyor");
-  }
-
-  Future<bool> checkForInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile) {
-      print("connected from mobile");
-      return true;
-    } else if (connectivityResult == ConnectivityResult.wifi) {
-      print("connected from wifi");
-      return true;
-    }
-
-    return false;
   }
 
   Future<void> insertingProcesses() async {
