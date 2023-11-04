@@ -44,280 +44,283 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Kitap ekle",
-          textAlign: TextAlign.left,
-          style: TextStyle(
-              fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Kitap ekle",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          centerTitle: true,
+          leadingWidth: 50,
+          leading: IconButton(
+              tooltip: "Geri dön",
+              splashRadius: 25,
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_sharp,
+                size: 30,
+              )),
+          actions: [
+            IconButton(
+              splashRadius: 25,
+              onPressed: () async {
+                if (titleFieldController.text == "") {
+                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    duration: Duration(seconds: 2),
+                    content: const Text('Lütfen bir başlık girin'),
+                    action: SnackBarAction(
+                      label: 'Tamam',
+                      onPressed: () {},
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ));
+                } else {
+                  BookWorkEditionsModelEntries bookInfo =
+                      BookWorkEditionsModelEntries(
+                          covers: [1],
+                          title: titleFieldController.text,
+                          isbn_10: isbnFieldController.text != ""
+                              ? [isbnFieldController.text]
+                              : null,
+                          numberOfPages: pageNumberFieldController.text != ""
+                              ? int.parse(pageNumberFieldController.text)
+                              : null,
+                          publishers: publisherFieldController.text != ""
+                              ? [publisherFieldController.text]
+                              : null);
+                  Uint8List imageAsByte = Uint8List.fromList([]);
+                  if (pickedImage != null) {
+                    imageAsByte = await pickedImage!.readAsBytes();
+                  }
+
+                  //insert author
+                  if (authorFieldController.text != "") {
+                    ref.read(sqlProvider).insertAuthors(
+                        authorFieldController.text,
+                        uniqueIdCreater(bookInfo),
+                        context);
+                  }
+
+                  //insert book
+                  ref
+                      .read(sqlProvider)
+                      .insertBook(
+                          bookInfo,
+                          bookStatus == BookStatus.alreadyRead
+                              ? "Okuduklarım"
+                              : bookStatus == BookStatus.currentlyReading
+                                  ? "Şu an okuduklarım"
+                                  : "Okumak istediklerim",
+                          pickedImage != null ? imageAsByte : null,
+                          context)
+                      .whenComplete(() => Navigator.pop(context));
+
+                  if (ref.read(authProvider).currentUser != null) {
+                    ref.read(firestoreProvider).setBookData(context,
+                        collectionPath: "usersBooks",
+                        bookAsMap: {
+                          "title": titleFieldController.text,
+                          "isbn_10": isbnFieldController.text != ""
+                              ? [isbnFieldController.text]
+                              : null,
+                          "numberOfPages": pageNumberFieldController.text != ""
+                              ? int.parse(pageNumberFieldController.text)
+                              : null,
+                          "publishers": publisherFieldController.text != ""
+                              ? [publisherFieldController.text]
+                              : null,
+                          "covers": [1],
+                          "imageAsByte": pickedImage != null
+                              ? base64Encode(imageAsByte)
+                              : null,
+                          "bookStatus": bookStatus == BookStatus.alreadyRead
+                              ? "Okuduklarım"
+                              : bookStatus == BookStatus.currentlyReading
+                                  ? "Şu an okuduklarım"
+                                  : "Okumak istediklerim",
+                        },
+                        userId: ref.read(authProvider).currentUser!.uid);
+                  }
+                }
+              },
+              icon: Icon(Icons.check_sharp, size: 30),
+            )
+          ],
+          automaticallyImplyLeading: false,
+          elevation: 0,
         ),
-        centerTitle: true,
-        leadingWidth: 50,
-        leading: IconButton(
-            tooltip: "Geri dön",
-            splashRadius: 25,
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.arrow_back_sharp,
-              size: 30,
-            )),
-        actions: [
-          IconButton(
-            splashRadius: 25,
-            onPressed: () async {
-              if (titleFieldController.text == "") {
-                ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  duration: Duration(seconds: 2),
-                  content: const Text('Lütfen bir başlık girin'),
-                  action: SnackBarAction(
-                    label: 'Tamam',
-                    onPressed: () {},
+        body: Scrollbar(
+          thickness: 3,
+          radius: Radius.circular(20),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
                   ),
-                  behavior: SnackBarBehavior.floating,
-                ));
-              } else {
-                BookWorkEditionsModelEntries bookInfo =
-                    BookWorkEditionsModelEntries(
-                        covers: [1],
-                        title: titleFieldController.text,
-                        isbn_10: isbnFieldController.text != ""
-                            ? [isbnFieldController.text]
-                            : null,
-                        numberOfPages: pageNumberFieldController.text != ""
-                            ? int.parse(pageNumberFieldController.text)
-                            : null,
-                        publishers: publisherFieldController.text != ""
-                            ? [publisherFieldController.text]
-                            : null);
-                Uint8List imageAsByte = Uint8List.fromList([]);
-                if (pickedImage != null) {
-                  imageAsByte = await pickedImage!.readAsBytes();
-                }
-
-                //insert author
-                if (authorFieldController.text != "") {
-                  ref.read(sqlProvider).insertAuthors(
-                      authorFieldController.text,
-                      uniqueIdCreater(bookInfo),
-                      context);
-                }
-
-                //insert book
-                ref
-                    .read(sqlProvider)
-                    .insertBook(
-                        bookInfo,
-                        bookStatus == BookStatus.alreadyRead
-                            ? "Okuduklarım"
-                            : bookStatus == BookStatus.currentlyReading
-                                ? "Şu an okuduklarım"
-                                : "Okumak istediklerim",
-                        pickedImage != null ? imageAsByte : null,
-                        context)
-                    .whenComplete(() => Navigator.pop(context));
-
-                if (ref.read(authProvider).currentUser != null) {
-                  ref.read(firestoreProvider).setBookData(context,
-                      collectionPath: "usersBooks",
-                      bookAsMap: {
-                        "title": titleFieldController.text,
-                        "isbn_10": isbnFieldController.text != ""
-                            ? [isbnFieldController.text]
-                            : null,
-                        "numberOfPages": pageNumberFieldController.text != ""
-                            ? int.parse(pageNumberFieldController.text)
-                            : null,
-                        "publishers": publisherFieldController.text != ""
-                            ? [publisherFieldController.text]
-                            : null,
-                        "covers": [1],
-                        "imageAsByte": pickedImage != null
-                            ? base64Encode(imageAsByte)
-                            : null,
-                        "bookStatus": bookStatus == BookStatus.alreadyRead
-                            ? "Okuduklarım"
-                            : bookStatus == BookStatus.currentlyReading
-                                ? "Şu an okuduklarım"
-                                : "Okumak istediklerim",
-                      },
-                      userId: ref.read(authProvider).currentUser!.uid);
-                }
-              }
-            },
-            icon: Icon(Icons.check_sharp, size: 30),
-          )
-        ],
-        automaticallyImplyLeading: false,
-        elevation: 0,
-      ),
-      body: Scrollbar(
-        thickness: 3,
-        radius: Radius.circular(20),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                Center(
-                  child: Container(
-                    height: 220,
-                    width: 140,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      clipBehavior: Clip.none,
-                      children: [
-                        pickedImage == null
-                            ? Center(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey.shade400,
-                                      border: Border.all(color: Colors.white),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(5))),
+                  Center(
+                    child: Container(
+                      height: 220,
+                      width: 140,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        clipBehavior: Clip.none,
+                        children: [
+                          pickedImage == null
+                              ? Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade400,
+                                        border: Border.all(color: Colors.white),
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5))),
+                                    height: 200,
+                                    width: 120,
+                                  ),
+                                )
+                              : Image.file(
+                                  pickedImage!,
+                                  fit: BoxFit.cover,
                                   height: 200,
                                   width: 120,
+                                  filterQuality: FilterQuality.medium,
                                 ),
-                              )
-                            : Image.file(
-                                pickedImage!,
-                                fit: BoxFit.cover,
-                                height: 200,
-                                width: 120,
-                                filterQuality: FilterQuality.medium,
-                              ),
-                        pickedImage == null
-                            ? Icon(
-                                Icons.photo,
-                                color: Colors.grey,
-                              )
-                            : SizedBox.shrink(),
-                        Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Material(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: BorderSide(color: Colors.white)),
-                              child: ClipOval(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade400,
+                          pickedImage == null
+                              ? Icon(
+                                  Icons.photo,
+                                  color: Colors.grey,
+                                )
+                              : SizedBox.shrink(),
+                          Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Material(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(color: Colors.white)),
+                                child: ClipOval(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    padding: EdgeInsets.all(0),
+                                    height: 40,
+                                    width: 40,
+                                    child: IconButton(
+                                        padding: EdgeInsets.all(0),
+                                        splashRadius: 25,
+                                        onPressed: () {
+                                          modalBottomSheetBuilderForPopUpMenu(
+                                              context);
+                                        },
+                                        icon: Icon(
+                                          Icons.add_a_photo_rounded,
+                                          size: 23,
+                                        )),
                                   ),
-                                  padding: EdgeInsets.all(0),
-                                  height: 40,
-                                  width: 40,
-                                  child: IconButton(
-                                      padding: EdgeInsets.all(0),
-                                      splashRadius: 25,
-                                      onPressed: () {
-                                        modalBottomSheetBuilderForPopUpMenu(
-                                            context);
-                                      },
-                                      icon: Icon(
-                                        Icons.add_a_photo_rounded,
-                                        size: 23,
-                                      )),
                                 ),
-                              ),
-                            ))
-                      ],
+                              ))
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                TextFormField(
-                  controller: titleFieldController,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      hintText: "Başlık",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30))),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                TextFormField(
-                  controller: authorFieldController,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      hintText: "Yazar",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30))),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                TextFormField(
-                  controller: publisherFieldController,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      hintText: "Yayıncı",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30))),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                Text(
-                  "Kitap türü",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                bookTypeSelectionSection(),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                TextFormField(
-                  controller: isbnFieldController,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      hintText: "ISBN",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30))),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: pageNumberFieldController,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
-                      hintText: "Sayfa sayısı",
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30))),
-                ),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                Text("Kitap durumu",
-                    style:
-                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                Divider(
-                  thickness: 0,
-                  color: Colors.transparent,
-                ),
-                bookStatusSelectionSection(),
-              ],
+                  SizedBox(
+                    height: 16,
+                  ),
+                  TextFormField(
+                    controller: titleFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Başlık",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  TextFormField(
+                    controller: authorFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Yazar",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  TextFormField(
+                    controller: publisherFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Yayıncı",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  Text(
+                    "Kitap türü",
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  bookTypeSelectionSection(),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  TextFormField(
+                    controller: isbnFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "ISBN",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: pageNumberFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Sayfa sayısı",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  Text("Kitap durumu",
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  bookStatusSelectionSection(),
+                ],
+              ),
             ),
           ),
         ),
