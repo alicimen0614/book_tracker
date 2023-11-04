@@ -1,7 +1,9 @@
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
 
 import 'package:book_tracker/widgets/animated_button.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class AuthView extends ConsumerStatefulWidget {
 }
 
 class _AuthViewState extends ConsumerState<AuthView> {
+  bool isConnected = false;
   Future<void>? _signInWithGoogle(WidgetRef ref) async {
     showDialog(
         context: context,
@@ -461,14 +464,23 @@ class _AuthViewState extends ConsumerState<AuthView> {
               backgroundColor: MaterialStateProperty.all<Color>(
                   const Color.fromRGBO(253, 132, 31, 1))),
           onPressed: () async {
-            await _signInWithGoogle(ref)!.whenComplete(() {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BottomNavigationBarController(),
-                  ),
-                  (route) => false);
-            });
+            isConnected = await checkForInternetConnection();
+            if (isConnected != true) {
+              await internetConnectionErrorDialog(context);
+            } else {
+              await _signInWithGoogle(ref)!.whenComplete(() {
+                if (ref.read(authProvider).currentUser != null) {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BottomNavigationBarController(),
+                      ),
+                      (route) => false);
+                }
+                Navigator.pop(context);
+              });
+            }
+
             ;
           },
           icon: const Icon(Icons.g_mobiledata_sharp, size: 30),
