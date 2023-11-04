@@ -35,6 +35,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
   final noteFieldController = TextEditingController();
   int oldNoteId = 0;
   String date = "";
+  bool hasNoteSaved = false;
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                 onPressed: () => Future.delayed(
                       Duration(milliseconds: 100),
                       () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, hasNoteSaved);
                       },
                     ),
                 icon: const Icon(
@@ -167,10 +168,11 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     }
 
                     showSnackBar(context, "Not Başarıyla Eklendi");
+                    hasNoteSaved = true;
                     Future.delayed(
                       Duration(milliseconds: 100),
                       () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, hasNoteSaved);
                       },
                     );
                     if (widget.isNavigatingFromNotesView == true) {
@@ -242,7 +244,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
               child: Text(
                   widget.noteDate != ""
                       ? widget.noteDate
-                      : "${DateFormat("dd MMMM yyy H.m").format(DateTime.now())} ",
+                      : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
                   style: TextStyle(
                       color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),

@@ -80,7 +80,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   showDeleteIcon: false,
                                   bookInfo: widget.editionInfo,
                                   bookImage: widget.bookImage),
-                            ));
+                            )).then((value) {
+                          print(value);
+                          if (value == true) getPageData();
+                        });
                       },
                       icon: Icon(
                         Icons.library_add_rounded,
