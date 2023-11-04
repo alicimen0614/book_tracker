@@ -102,7 +102,10 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                             uniqueIdCreater(element) ==
                                             notesToShow[index]['bookId']),
                                     noteDate: notesToShow[index]['noteDate'],
-                                  ))).then((value) => getPageData());
+                                  ))).then((value) {
+                        setState(() {});
+                        getNotesFromSql();
+                      });
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -225,12 +228,17 @@ class _NotesViewState extends ConsumerState<NotesView> {
           ? listOfNoteIdsFromFirestore =
               notesFromFirestore!.map((e) => int.parse(e['id'])).toList()
           : null;
+      print("notesFromFirestore : $notesFromFirestore");
+      print("listOfNoteIdsFromFirestore: $listOfNoteIdsFromFirestore");
     }
     if (notesFromSql != null) {
       notesFromSql!.isEmpty != true
           ? listOfNoteIdsFromSql =
               notesFromSql!.map((e) => e['id'] as int).toList()
           : null;
+
+      print("notesFromSql : $notesFromSql");
+      print("listOfNoteIdsFromSql: $listOfNoteIdsFromSql");
     }
 
     if (notesFromSql != null) {
