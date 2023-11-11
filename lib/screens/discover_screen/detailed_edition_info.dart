@@ -9,6 +9,7 @@ import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
@@ -68,6 +69,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             actions: [
+              widget.editionInfo.isbn_13 != null ||
+                      widget.editionInfo.isbn_10 != null
+                  ? IconButton(
+                      onPressed: () {
+                        launchUrl(Uri.parse(
+                            "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 != null ? widget.editionInfo.isbn_13 : widget.editionInfo.isbn_10}"));
+                      },
+                      icon: Image.asset("lib/assets/images/goodreads_icon.png"),
+                      splashRadius: 25)
+                  : SizedBox.shrink(),
               widget.isNavigatingFromLibrary == true
                   ? IconButton(
                       tooltip: "Not Ekle",
@@ -1039,6 +1050,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
     }
   }
 
