@@ -104,31 +104,29 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: isLoading != true
-                      ? Text(text,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          ))
-                      : textShimmerEffect(
-                          context, MediaQuery.of(context).size.width / 2),
-                ),
+                isLoading != true
+                    ? Expanded(
+                        flex: 2,
+                        child: Text(text,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            )))
+                    : textShimmerEffect(
+                        context, MediaQuery.of(context).size.width / 2),
                 Spacer(),
-                lenghtOfBooks != 0
+                isLoading != true && lenghtOfBooks != 0
                     ? Expanded(
                         flex: 17,
                         child: Container(
                           child: ListView.separated(
-                            physics: BouncingScrollPhysics(),
-                            separatorBuilder: (context, index) =>
-                                VerticalDivider(
-                                    color: Colors.transparent, thickness: 0),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: isLoading != true ? books.length : 4,
-                            itemBuilder: (context, index) => isLoading != true
-                                ? Container(
+                              physics: BouncingScrollPhysics(),
+                              separatorBuilder: (context, index) =>
+                                  VerticalDivider(
+                                      color: Colors.transparent, thickness: 0),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: books.length,
+                              itemBuilder: (context, index) => Container(
                                     decoration: BoxDecoration(),
                                     height: 220,
                                     width: 100,
@@ -196,22 +194,32 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
                                         ],
                                       ),
                                     ),
-                                  )
-                                : homeScreenShimmer(context),
-                          ),
+                                  )),
                         ),
                       )
-                    : Expanded(
-                        flex: 5,
-                        child: InkWell(
-                          onTap: () =>
-                              modalBottomSheetBuilderForPopUpMenu(context),
-                          child: Container(
-                              height: MediaQuery.sizeOf(context).width / 3,
-                              child:
-                                  Image.asset("lib/assets/images/library.png")),
-                        ),
-                      ),
+                    : isLoading == true
+                        ? Expanded(
+                            flex: 17,
+                            child: Container(
+                                width: double.infinity,
+                                height: 250,
+                                child: homeScreenShimmer(context)),
+                          )
+                        : lenghtOfBooks == 0
+                            ? Expanded(
+                                flex: 5,
+                                child: InkWell(
+                                  onTap: () =>
+                                      modalBottomSheetBuilderForPopUpMenu(
+                                          context),
+                                  child: Container(
+                                      height:
+                                          MediaQuery.sizeOf(context).width / 3,
+                                      child: Image.asset(
+                                          "lib/assets/images/library.png")),
+                                ),
+                              )
+                            : SizedBox.shrink(),
                 lenghtOfBooks == 0
                     ? Spacer(
                         flex: 2,

@@ -70,15 +70,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 size: 30,
               )),
           automaticallyImplyLeading: false,
-          elevation: 5,
+          elevation: 0,
         ),
         body: isDataLoading == false
             ? Column(
                 children: [
                   bookInfoBarBuilder(),
-                  const SizedBox(
-                    height: 15,
-                  ),
                   bookInfoBodyBuilder(),
                 ],
               )
@@ -250,7 +247,8 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                   image: editionsList![index]!.covers != null
                                       ? DecorationImage(
                                           image: NetworkImage(
-                                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"))
+                                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
+                                          fit: BoxFit.fill)
                                       : DecorationImage(
                                           image: AssetImage(
                                               "lib/assets/images/nocover.jpg"))),
@@ -405,122 +403,151 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
     );
   }
 
-  Padding bookInfoBarBuilder() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: Colors.transparent,
-              child: bookWorkModel?.covers != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: FadeInImage.memoryNetwork(
-                        image:
-                            "https://covers.openlibrary.org/b/id/${bookWorkModel?.covers!.first}-M.jpg",
-                        placeholder: kTransparentImage,
-                        imageErrorBuilder: (context, error, stackTrace) =>
-                            Image.asset("lib/assets/images/error.png"),
-                      ),
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.asset("lib/assets/images/nocover.jpg")),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
+  Container bookInfoBarBuilder() {
+    return Container(
+      decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(25),
+              bottomRight: Radius.circular(25))),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: SizedBox(
-                    child: Text(
-                      mainBook!.title!,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
+                Expanded(
+                  flex: 8,
+                  child: Container(
+                    color: Colors.transparent,
+                    child: bookWorkModel?.covers != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: FadeInImage.memoryNetwork(
+                              image:
+                                  "https://covers.openlibrary.org/b/id/${bookWorkModel?.covers!.first}-M.jpg",
+                              placeholder: kTransparentImage,
+                              imageErrorBuilder: (context, error, stackTrace) =>
+                                  Image.asset("lib/assets/images/error.png"),
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child:
+                                Image.asset("lib/assets/images/nocover.jpg")),
                   ),
                 ),
-                if ((mainBook.runtimeType == TrendingBooksWorks &&
-                        mainBook.authorName != null) ||
-                    (mainBook.runtimeType == BooksModelDocs &&
-                        mainBook.authorName != null))
-                  Row(
+                Spacer(),
+                Expanded(
+                  flex: 16,
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Spacer(),
-                      Expanded(
-                        flex: 5,
-                        child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AuthorInfoScreen(
-                                        authorKey: mainBook!.authorKey.first),
-                                  ));
-                            },
-                            child: Text(
-                              mainBook!.authorName!.first!,
-                              style: const TextStyle(
-                                  color: Colors.grey, fontSize: 16),
-                            )),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SizedBox(
+                          child: Text(
+                            mainBook!.title!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Tooltip(
-                            showDuration: Duration(seconds: 3),
-                            triggerMode: TooltipTriggerMode.tap,
-                            message:
-                                "Yazar hakkında bilgi almak için ismine tıklayın",
-                            child: Icon(Icons.info_outline)),
+                      if ((mainBook.runtimeType == TrendingBooksWorks &&
+                              mainBook.authorName != null) ||
+                          (mainBook.runtimeType == BooksModelDocs &&
+                              mainBook.authorName != null))
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Spacer(),
+                            Expanded(
+                              flex: 5,
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AuthorInfoScreen(
+                                                  authorKey: mainBook!
+                                                      .authorKey.first),
+                                        ));
+                                  },
+                                  child: SizedBox(
+                                    child: Text(
+                                      mainBook!.authorName!.first!,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  )),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Tooltip(
+                                  showDuration: Duration(seconds: 3),
+                                  triggerMode: TooltipTriggerMode.tap,
+                                  message:
+                                      "Yazar hakkında bilgi almak için ismine tıklayın",
+                                  child: Icon(Icons.info_outline)),
+                            ),
+                            Spacer()
+                          ],
+                        ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 30,
+                        child: bookWorkModel?.subjects != null
+                            ? ListView.separated(
+                                separatorBuilder: (context, index) =>
+                                    VerticalDivider(
+                                        color: Colors.transparent,
+                                        thickness: 0),
+                                physics: BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: bookWorkModel!.subjects!.length,
+                                itemBuilder: (context, index) {
+                                  return TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.all(5),
+                                        backgroundColor: Colors.grey.shade300,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DetailedCategoriesView(
+                                                      categoryName:
+                                                          bookWorkModel!
+                                                                  .subjects![
+                                                              index]!,
+                                                      categoryKey:
+                                                          bookWorkModel!
+                                                                  .subjects![
+                                                              index]!),
+                                            ));
+                                      },
+                                      child: Text(
+                                        "#${bookWorkModel?.subjects![index]!}",
+                                        style: TextStyle(color: Colors.black),
+                                      ));
+                                })
+                            : const SizedBox.shrink(),
                       )
                     ],
                   ),
-                const SizedBox(height: 10),
-                Container(
-                  height: 30,
-                  width: 200,
-                  child: bookWorkModel?.subjects != null
-                      ? ListView.separated(
-                          separatorBuilder: (context, index) => VerticalDivider(
-                              color: Colors.transparent, thickness: 0),
-                          physics: BouncingScrollPhysics(),
-                          scrollDirection: Axis.horizontal,
-                          itemCount: bookWorkModel!.subjects!.length,
-                          itemBuilder: (context, index) {
-                            return TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(5),
-                                  backgroundColor: Colors.grey.shade300,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            DetailedCategoriesView(
-                                                categoryName: bookWorkModel!
-                                                    .subjects![index]!,
-                                                categoryKey: bookWorkModel!
-                                                    .subjects![index]!),
-                                      ));
-                                },
-                                child: Text(
-                                  "#${bookWorkModel?.subjects![index]!}",
-                                  style: TextStyle(color: Colors.black),
-                                ));
-                          })
-                      : const SizedBox.shrink(),
-                )
+                ),
               ],
             ),
-          )
-        ],
+            const SizedBox(
+              height: 15,
+            ),
+          ],
+        ),
       ),
     );
   }
