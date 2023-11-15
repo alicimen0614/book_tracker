@@ -477,7 +477,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       ),
                       (route) => false);
                 }
-                Navigator.pop(context);
               });
             }
 
