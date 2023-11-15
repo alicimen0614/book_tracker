@@ -1,4 +1,3 @@
-import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
@@ -79,7 +78,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   bookInfoBodyBuilder(),
                 ],
               )
-            : shimmerEffectForBookInfoView());
+            : shimmerEffectForBookInfoView(context));
   }
 
   Expanded bookInfoBodyBuilder() {
@@ -215,59 +214,55 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             scrollDirection: Axis.horizontal,
             itemCount: itemCount,
             itemBuilder: (context, index) {
-              return Container(
-                child: InkWell(
-                  customBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailedEditionInfo(
-                            editionInfo: editionsList![index]!,
-                            isNavigatingFromLibrary: false,
-                            bookImage: editionsList![index]!.covers != null
-                                ? Image.network(
-                                    "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
-                                  )
-                                : null,
-                            indexOfEdition: index,
-                          ),
-                        ));
-                  },
-                  child: Column(children: [
-                    Expanded(
-                        flex: 10,
-                        child: Hero(
-                            tag: uniqueIdCreater(editionsList![index]) + index,
-                            child: Ink(
-                              width: 70,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  image: editionsList![index]!.covers != null
-                                      ? DecorationImage(
-                                          image: NetworkImage(
-                                              "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
-                                          fit: BoxFit.fill)
-                                      : DecorationImage(
-                                          image: AssetImage(
-                                              "lib/assets/images/nocover.jpg"))),
-                            ))),
-                    Spacer(),
-                    Expanded(
-                      flex: 4,
-                      child: SizedBox(
-                        width: 75,
-                        child: Text(
-                          editionsList![index]!.title!,
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
+              return InkWell(
+                customBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailedEditionInfo(
+                          editionInfo: editionsList![index]!,
+                          isNavigatingFromLibrary: false,
+                          bookImage: editionsList![index]!.covers != null
+                              ? Image.network(
+                                  "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg",
+                                )
+                              : null,
+                          indexOfEdition: index,
                         ),
+                      ));
+                },
+                child: Column(children: [
+                  Expanded(
+                      flex: 10,
+                      child: Ink(
+                        width: 70,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            image: editionsList![index]!.covers != null
+                                ? DecorationImage(
+                                    image: NetworkImage(
+                                        "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
+                                    fit: BoxFit.fill)
+                                : DecorationImage(
+                                    image: AssetImage(
+                                        "lib/assets/images/nocover.jpg"))),
+                      )),
+                  Spacer(),
+                  Expanded(
+                    flex: 4,
+                    child: SizedBox(
+                      width: 75,
+                      child: Text(
+                        editionsList![index]!.title!,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    )
-                  ]),
-                ),
+                    ),
+                  )
+                ]),
               );
             },
           ),
@@ -405,11 +400,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
   Container bookInfoBarBuilder() {
     return Container(
+      height: MediaQuery.of(context).size.height / 4,
       decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25))),
+              bottomLeft: Radius.circular(50),
+              bottomRight: Radius.circular(50))),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
         child: Column(
@@ -420,11 +416,13 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 Expanded(
                   flex: 8,
                   child: Container(
+                    height: MediaQuery.of(context).size.height / 5,
                     color: Colors.transparent,
                     child: bookWorkModel?.covers != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(15),
                             child: FadeInImage.memoryNetwork(
+                              fit: BoxFit.fill,
                               image:
                                   "https://covers.openlibrary.org/b/id/${bookWorkModel?.covers!.first}-M.jpg",
                               placeholder: kTransparentImage,
@@ -452,7 +450,9 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                             mainBook!.title!,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
@@ -481,7 +481,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                     child: Text(
                                       mainBook!.authorName!.first!,
                                       style: const TextStyle(
-                                          color: Colors.grey, fontSize: 16),
+                                          color: Colors.white, fontSize: 16),
                                     ),
                                   )),
                             ),
@@ -501,41 +501,47 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                       Container(
                         height: 30,
                         child: bookWorkModel?.subjects != null
-                            ? ListView.separated(
-                                separatorBuilder: (context, index) =>
-                                    VerticalDivider(
-                                        color: Colors.transparent,
-                                        thickness: 0),
-                                physics: BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: bookWorkModel!.subjects!.length,
-                                itemBuilder: (context, index) {
-                                  return TextButton(
-                                      style: TextButton.styleFrom(
-                                        padding: EdgeInsets.all(5),
-                                        backgroundColor: Colors.grey.shade300,
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DetailedCategoriesView(
-                                                      categoryName:
-                                                          bookWorkModel!
-                                                                  .subjects![
-                                                              index]!,
-                                                      categoryKey:
-                                                          bookWorkModel!
-                                                                  .subjects![
-                                                              index]!),
-                                            ));
-                                      },
-                                      child: Text(
-                                        "#${bookWorkModel?.subjects![index]!}",
-                                        style: TextStyle(color: Colors.black),
-                                      ));
-                                })
+                            ? Scrollbar(
+                                thickness: 3,
+                                radius: Radius.circular(20),
+                                child: ListView.separated(
+                                    separatorBuilder: (context, index) =>
+                                        VerticalDivider(
+                                            color: Colors.transparent,
+                                            thickness: 0),
+                                    physics: BouncingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: bookWorkModel!.subjects!.length,
+                                    itemBuilder: (context, index) {
+                                      return TextButton(
+                                          style: TextButton.styleFrom(
+                                            padding: EdgeInsets.all(5),
+                                            backgroundColor:
+                                                Colors.grey.shade300,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailedCategoriesView(
+                                                          categoryName:
+                                                              bookWorkModel!
+                                                                      .subjects![
+                                                                  index]!,
+                                                          categoryKey:
+                                                              bookWorkModel!
+                                                                      .subjects![
+                                                                  index]!),
+                                                ));
+                                          },
+                                          child: Text(
+                                            "#${bookWorkModel?.subjects![index]!}",
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ));
+                                    }),
+                              )
                             : const SizedBox.shrink(),
                       )
                     ],

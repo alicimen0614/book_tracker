@@ -8,9 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth_screen/auth_view.dart';
 
 class UserScreenView extends ConsumerStatefulWidget {
-  const UserScreenView({super.key, required this.user});
-
-  final User? user;
+  const UserScreenView({super.key});
 
   @override
   ConsumerState<UserScreenView> createState() => _UserScreenViewState();
@@ -18,14 +16,10 @@ class UserScreenView extends ConsumerStatefulWidget {
 
 class _UserScreenViewState extends ConsumerState<UserScreenView>
     with AutomaticKeepAliveClientMixin<UserScreenView> {
-  late bool isUserLoggedIn;
+  late bool isUserLoggedIn =
+      ref.read(authProvider).currentUser != null ? true : false;
   @override
   bool get wantKeepAlive => true;
-  @override
-  void initState() {
-    widget.user != null ? isUserLoggedIn = true : isUserLoggedIn = false;
-    super.initState();
-  }
 
   User? getCurrentUser(WidgetRef ref) {
     return ref.read(authProvider).currentUser;
@@ -96,77 +90,91 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
     print("yenilendi");
     print("$isUserLoggedIn -1");
 
-    return SafeArea(
-        child: Scaffold(
-            body: Center(
-      child: Padding(
-          padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-          child: Column(
-            children: [
-              if (isUserLoggedIn == true)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                      color: Colors.white,
-                      onPressed: () async {
-                        alertDialogBuilder(context);
-                      },
-                      icon: const Icon(
-                        Icons.exit_to_app_sharp,
-                        size: 25,
-                      )),
-                ),
-              if (isUserLoggedIn == false)
-                SizedBox(
-                  height: 20,
-                ),
-              if (isUserLoggedIn == false) getUserProfileImage(ref, 150),
-              if (isUserLoggedIn == false) getUserName(ref),
-              if (isUserLoggedIn == false)
-                SizedBox(
-                  height: 20,
-                ),
-              if (isUserLoggedIn == false)
-                AnimatedButton(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AuthView(formStatusData: FormStatus.signIn),
-                          ));
-                    },
-                    text: "Giriş Yap",
-                    widthSize: 250,
-                    backgroundColor: const Color.fromRGBO(136, 74, 57, 1))
-              else
-                Column(children: [
-                  getUserProfileImage(ref, 150),
-                  SizedBox(
-                    height: 10,
+    return Scaffold(
+        body: Center(
+      child: Column(
+        children: [
+          Container(
+            height: 330,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(100),
+                    bottomRight: Radius.circular(100)),
+                color: Theme.of(context).primaryColor),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(15, 25, 15, 15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isUserLoggedIn == true)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                          color: Colors.white,
+                          onPressed: () async {
+                            alertDialogBuilder(context);
+                          },
+                          icon: const Icon(
+                            Icons.exit_to_app_sharp,
+                            size: 25,
+                          )),
+                    ),
+                  if (isUserLoggedIn == false)
+                    SizedBox(
+                      height: 20,
+                    ),
+                  if (isUserLoggedIn == false) getUserProfileImage(ref, 150),
+                  if (isUserLoggedIn == false) getUserName(ref),
+                  if (isUserLoggedIn == false)
+                    SizedBox(
+                      height: 20,
+                    ),
+                  if (isUserLoggedIn == false)
+                    AnimatedButton(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AuthView(formStatusData: FormStatus.signIn),
+                              ));
+                        },
+                        text: "Giriş Yap",
+                        widthSize: 250,
+                        backgroundColor: const Color.fromRGBO(136, 74, 57, 1))
+                  else
+                    Column(children: [
+                      getUserProfileImage(ref, 150),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      getUserName(ref)
+                    ]),
+                  const SizedBox(
+                    height: 5,
                   ),
-                  getUserName(ref)
-                ]),
-              const SizedBox(
-                height: 5,
+                  isUserLoggedIn == false
+                      ? AnimatedButton(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AuthView(
+                                      formStatusData: FormStatus.register),
+                                ));
+                          },
+                          text: "Üye Ol",
+                          widthSize: 250,
+                          backgroundColor:
+                              const Color.fromRGBO(204, 149, 68, 1))
+                      : const SizedBox.shrink()
+                ],
               ),
-              isUserLoggedIn == false
-                  ? AnimatedButton(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AuthView(formStatusData: FormStatus.register),
-                            ));
-                      },
-                      text: "Üye Ol",
-                      widthSize: 250,
-                      backgroundColor: const Color.fromRGBO(204, 149, 68, 1))
-                  : const SizedBox.shrink()
-            ],
-          )),
-    )));
+            ),
+          ),
+        ],
+      ),
+    ));
   }
 
   Future<dynamic> alertDialogBuilder(BuildContext context) {

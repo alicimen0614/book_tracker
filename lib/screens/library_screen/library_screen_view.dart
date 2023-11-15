@@ -25,10 +25,7 @@ class LibraryScreenView extends ConsumerStatefulWidget {
   ConsumerState<LibraryScreenView> createState() => _LibraryScreenViewState();
 }
 
-class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
-    with AutomaticKeepAliveClientMixin<LibraryScreenView> {
-  @override
-  bool get wantKeepAlive => true;
+class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
   bool isDataLoading = false;
   ConnectivityResult connectivityResult = ConnectivityResult.none;
   bool isConnected = false;
@@ -47,7 +44,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
@@ -243,11 +239,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
                                   child: Image.memory(
+                                    width: 80,
                                     base64Decode(
                                         listOfTheCurrentBookStatus[index]
                                             .imageAsByte!),
-                                    cacheHeight: 270,
-                                    cacheWidth: 180,
                                     fit: BoxFit.fill,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
@@ -378,6 +373,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
 
     for (var i = 0; i < listOfBookIdsFromFirebase.length; i++) {
       if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
+        print("kitap yazdırıldı => no: $i");
         await insertBookToSql(listOfBooksFromFirestore![i]);
       }
     }
@@ -386,8 +382,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   Future<void> insertBookToSql(BookWorkEditionsModelEntries bookInfo) async {
     if (bookInfo.imageAsByte != null) {
       print("ilk if e girdi");
-      await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!,
-          base64Decode(bookInfo.imageAsByte!), context);
+      if (mounted)
+        await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!,
+            base64Decode(bookInfo.imageAsByte!), context);
       await insertAuthor(bookInfo);
     } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
       print("ikinci if e girdi");
@@ -398,12 +395,14 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
       final Uint8List bytes = data.buffer.asUint8List();
 
       Uint8List imageAsByte = bytes;
-      await _sqlHelper.insertBook(
-          bookInfo, bookInfo.bookStatus!, imageAsByte, context);
+      if (mounted)
+        await _sqlHelper.insertBook(
+            bookInfo, bookInfo.bookStatus!, imageAsByte, context);
       await insertAuthor(bookInfo);
     } else {
-      await _sqlHelper.insertBook(
-          bookInfo, bookInfo.bookStatus!, null, context);
+      if (mounted)
+        await _sqlHelper.insertBook(
+            bookInfo, bookInfo.bookStatus!, null, context);
       await insertAuthor(bookInfo);
     }
   }
@@ -411,8 +410,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
   Future<void> insertAuthor(BookWorkEditionsModelEntries bookInfo) async {
     if (bookInfo.authorsNames != null) {
       for (var element in bookInfo.authorsNames!) {
-        await _sqlHelper.insertAuthors(
-            element!, uniqueIdCreater(bookInfo), context);
+        if (mounted)
+          await _sqlHelper.insertAuthors(
+              element!, uniqueIdCreater(bookInfo), context);
       }
     }
   }
@@ -459,12 +459,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
 
     if (isUserAvailable == true && isConnected == true && mounted) {
       await getFirestoreBookList();
-      await insertingProcesses();
-      await getSqlBookList();
+
       if (mounted)
         setState(() {
           isDataLoading = false;
         });
+      await insertingProcesses();
     } else {
       if (mounted)
         setState(() {
@@ -484,7 +484,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
           )
           .toList();
 
-      if (listOfBooksFromFirestore!.length >= listOfBooksFromSql!.length) {
+      if (listOfBooksFromFirestore!.length > listOfBooksFromSql!.length) {
         listOfBooksToShow = data.docs
             .map(
               (e) => BookWorkEditionsModelEntries.fromJson(e.data()),

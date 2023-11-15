@@ -189,6 +189,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                             child: SizedBox(
                               width: 85,
                               child: InkWell(
+                                  borderRadius: BorderRadius.circular(15),
                                   onTap: () {
                                     Navigator.push(context, MaterialPageRoute(
                                       builder: (context) {
@@ -205,11 +206,18 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                           borderRadius:
                                               BorderRadius.circular(15),
                                           child: CachedNetworkImage(
+                                            fit: BoxFit.fill,
+                                            width: 60,
                                             imageUrl:
                                                 "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
-                                            placeholder: (context, url) => Center(
-                                                child:
-                                                    CircularProgressIndicator()),
+                                            placeholder: (context, url) =>
+                                                ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              child: Center(
+                                                  child:
+                                                      CircularProgressIndicator()),
+                                            ),
                                             cacheManager: customCacheManager,
                                             errorWidget: (context, url,
                                                     error) =>

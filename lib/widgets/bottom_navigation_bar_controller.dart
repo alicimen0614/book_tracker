@@ -20,18 +20,31 @@ class BottomNavigationBarController extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarControllerState
     extends ConsumerState<BottomNavigationBarController> {
+  List<Widget> _widgetOptions = <Widget>[
+    HomeScreenView(),
+    DiscoverScreenView(),
+    LibraryScreenView(),
+    UserScreenView()
+  ];
   PageController _pageController = PageController();
   late int currentIndex;
   late String value = widget.searchValue;
-  final screens = [
-    const HomeScreenView(),
-    const DiscoverScreenView(),
-    const LibraryScreenView(),
-  ];
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+
+  void onTap(int index) {
+    if (currentIndex != index) {
+      _pageController.jumpToPage(index);
+      setState(() {
+        currentIndex = index;
+      });
+    }
+  }
+
   @override
   void initState() {
     currentIndex = widget.currentIndexParam;
-    _pageController = PageController(initialPage: currentIndex, keepPage: true);
+
     super.initState();
   }
 
@@ -47,48 +60,43 @@ class _BottomNavigationBarControllerState
         stream: ref.read(authProvider).authState,
         builder: (context, snapshot) {
           return Scaffold(
-            body: currentIndex == 3
-                ? UserScreenView(
-                    user: snapshot.data,
-                  )
-                : currentIndex == 1
-                    ? const DiscoverScreenView()
-                    : screens[currentIndex],
+            body: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              onPageChanged: onTap,
+              children: _widgetOptions,
+            ),
             bottomNavigationBar: bottomNavigationBarBuilder(),
           );
         });
   }
 
   Widget bottomNavigationBarBuilder() {
-    return BottomNavigationBar(
-      selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-      iconSize: 30,
-      fixedColor: Color(0xFF1B7695),
-      unselectedItemColor: Colors.black54,
-      type: BottomNavigationBarType.fixed,
-      currentIndex: currentIndex,
-      onTap: (index) {
-        setState(() {
-          currentIndex = index;
-        });
+    return NavigationBar(
+      onDestinationSelected: (int index) {
+        onTap(index);
       },
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_sharp),
+      indicatorColor: Theme.of(context).primaryColor,
+      selectedIndex: currentIndex,
+      destinations: const <Widget>[
+        NavigationDestination(
+          selectedIcon: Icon(Icons.home_outlined),
+          icon: Icon(Icons.home),
           label: 'Anasayfa',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book_sharp),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.menu_book_outlined),
+          icon: Icon(Icons.menu_book_rounded),
           label: 'Keşfet',
         ),
-        BottomNavigationBarItem(
+        NavigationDestination(
+          selectedIcon: Icon(Icons.local_library_outlined),
           icon: Icon(Icons.local_library_sharp),
           label: 'Kitaplığım',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(
-            Icons.account_circle_sharp,
-          ),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.account_circle_outlined),
+          icon: Icon(Icons.account_circle_sharp),
           label: 'Kullanıcı',
         ),
       ],

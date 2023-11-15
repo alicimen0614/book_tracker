@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 GridView libraryScreenShimmerEffect() {
   return GridView.builder(
+    itemCount: 15,
     padding: EdgeInsets.all(20),
     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,

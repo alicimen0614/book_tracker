@@ -19,10 +19,11 @@ class HomeScreenView extends ConsumerStatefulWidget {
   ConsumerState<HomeScreenView> createState() => _HomeScreenViewState();
 }
 
-class _HomeScreenViewState extends ConsumerState<HomeScreenView>
-    with AutomaticKeepAliveClientMixin<HomeScreenView> {
-  @override
-  bool get wantKeepAlive => true;
+class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
+  final _scrollControllerCurrReading = ScrollController();
+  final _scrollControllerWantToRead = ScrollController();
+  final _scrollControllerAlrRead = ScrollController();
+
   bool isLoading = true;
   List<BookWorkEditionsModelEntries>? allBooks = [];
   FocusNode searchBarFocus = FocusNode();
@@ -47,8 +48,18 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _scrollControllerAlrRead.dispose();
+    _scrollControllerCurrReading.dispose();
+    _scrollControllerWantToRead.dispose();
+    _searchBarController.dispose();
+    searchBarFocus.dispose();
+
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: GestureDetector(
@@ -69,19 +80,22 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
                     listOfBooksCurrentlyReading.length != 0
                         ? "Şu anda ${listOfBooksCurrentlyReading.length} kitap okuyorsunuz"
                         : "Şu anda okuduğunuz kitap bulunmamakta.",
-                    listOfBooksCurrentlyReading.length),
+                    listOfBooksCurrentlyReading.length,
+                    _scrollControllerCurrReading),
                 booksBuilder(
                     listOfBooksWantToRead,
                     listOfBooksWantToRead.length != 0
                         ? "Toplamda ${listOfBooksWantToRead.length} okumak istediğiniz kitap var"
                         : "Şu anda okumak istediğiniz kitap bulunmamakta.",
-                    listOfBooksWantToRead.length),
+                    listOfBooksWantToRead.length,
+                    _scrollControllerWantToRead),
                 booksBuilder(
                     listOfBooksAlreadyRead,
                     listOfBooksAlreadyRead.length != 0
                         ? "Tebrikler toplamda ${listOfBooksAlreadyRead.length} kitap okudunuz"
                         : "Şu anda bitirdiğiniz kitap bulunmamakta.",
-                    listOfBooksAlreadyRead.length)
+                    listOfBooksAlreadyRead.length,
+                    _scrollControllerAlrRead)
               ],
             ),
           ),
@@ -89,7 +103,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
   }
 
   Padding booksBuilder(List<BookWorkEditionsModelEntries> books, String text,
-      int lenghtOfBooks) {
+      int lenghtOfBooks, ScrollController scrollController) {
     return Padding(
       padding: EdgeInsets.all(15),
       child: Container(
@@ -118,83 +132,90 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
                 isLoading != true && lenghtOfBooks != 0
                     ? Expanded(
                         flex: 17,
-                        child: Container(
-                          child: ListView.separated(
-                              physics: BouncingScrollPhysics(),
-                              separatorBuilder: (context, index) =>
-                                  VerticalDivider(
-                                      color: Colors.transparent, thickness: 0),
-                              scrollDirection: Axis.horizontal,
-                              itemCount: books.length,
-                              itemBuilder: (context, index) => Container(
-                                    decoration: BoxDecoration(),
-                                    height: 220,
-                                    width: 100,
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DetailedEditionInfo(
-                                                      editionInfo: books[index],
-                                                      isNavigatingFromLibrary:
-                                                          true,
-                                                      bookImage: books[index]
-                                                                  .imageAsByte !=
-                                                              null
-                                                          ? Image.memory(
-                                                              base64Decode(books[
-                                                                      index]
-                                                                  .imageAsByte!))
-                                                          : Image.asset(
-                                                              "lib/assets/images/nocover.jpg")),
-                                            ));
-                                      },
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Expanded(
-                                            flex: 10,
-                                            child: books[index].imageAsByte !=
-                                                    null
-                                                ? Hero(
-                                                    tag: uniqueIdCreater(
-                                                        books[index]),
-                                                    child: ClipRRect(
+                        child: Scrollbar(
+                          thickness: 2,
+                          radius: Radius.circular(20),
+                          controller: scrollController,
+                          thumbVisibility: true,
+                          child: Container(
+                            child: ListView.separated(
+                                controller: scrollController,
+                                physics: BouncingScrollPhysics(),
+                                separatorBuilder: (context, index) =>
+                                    VerticalDivider(
+                                        color: Colors.transparent,
+                                        thickness: 0),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: books.length,
+                                itemBuilder: (context, index) => Container(
+                                      height: 220,
+                                      width: 100,
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => DetailedEditionInfo(
+                                                    editionInfo: books[index],
+                                                    isNavigatingFromLibrary:
+                                                        true,
+                                                    bookImage: books[index]
+                                                                .imageAsByte !=
+                                                            null
+                                                        ? Image.memory(
+                                                            base64Decode(books[
+                                                                    index]
+                                                                .imageAsByte!))
+                                                        : Image.asset(
+                                                            "lib/assets/images/nocover.jpg")),
+                                              ));
+                                        },
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Expanded(
+                                              flex: 10,
+                                              child: books[index].imageAsByte !=
+                                                      null
+                                                  ? Hero(
+                                                      tag: uniqueIdCreater(
+                                                          books[index]),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15),
+                                                        child: Image.memory(
+                                                          base64Decode(books[
+                                                                  index]
+                                                              .imageAsByte!),
+                                                          fit: BoxFit.fill,
+                                                          width: 90,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : ClipRRect(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               15),
-                                                      child: Image.memory(
-                                                        base64Decode(
-                                                            books[index]
-                                                                .imageAsByte!),
-                                                        fit: BoxFit.fill,
-                                                      ),
+                                                      child: Image.asset(
+                                                          "lib/assets/images/nocover.jpg"),
                                                     ),
-                                                  )
-                                                : ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                    child: Image.asset(
-                                                        "lib/assets/images/nocover.jpg"),
-                                                  ),
-                                          ),
-                                          Spacer(),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              books[index].title!,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                              textAlign: TextAlign.center,
                                             ),
-                                          )
-                                        ],
+                                            Spacer(),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Text(
+                                                books[index].title!,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  )),
+                                    )),
+                          ),
                         ),
                       )
                     : isLoading == true
