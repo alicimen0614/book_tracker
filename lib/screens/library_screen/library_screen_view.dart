@@ -88,6 +88,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           bottom: TabBar(
+              tabAlignment: TabAlignment.start,
+              unselectedLabelColor: Colors.white60,
+              indicatorColor: Colors.white,
               labelColor: Colors.white,
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
@@ -169,7 +172,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     print("bookContentBuilder çalıştı");
 
     return GridView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 0.6,
@@ -230,7 +233,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       flex: 5,
                       child: Card(
                         color: Colors.transparent,
-                        elevation: 15,
+                        elevation: 0,
                         child: listOfTheCurrentBookStatus[index].imageAsByte !=
                                 null
                             ? Hero(

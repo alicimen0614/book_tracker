@@ -8,7 +8,7 @@ Expanded detailedEditionInfoShimmerBuilder(BuildContext context) {
       radius: Radius.circular(20),
       child: SingleChildScrollView(
         padding: EdgeInsets.all(20),
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

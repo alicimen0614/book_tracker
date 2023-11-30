@@ -140,7 +140,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                           child: Container(
                             child: ListView.separated(
                                 controller: scrollController,
-                                physics: BouncingScrollPhysics(),
+                                physics: ClampingScrollPhysics(),
                                 separatorBuilder: (context, index) =>
                                     VerticalDivider(
                                         color: Colors.transparent,

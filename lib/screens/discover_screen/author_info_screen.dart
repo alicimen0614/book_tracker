@@ -189,7 +189,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
         radius: Radius.circular(20),
         child: SingleChildScrollView(
           padding: EdgeInsets.all(20),
-          physics: BouncingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -257,7 +257,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       separatorBuilder: (context, index) => SizedBox(
                             width: 10,
                           ),
-                      physics: BouncingScrollPhysics(),
+                      physics: ClampingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) => Container(
                             height: 100,

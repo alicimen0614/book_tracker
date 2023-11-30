@@ -75,104 +75,101 @@ class _DetailedCategoriesViewState
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          leadingWidth: 50,
-          title: Text(widget.categoryName,
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          centerTitle: true,
-          leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_sharp,
-                size: 30,
-              )),
-          automaticallyImplyLeading: false,
-          elevation: 5,
-        ),
-        body: PagedGridView<int, BooksModelDocs?>(
-            physics: BouncingScrollPhysics(),
-            showNewPageProgressIndicatorAsGridChild: false,
-            showNoMoreItemsIndicatorAsGridChild: false,
-            pagingController: pagingController,
-            builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
-              newPageErrorIndicatorBuilder: (context) =>
-                  newPageErrorIndicatorBuilder(
-                      () => pagingController.retryLastFailedRequest()),
-              firstPageErrorIndicatorBuilder: (context) {
-                if (!isConnected) {
-                  return booksListError(
-                    true,
-                    context,
-                    () {
-                      pagingController.retryLastFailedRequest();
-                    },
-                  );
-                } else {
-                  return booksListError(false, context, () {
-                    pagingController.retryLastFailedRequest();
-                  });
-                }
-              },
-              firstPageProgressIndicatorBuilder: (context) =>
-                  gridViewBooksShimmerEffectBuilder(),
-              itemBuilder: (context, item, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: InkWell(
-                    customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BookInfoView(searchBook: item),
-                          ));
-                    },
-                    child: Column(children: [
-                      Expanded(
-                          flex: 15,
-                          child: Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  image: DecorationImage(
-                                      onError: (exception, stackTrace) =>
-                                          AssetImage(
-                                              "lib/assets/images/error.png"),
-                                      image: getBookCover(item),
-                                      fit: BoxFit.fill)),
-                              padding: EdgeInsets.zero,
-                            ),
-                          )),
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Expanded(
-                        flex: 7,
-                        child: Text(
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          item!.title!,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 3,
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    ]),
-                  ),
-                );
-              },
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1,
-                mainAxisExtent: 230,
-                crossAxisSpacing: 25,
-                mainAxisSpacing: 25)),
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 50,
+        title: Text(widget.categoryName,
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.arrow_back_sharp,
+              size: 30,
+            )),
+        automaticallyImplyLeading: false,
+        elevation: 5,
       ),
+      body: PagedGridView<int, BooksModelDocs?>(
+          physics: ClampingScrollPhysics(),
+          showNewPageProgressIndicatorAsGridChild: false,
+          showNoMoreItemsIndicatorAsGridChild: false,
+          pagingController: pagingController,
+          builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
+            newPageErrorIndicatorBuilder: (context) =>
+                newPageErrorIndicatorBuilder(
+                    () => pagingController.retryLastFailedRequest()),
+            firstPageErrorIndicatorBuilder: (context) {
+              if (!isConnected) {
+                return booksListError(
+                  true,
+                  context,
+                  () {
+                    pagingController.retryLastFailedRequest();
+                  },
+                );
+              } else {
+                return booksListError(false, context, () {
+                  pagingController.retryLastFailedRequest();
+                });
+              }
+            },
+            firstPageProgressIndicatorBuilder: (context) =>
+                gridViewBooksShimmerEffectBuilder(),
+            itemBuilder: (context, item, index) {
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: InkWell(
+                  customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookInfoView(searchBook: item),
+                        ));
+                  },
+                  child: Column(children: [
+                    Expanded(
+                        flex: 15,
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                image: DecorationImage(
+                                    onError: (exception, stackTrace) =>
+                                        AssetImage(
+                                            "lib/assets/images/error.png"),
+                                    image: getBookCover(item),
+                                    fit: BoxFit.fill)),
+                            padding: EdgeInsets.zero,
+                          ),
+                        )),
+                    Spacer(
+                      flex: 1,
+                    ),
+                    Expanded(
+                      flex: 7,
+                      child: Text(
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        item!.title!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  ]),
+                ),
+              );
+            },
+          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 1,
+              mainAxisExtent: 230,
+              crossAxisSpacing: 25,
+              mainAxisSpacing: 25)),
     );
   }
 }

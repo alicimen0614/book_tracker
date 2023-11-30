@@ -92,7 +92,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         radius: Radius.circular(20),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-          physics: BouncingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             bookWorkModel?.description != null
@@ -137,10 +137,11 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               width: 5,
             ),
             Tooltip(
-                showDuration: Duration(seconds: 3),
-                triggerMode: TooltipTriggerMode.tap,
-                message: "Buradaki diller mevcut tüm dilleri göstermeyebilir.",
-                child: Icon(Icons.info_outline))
+              showDuration: Duration(seconds: 3),
+              triggerMode: TooltipTriggerMode.tap,
+              message: "Buradaki diller mevcut tüm dilleri göstermeyebilir.",
+              child: Icon(Icons.info_outline, color: Colors.black),
+            )
           ],
         ),
         const SizedBox(
@@ -150,7 +151,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           height: 20,
           width: double.infinity,
           child: ListView.separated(
-            physics: BouncingScrollPhysics(),
+            physics: ClampingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
               width: 10,
             ),
@@ -207,7 +208,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           width: double.infinity,
           height: 150,
           child: ListView.separated(
-            physics: BouncingScrollPhysics(),
+            physics: ClampingScrollPhysics(),
             separatorBuilder: (context, index) => SizedBox(
               width: 10,
             ),
@@ -509,7 +510,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                         VerticalDivider(
                                             color: Colors.transparent,
                                             thickness: 0),
-                                    physics: BouncingScrollPhysics(),
+                                    physics: ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: bookWorkModel!.subjects!.length,
                                     itemBuilder: (context, index) {

@@ -106,7 +106,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
               mainAxisExtent: 250,
               mainAxisSpacing: 25),
           pagingController: pagingController,
-          physics: const BouncingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
             firstPageErrorIndicatorBuilder: (context) {
               if (!isConnected) {

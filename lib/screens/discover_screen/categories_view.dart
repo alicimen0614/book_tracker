@@ -69,7 +69,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     print(items);
     return Expanded(
       child: CustomScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         slivers: <Widget>[
           scrollableTrendingBuilder(context),
           categoriesGridViewBuilder(),
@@ -82,7 +82,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     return SliverToBoxAdapter(
       child: GridView.builder(
         shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         itemCount: mainCategories.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisSpacing: 25,
@@ -180,7 +180,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     height: 120,
                     width: double.infinity,
                     child: ListView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: ClampingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
                         itemCount: items?.length,
                         itemBuilder: (context, index) {
@@ -214,9 +214,12 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                                                 ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(15),
-                                              child: Center(
-                                                  child:
-                                                      CircularProgressIndicator()),
+                                              child: Transform.scale(
+                                                scale: 0.3,
+                                                child: Center(
+                                                    child:
+                                                        CircularProgressIndicator()),
+                                              ),
                                             ),
                                             cacheManager: customCacheManager,
                                             errorWidget: (context, url,

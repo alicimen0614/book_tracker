@@ -8,7 +8,7 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
       radius: Radius.circular(20),
       child: SingleChildScrollView(
         padding: EdgeInsets.all(20),
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,7 +53,7 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                 height: 120,
                 width: double.infinity,
                 child: ListView.builder(
-                    physics: BouncingScrollPhysics(),
+                    physics: ClampingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) => Container(
                           height: 100,

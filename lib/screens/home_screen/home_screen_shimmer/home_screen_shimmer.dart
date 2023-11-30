@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 ListView homeScreenShimmer(BuildContext context) {
   return ListView.separated(
     scrollDirection: Axis.horizontal,
-    physics: BouncingScrollPhysics(),
+    physics: ClampingScrollPhysics(),
     separatorBuilder: (context, index) =>
         VerticalDivider(color: Colors.transparent, thickness: 0),
     itemCount: 4,

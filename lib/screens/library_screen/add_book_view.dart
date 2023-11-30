@@ -160,7 +160,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: ClampingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -365,11 +365,14 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           });
         },
         child: Text(text,
+            textAlign: TextAlign.center,
             style: TextStyle(
                 color: bookStatus == bookStatusName
                     ? Colors.white
-                    : Colors.black54)),
+                    : Colors.black54),
+            maxLines: 2),
         style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.zero,
             foregroundColor:
                 bookStatus == bookStatusName ? Colors.white : Color(0xFF1B7695),
             backgroundColor:
@@ -418,8 +421,12 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             style: TextStyle(
                 color: bookFormat == bookFormatName
                     ? Colors.white
-                    : Colors.black54)),
+                    : Colors.black54),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis),
         style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.zero,
             foregroundColor:
                 bookFormat == bookFormatName ? Colors.white : Color(0xFF1B7695),
             backgroundColor:

@@ -29,8 +29,6 @@ class _BottomNavigationBarControllerState
   PageController _pageController = PageController();
   late int currentIndex;
   late String value = widget.searchValue;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   void onTap(int index) {
     if (currentIndex != index) {

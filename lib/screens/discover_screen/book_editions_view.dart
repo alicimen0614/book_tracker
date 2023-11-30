@@ -171,7 +171,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
               );
             },
           ),
-          physics: BouncingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
         ),
       ),
     );

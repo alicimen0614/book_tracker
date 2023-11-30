@@ -76,7 +76,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         launchUrl(Uri.parse(
                             "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 != null ? widget.editionInfo.isbn_13 : widget.editionInfo.isbn_10}"));
                       },
-                      icon: Image.asset("lib/assets/images/goodreads_icon.png"),
+                      icon: Image.asset("lib/assets/images/goodreads_icon.png",
+                          height: 30),
                       splashRadius: 25)
                   : SizedBox.shrink(),
               widget.isNavigatingFromLibrary == true
@@ -704,7 +705,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         radius: Radius.circular(20),
         child: SingleChildScrollView(
           padding: EdgeInsets.all(20),
-          physics: BouncingScrollPhysics(),
+          physics: ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

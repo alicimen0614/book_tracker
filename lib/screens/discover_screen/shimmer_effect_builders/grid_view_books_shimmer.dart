@@ -6,7 +6,7 @@ SizedBox gridViewBooksShimmerEffectBuilder() {
     height: 500,
     width: 500,
     child: GridView.builder(
-      physics: BouncingScrollPhysics(),
+      physics: ClampingScrollPhysics(),
       itemCount: 12,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,

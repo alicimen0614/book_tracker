@@ -21,12 +21,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Book Tracker',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFF1B7695),
+        ),
         scrollbarTheme: ScrollbarThemeData(
           thumbColor:
               MaterialStateProperty.all(const Color.fromRGBO(195, 129, 84, 1)),
           minThumbLength: 100,
         ),
         primarySwatch: mainAppColor,
+        appBarTheme: AppBarTheme(
+            backgroundColor: Color(0xFF1B7695),
+            centerTitle: true,
+            foregroundColor: Colors.white),
+        iconTheme: IconThemeData(color: Colors.white),
+        progressIndicatorTheme:
+            ProgressIndicatorThemeData(color: Color(0xFF1B7695)),
         scaffoldBackgroundColor: const Color(0xFFFFEFDB),
         primaryColor: Color(0xFF1B7695),
         bottomNavigationBarTheme:

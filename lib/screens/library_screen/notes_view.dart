@@ -67,7 +67,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
         ),
         body: isLoading == false
             ? ListView.separated(
-                physics: BouncingScrollPhysics(),
+                physics: ClampingScrollPhysics(),
                 separatorBuilder: (context, index) => SizedBox(
                   height: 15,
                 ),

@@ -30,7 +30,7 @@ class BooksListView extends StatelessWidget {
       ),
       body: GridView.builder(
         itemCount: listOfBooksFromSql!.length,
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             childAspectRatio: 1,

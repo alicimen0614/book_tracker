@@ -65,98 +65,96 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          leadingWidth: 50,
-          title: Text(
-            "Aylık Trend Kitaplar",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          leading: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_sharp,
-                size: 30,
-              )),
-          automaticallyImplyLeading: false,
-          elevation: 5,
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        leadingWidth: 50,
+        title: Text(
+          "Aylık Trend Kitaplar",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        body: PagedGridView<int, TrendingBooksWorks?>(
-            physics: BouncingScrollPhysics(),
-            showNewPageProgressIndicatorAsGridChild: false,
-            showNoMoreItemsIndicatorAsGridChild: false,
-            pagingController: pagingController,
-            builderDelegate: PagedChildBuilderDelegate<TrendingBooksWorks?>(
-              firstPageProgressIndicatorBuilder: (context) {
-                return gridViewBooksShimmerEffectBuilder();
-              },
-              firstPageErrorIndicatorBuilder: (context) {
-                if (!isConnected) {
-                  return booksListError(true, context, () {
-                    pagingController.retryLastFailedRequest();
-                  });
-                } else {
-                  return booksListError(false, context, () {
-                    pagingController.retryLastFailedRequest();
-                  });
-                }
-              },
-              itemBuilder: (context, item, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: InkWell(
-                    customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookInfoView(
-                              trendingBook: item,
-                            ),
-                          ));
-                    },
-                    child: Column(children: [
-                      Expanded(
-                          flex: 15,
-                          child: Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      onError: (exception, stackTrace) =>
-                                          AssetImage(
-                                              "lib/assets/images/error.png"),
-                                      image: getBookCover(item),
-                                      fit: BoxFit.fill),
-                                  borderRadius: BorderRadius.circular(15)),
-                            ),
-                          )),
-                      Spacer(flex: 1),
-                      Expanded(
-                        flex: 7,
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          item!.title!,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    ]),
-                  ),
-                );
-              },
-            ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1,
-                mainAxisExtent: 230,
-                crossAxisSpacing: 25,
-                mainAxisSpacing: 25)),
+        leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.arrow_back_sharp,
+              size: 30,
+            )),
+        automaticallyImplyLeading: false,
+        elevation: 5,
       ),
+      body: PagedGridView<int, TrendingBooksWorks?>(
+          physics: ClampingScrollPhysics(),
+          showNewPageProgressIndicatorAsGridChild: false,
+          showNoMoreItemsIndicatorAsGridChild: false,
+          pagingController: pagingController,
+          builderDelegate: PagedChildBuilderDelegate<TrendingBooksWorks?>(
+            firstPageProgressIndicatorBuilder: (context) {
+              return gridViewBooksShimmerEffectBuilder();
+            },
+            firstPageErrorIndicatorBuilder: (context) {
+              if (!isConnected) {
+                return booksListError(true, context, () {
+                  pagingController.retryLastFailedRequest();
+                });
+              } else {
+                return booksListError(false, context, () {
+                  pagingController.retryLastFailedRequest();
+                });
+              }
+            },
+            itemBuilder: (context, item, index) {
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: InkWell(
+                  customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookInfoView(
+                            trendingBook: item,
+                          ),
+                        ));
+                  },
+                  child: Column(children: [
+                    Expanded(
+                        flex: 15,
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    onError: (exception, stackTrace) =>
+                                        AssetImage(
+                                            "lib/assets/images/error.png"),
+                                    image: getBookCover(item),
+                                    fit: BoxFit.fill),
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
+                        )),
+                    Spacer(flex: 1),
+                    Expanded(
+                      flex: 7,
+                      child: Text(
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        item!.title!,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ]),
+                ),
+              );
+            },
+          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 1,
+              mainAxisExtent: 230,
+              crossAxisSpacing: 25,
+              mainAxisSpacing: 25)),
     );
   }
 }

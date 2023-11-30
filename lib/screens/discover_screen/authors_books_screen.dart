@@ -73,7 +73,7 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
         elevation: 0,
       ),
       body: PagedGridView<int, AuthorsWorksModelEntries?>(
-        physics: BouncingScrollPhysics(),
+        physics: ClampingScrollPhysics(),
         pagingController: pagingController,
         padding: EdgeInsets.all(10),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
