@@ -503,6 +503,29 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
     listOfBooksFromSql = data;
     print("gösterilen kitaplar sql");
-    listOfBooksToShow = data;
+    List<BookWorkEditionsModelEntries>? dummyBooks = [];
+    //get authors from sql and insert into booksToShow list
+    for (var element in listOfBooksFromSql!) {
+      var authorData =
+          await _sqlHelper.getAuthors(uniqueIdCreater(element), context);
+      dummyBooks.add(BookWorkEditionsModelEntries(
+          authorsNames: authorData,
+          bookStatus: element.bookStatus,
+          covers: element.covers,
+          description: element.description,
+          imageAsByte: element.imageAsByte,
+          isbn_10: element.isbn_10,
+          isbn_13: element.isbn_13,
+          languages: element.languages,
+          numberOfPages: element.numberOfPages,
+          physicalFormat: element.physicalFormat,
+          publishDate: element.publishDate,
+          publishers: element.publishers,
+          title: element.title,
+          works: element.works));
+
+      print(authorData);
+    }
+    listOfBooksToShow = dummyBooks;
   }
 }

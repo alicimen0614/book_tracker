@@ -724,12 +724,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   style: const TextStyle(fontSize: 15),
                 ),
               ),
-              if ((widget.editionInfo.authors != null ||
-                      widget.editionInfo.authorsNames != null) &&
+              if ((widget.editionInfo.authorsNames != null &&
+                      widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
                 Divider(color: Colors.transparent, thickness: 0),
-              if ((widget.editionInfo.authors != null ||
-                      widget.editionInfo.authorsNames != null) &&
+              if ((widget.editionInfo.authorsNames != null &&
+                      widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
                 Text(
                   "Yazarlar",
@@ -738,11 +738,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-              if ((widget.editionInfo.authors != null ||
-                      widget.editionInfo.authorsNames != null) &&
+              if ((widget.editionInfo.authorsNames != null &&
+                      widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
                 Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.authors != null && authorsNames.isNotEmpty)
+              if (widget.editionInfo.authorsNames == null &&
+                  authorsNames.isNotEmpty)
                 SizedBox(
                     height: widget.editionInfo.authors!.length * 25,
                     child: ListView.separated(
@@ -757,7 +758,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       ),
                     )),
               if (widget.editionInfo.authorsNames != null &&
-                  authorsNames.isNotEmpty)
+                  authorsNames.isEmpty)
                 SizedBox(
                     height: widget.editionInfo.authorsNames!.length * 20,
                     child: ListView.separated(
