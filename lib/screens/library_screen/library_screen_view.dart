@@ -203,14 +203,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                         editionInfo: listOfTheCurrentBookStatus[index],
                         isNavigatingFromLibrary: true,
                         bookImage: listOfTheCurrentBookStatus[index].covers !=
-                                    null &&
-                                listOfBooksFromSql![indexOfMatching]
-                                        .imageAsByte !=
-                                    null
-                            ? indexOfMatching != -1 &&
-                                    listOfBooksFromSql![indexOfMatching]
-                                            .covers !=
-                                        null
+                                null
+                            ? indexOfMatching != -1
                                 ? Image.memory(
                                     base64Decode(
                                         listOfBooksFromSql![indexOfMatching]
@@ -274,8 +268,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                               base64Decode(listOfBooksFromSql![
                                                       indexOfMatching]
                                                   .imageAsByte!),
-                                              cacheHeight: 290,
-                                              cacheWidth: 180,
+                                              width: 80,
                                               fit: BoxFit.fill,
                                               errorBuilder: (context, error,
                                                       stackTrace) =>
@@ -298,6 +291,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),
                                       child: FadeInImage.memoryNetwork(
+                                        width: 80,
                                         image:
                                             "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
                                         placeholder: kTransparentImage,
@@ -315,7 +309,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       flex: 5,
                       child: Card(
                         color: Colors.transparent,
-                        elevation: 15,
+                        elevation: 0,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.asset(

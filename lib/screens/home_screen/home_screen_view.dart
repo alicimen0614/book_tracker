@@ -198,6 +198,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                           BorderRadius.circular(
                                                               15),
                                                       child: Image.asset(
+                                                          width: 90,
+                                                          fit: BoxFit.fill,
                                                           "lib/assets/images/nocover.jpg"),
                                                     ),
                                             ),
