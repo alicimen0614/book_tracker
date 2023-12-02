@@ -7,9 +7,9 @@ import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart'
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -350,94 +350,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
   }
 
-  Future<void> insertingProcesses() async {
-    List<int> listOfBookIdsFromFirebase = [];
-    List<int> listOfBookIdsFromSql = [];
-    listOfBooksFromFirestore != null
-        ? listOfBookIdsFromFirebase =
-            listOfBooksFromFirestore!.map((e) => uniqueIdCreater(e)).toList()
-        : null;
-    listOfBooksFromSql != null
-        ? listOfBookIdsFromSql =
-            listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList()
-        : null;
-
-    for (var i = 0; i < listOfBookIdsFromSql.length; i++) {
-      if (!listOfBookIdsFromFirebase.contains(listOfBookIdsFromSql[i])) {
-        await insertBookToFirebase(listOfBooksFromSql![i]);
-      }
-    }
-
-    for (var i = 0; i < listOfBookIdsFromFirebase.length; i++) {
-      if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
-        print("kitap yazdırıldı => no: $i");
-        await insertBookToSql(listOfBooksFromFirestore![i]);
-      }
-    }
-  }
-
-  Future<void> insertBookToSql(BookWorkEditionsModelEntries bookInfo) async {
-    if (bookInfo.imageAsByte != null) {
-      print("ilk if e girdi");
-      if (mounted)
-        await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!,
-            base64Decode(bookInfo.imageAsByte!), context);
-      await insertAuthor(bookInfo);
-    } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
-      print("ikinci if e girdi");
-      String imageLink =
-          "https://covers.openlibrary.org/b/id/${bookInfo.covers!.first}-M.jpg";
-      final ByteData data =
-          await NetworkAssetBundle(Uri.parse(imageLink)).load(imageLink);
-      final Uint8List bytes = data.buffer.asUint8List();
-
-      Uint8List imageAsByte = bytes;
-      if (mounted)
-        await _sqlHelper.insertBook(
-            bookInfo, bookInfo.bookStatus!, imageAsByte, context);
-      await insertAuthor(bookInfo);
-    } else {
-      if (mounted)
-        await _sqlHelper.insertBook(
-            bookInfo, bookInfo.bookStatus!, null, context);
-      await insertAuthor(bookInfo);
-    }
-  }
-
-  Future<void> insertAuthor(BookWorkEditionsModelEntries bookInfo) async {
-    if (bookInfo.authorsNames != null) {
-      for (var element in bookInfo.authorsNames!) {
-        if (mounted)
-          await _sqlHelper.insertAuthors(
-              element!, uniqueIdCreater(bookInfo), context);
-      }
-    }
-  }
-
-  Future<void> insertBookToFirebase(
-      BookWorkEditionsModelEntries bookInfo) async {
-    //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
-
-    await ref.read(firestoreProvider).setBookData(
-          context,
-          collectionPath: "usersBooks",
-          bookAsMap: {
-            "title": bookInfo.title,
-            "numberOfPages": bookInfo.numberOfPages,
-            "covers": bookInfo.covers,
-            "bookStatus": bookInfo.bookStatus,
-            "publishers": bookInfo.publishers,
-            "physicalFormat": bookInfo.physicalFormat,
-            "publishDate": bookInfo.publishDate,
-            "isbn_10": bookInfo.isbn_10,
-            "isbn_13": bookInfo.isbn_13,
-            "authorsNames": bookInfo.authorsNames,
-            "description": bookInfo.description
-          },
-          userId: ref.read(authProvider).currentUser!.uid,
-        );
-  }
-
   Future<void> getPageData() async {
     setState(() {
       isDataLoading = true;
@@ -461,7 +373,15 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         setState(() {
           isDataLoading = false;
         });
-      await insertingProcesses();
+      // error handling yap
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return ProgressDialog(
+                listOfBooksFromFirestore: listOfBooksFromFirestore!,
+                listOfBooksFromSql: listOfBooksFromSql!);
+          });
     } else {
       if (mounted)
         setState(() {

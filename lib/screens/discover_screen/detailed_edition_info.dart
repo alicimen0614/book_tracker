@@ -868,9 +868,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           ? Text(
                               "Ciltli",
                               style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.black,
+                                fontSize: 15,
+                              ),
                             )
                           : widget.editionInfo.physicalFormat == "E-book" ||
                                   widget.editionInfo.physicalFormat == "Ebook"

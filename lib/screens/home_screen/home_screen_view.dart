@@ -9,8 +9,11 @@ import 'package:book_tracker/screens/discover_screen/discover_screen_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/home_screen_shimmer.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/text_shimmer_effect.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class HomeScreenView extends ConsumerStatefulWidget {
   const HomeScreenView({super.key});
@@ -25,7 +28,12 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
   final _scrollControllerAlrRead = ScrollController();
 
   bool isLoading = true;
-  List<BookWorkEditionsModelEntries>? allBooks = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
+
+  bool isConnected = false;
+
   FocusNode searchBarFocus = FocusNode();
 
   List<BookWorkEditionsModelEntries> listOfBooksCurrentlyReading = [];
@@ -155,19 +163,36 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => DetailedEditionInfo(
-                                                    editionInfo: books[index],
-                                                    isNavigatingFromLibrary:
-                                                        true,
-                                                    bookImage: books[index]
-                                                                .imageAsByte !=
-                                                            null
-                                                        ? Image.memory(
-                                                            base64Decode(books[
-                                                                    index]
-                                                                .imageAsByte!))
-                                                        : Image.asset(
-                                                            "lib/assets/images/nocover.jpg")),
+                                                builder: (context) =>
+                                                    DetailedEditionInfo(
+                                                        editionInfo:
+                                                            books[index],
+                                                        isNavigatingFromLibrary:
+                                                            true,
+                                                        bookImage: (isConnected == true &&
+                                                                ref
+                                                                        .read(
+                                                                            authProvider)
+                                                                        .currentUser !=
+                                                                    null &&
+                                                                books[index]
+                                                                        .covers !=
+                                                                    null)
+                                                            ? Image.network(
+                                                                "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
+                                                                width: 90,
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              )
+                                                            : books[index]
+                                                                        .imageAsByte !=
+                                                                    null
+                                                                ? Image.memory(
+                                                                    base64Decode(
+                                                                        books[index]
+                                                                            .imageAsByte!))
+                                                                : Image.asset(
+                                                                    "lib/assets/images/nocover.jpg")),
                                               ));
                                         },
                                         child: Column(
@@ -175,8 +200,14 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                           children: [
                                             Expanded(
                                               flex: 10,
-                                              child: books[index].imageAsByte !=
-                                                      null
+                                              child: (isConnected == true &&
+                                                      ref
+                                                              .read(
+                                                                  authProvider)
+                                                              .currentUser !=
+                                                          null &&
+                                                      books[index].covers !=
+                                                          null)
                                                   ? Hero(
                                                       tag: uniqueIdCreater(
                                                           books[index]),
@@ -184,24 +215,50 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(15),
-                                                        child: Image.memory(
-                                                          base64Decode(books[
-                                                                  index]
-                                                              .imageAsByte!),
-                                                          fit: BoxFit.fill,
+                                                        child: FadeInImage
+                                                            .memoryNetwork(
                                                           width: 90,
+                                                          image:
+                                                              "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
+                                                          placeholder:
+                                                              kTransparentImage,
+                                                          fit: BoxFit.fill,
+                                                          imageErrorBuilder: (context,
+                                                                  error,
+                                                                  stackTrace) =>
+                                                              Image.asset(
+                                                                  "lib/assets/images/error.png"),
                                                         ),
                                                       ),
                                                     )
-                                                  : ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              15),
-                                                      child: Image.asset(
-                                                          width: 90,
-                                                          fit: BoxFit.fill,
-                                                          "lib/assets/images/nocover.jpg"),
-                                                    ),
+                                                  : books[index].imageAsByte !=
+                                                          null
+                                                      ? Hero(
+                                                          tag: uniqueIdCreater(
+                                                              books[index]),
+                                                          child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15),
+                                                            child: Image.memory(
+                                                              base64Decode(books[
+                                                                      index]
+                                                                  .imageAsByte!),
+                                                              fit: BoxFit.fill,
+                                                              width: 90,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(15),
+                                                          child: Image.asset(
+                                                              width: 90,
+                                                              fit: BoxFit.fill,
+                                                              "lib/assets/images/nocover.jpg"),
+                                                        ),
                                             ),
                                             Spacer(),
                                             Expanded(
@@ -381,23 +438,48 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
     setState(() {
       isLoading = true;
     });
-    await getFilteredBooks();
+    await getFilteredBooks().whenComplete(() => showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return ProgressDialog(
+              listOfBooksFromFirestore: listOfBooksFromFirebase!,
+              listOfBooksFromSql: listOfBooksFromSql!);
+        }));
     setState(() {
       isLoading = false;
     });
   }
 
   Future<void> getFilteredBooks() async {
-    allBooks = await ref.read(sqlProvider).getBookShelf(context);
-    if (allBooks != null) {
-      for (var element in allBooks!) {
-        if (element.bookStatus == "Şu an okuduklarım") {
-          listOfBooksCurrentlyReading.add(element);
-        } else if (element.bookStatus == "Okumak istediklerim") {
-          listOfBooksWantToRead.add(element);
-        } else {
-          listOfBooksAlreadyRead.add(element);
-        }
+    isConnected = await checkForInternetConnection();
+    if (isConnected == true && ref.read(authProvider).currentUser != null) {
+      var data = await ref.read(firestoreProvider).getBooks(
+          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+      if (data != null) {
+        listOfBooksFromFirebase = data.docs
+            .map(
+              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+            )
+            .toList();
+
+        listOfBooksToShow = listOfBooksFromFirebase;
+      }
+    }
+    listOfBooksFromSql = await ref.read(sqlProvider).getBookShelf(context);
+    if (listOfBooksFromSql != null) {
+      if (listOfBooksFromSql!.length > listOfBooksFromFirebase!.length) {
+        listOfBooksToShow = listOfBooksFromSql;
+      }
+    }
+
+    for (var element in listOfBooksToShow!) {
+      if (element.bookStatus == "Şu an okuduklarım") {
+        listOfBooksCurrentlyReading.add(element);
+      } else if (element.bookStatus == "Okumak istediklerim") {
+        listOfBooksWantToRead.add(element);
+      } else {
+        listOfBooksAlreadyRead.add(element);
       }
     }
   }
