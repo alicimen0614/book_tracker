@@ -21,7 +21,7 @@ class SqlHelper {
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
         await db.execute(
-          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publishDate TEXT, numberOfPages INTEGER, publishers TEXT, physicalFormat TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte TEXT, language TEXT, description TEXT)',
+          'CREATE TABLE bookshelf(id INTEGER PRIMARY KEY UNIQUE, title TEXT, publish_date TEXT, number_of_pages INTEGER, publishers TEXT, physical_format TEXT, isbn_10 TEXT, isbn_13 TEXT, covers INTEGER, bookStatus TEXT NOT NULL, imageAsByte TEXT, languages TEXT, description TEXT)',
         );
 
         await db.execute(
@@ -56,12 +56,12 @@ class SqlHelper {
           "imageAsByte": imageAsByte != null ? base64Encode(imageAsByte) : null,
           "bookStatus": bookStatus,
           "title": bookEditionInfo.title,
-          "publishDate": bookEditionInfo.publishDate ?? null,
-          "numberOfPages": bookEditionInfo.numberOfPages ?? null,
+          "publish_date": bookEditionInfo.publish_date ?? null,
+          "number_of_pages": bookEditionInfo.number_of_pages ?? null,
           "publishers": bookEditionInfo.publishers != null
               ? bookEditionInfo.publishers!.first
               : null,
-          "physicalFormat": bookEditionInfo.physicalFormat ?? null,
+          "physical_format": bookEditionInfo.physical_format ?? null,
           "isbn_10": bookEditionInfo.isbn_10 != null
               ? bookEditionInfo.isbn_10!.first
               : null,
@@ -71,8 +71,8 @@ class SqlHelper {
           "covers": bookEditionInfo.covers != null
               ? bookEditionInfo.covers!.first
               : null,
-          "language": bookEditionInfo.languages != null
-              ? bookEditionInfo.languages!.first!.value
+          "languages": bookEditionInfo.languages != null
+              ? bookEditionInfo.languages!.first!.key
               : null,
           "description": bookEditionInfo.description != null
               ? bookEditionInfo.description
@@ -207,18 +207,27 @@ class SqlHelper {
           isbn13_List = null;
         }
 
+        List<BookWorkEditionsModelLanguages?>? languageList = [];
+        if (maps[i]['languages'] != null) {
+          languageList.add(BookWorkEditionsModelLanguages.fromJson(
+              {'key': maps[i]['languages']}));
+        } else {
+          languageList = null;
+        }
+
         return BookWorkEditionsModelEntries(
             imageAsByte: maps[i]['imageAsByte'],
             bookStatus: maps[i]['bookStatus'],
             covers: coverList,
             title: maps[i]['title'],
-            publishDate: maps[i]['publishDate'],
-            numberOfPages: maps[i]['numberOfPages'],
+            publish_date: maps[i]['publish_date'],
+            number_of_pages: maps[i]['number_of_pages'],
             publishers: publisherList,
-            physicalFormat: maps[i]['physicalFormat'],
+            physical_format: maps[i]['physical_format'],
             isbn_10: isbn10_List,
             isbn_13: isbn13_List,
-            description: maps[i]['description']);
+            description: maps[i]['description'],
+            languages: languageList);
       });
 
       for (var element in booksList) {
@@ -227,14 +236,15 @@ class SqlHelper {
             bookStatus: element!.bookStatus,
             covers: element.covers,
             title: element.title,
-            publishDate: element.publishDate,
-            numberOfPages: element.numberOfPages,
+            publish_date: element.publish_date,
+            number_of_pages: element.number_of_pages,
             publishers: element.publishers,
-            physicalFormat: element.physicalFormat,
+            physical_format: element.physical_format,
             isbn_10: element.isbn_10,
             isbn_13: element.isbn_13,
             description: element.description,
-            authorsNames: await getAuthors(uniqueIdCreater(element), context)));
+            authorsNames: await getAuthors(uniqueIdCreater(element), context),
+            languages: element.languages));
       }
 
       return booksListReal;

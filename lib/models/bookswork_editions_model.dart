@@ -69,15 +69,15 @@ class BookWorkEditionsModelLanguages {
 class BookWorkEditionsModelEntries {
   String? title;
   List<BookWorkEditionsModelEntriesAuthors?>? authors;
-  String? publishDate;
-  int? numberOfPages;
+  String? publish_date;
+  int? number_of_pages;
   String? translationOf;
   List<BookWorkEditionsModelLanguages?>? languages;
   List<BookWorkEditionsModelTranslatedFrom?>? translatedFrom;
   List<String?>? publishers;
   List<String?>? isbn_10;
   List<String?>? isbn_13;
-  String? physicalFormat;
+  String? physical_format;
   List<int?>? covers;
   List<BookWorkEditionsModelEntriesWorks?>? works;
   String? key;
@@ -89,15 +89,15 @@ class BookWorkEditionsModelEntries {
   BookWorkEditionsModelEntries(
       {this.title,
       this.authors,
-      this.publishDate,
-      this.numberOfPages,
+      this.publish_date,
+      this.number_of_pages,
       this.publishers,
       this.translationOf,
       this.languages,
       this.translatedFrom,
       this.isbn_10,
       this.isbn_13,
-      this.physicalFormat,
+      this.physical_format,
       this.covers,
       this.works,
       this.key,
@@ -117,12 +117,19 @@ class BookWorkEditionsModelEntries {
     }
     translationOf = json['translation_of']?.toString();
     if (json['languages'] != null) {
-      final v = json['languages'];
       final arr0 = <BookWorkEditionsModelLanguages>[];
-      v.forEach((v) {
-        arr0.add(BookWorkEditionsModelLanguages.fromJson(v));
-      });
-      languages = arr0;
+      if (json['languages'].runtimeType == String) {
+        arr0.add(BookWorkEditionsModelLanguages.fromJson(
+            {"key": json['languages']?.toString()}));
+        languages = arr0;
+      } else {
+        final v = json['languages'];
+
+        v.forEach((v) {
+          arr0.add(BookWorkEditionsModelLanguages.fromJson(v));
+        });
+        languages = arr0;
+      }
     }
     if (json['translated_from'] != null) {
       final v = json['translated_from'];
@@ -132,9 +139,9 @@ class BookWorkEditionsModelEntries {
       });
       translatedFrom = arr0;
     }
-    publishDate = json['publish_date']?.toString();
+    publish_date = json['publish_date']?.toString();
 
-    numberOfPages = json['number_of_pages']?.toInt();
+    number_of_pages = json['number_of_pages']?.toInt();
     if (json['publishers'] != null) {
       final v = json['publishers'];
       final arr0 = <String>[];
@@ -167,7 +174,7 @@ class BookWorkEditionsModelEntries {
       });
       isbn_13 = arr0;
     }
-    physicalFormat = json['physical_format']?.toString();
+    physical_format = json['physical_format']?.toString();
     bookStatus = json['bookStatus']?.toString();
     imageAsByte = json['imageAsByte']?.toString();
     description = json['description']?.toString();
@@ -202,9 +209,9 @@ class BookWorkEditionsModelEntries {
       });
       data['authors'] = arr0;
     }
-    data['publish_date'] = publishDate;
+    data['publish_date'] = publish_date;
 
-    data['number_of_pages'] = numberOfPages;
+    data['number_of_pages'] = number_of_pages;
     if (publishers != null) {
       final v = publishers;
       final arr0 = [];
@@ -241,7 +248,7 @@ class BookWorkEditionsModelEntries {
     data['imageAsByte'] = imageAsByte;
     data['description'] = description;
 
-    data['physical_format'] = physicalFormat;
+    data['physical_format'] = physical_format;
     if (covers != null) {
       final v = covers;
       final arr0 = [];

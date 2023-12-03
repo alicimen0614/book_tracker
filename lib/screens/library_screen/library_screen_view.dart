@@ -181,7 +181,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         ),
         padding: EdgeInsets.all(20),
         itemBuilder: (context, index) {
-          print(listOfTheCurrentBookStatus[index].publishDate);
+          print(listOfTheCurrentBookStatus[index].publish_date);
           //in here we check if the book list from sql has the current book
           indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
               element == uniqueIdCreater(listOfTheCurrentBookStatus[index]));
@@ -360,8 +360,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     } else {
       isUserAvailable = false;
     }
-
-    await getSqlBookList();
+    if (mounted) await getSqlBookList();
     print("${isConnected}-1");
     isConnected = await checkForInternetConnection();
     print("${isConnected}-2");
@@ -431,9 +430,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           isbn_10: element.isbn_10,
           isbn_13: element.isbn_13,
           languages: element.languages,
-          numberOfPages: element.numberOfPages,
-          physicalFormat: element.physicalFormat,
-          publishDate: element.publishDate,
+          number_of_pages: element.number_of_pages,
+          physical_format: element.physical_format,
+          publish_date: element.publish_date,
           publishers: element.publishers,
           title: element.title,
           works: element.works));

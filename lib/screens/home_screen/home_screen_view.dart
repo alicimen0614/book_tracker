@@ -438,14 +438,18 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
     setState(() {
       isLoading = true;
     });
-    await getFilteredBooks().whenComplete(() => showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return ProgressDialog(
-              listOfBooksFromFirestore: listOfBooksFromFirebase!,
-              listOfBooksFromSql: listOfBooksFromSql!);
-        }));
+    await getFilteredBooks().whenComplete(() {
+      if (ref.read(authProvider).currentUser != null) {
+        showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return ProgressDialog(
+                  listOfBooksFromFirestore: listOfBooksFromFirebase!,
+                  listOfBooksFromSql: listOfBooksFromSql!);
+            });
+      }
+    });
     setState(() {
       isLoading = false;
     });

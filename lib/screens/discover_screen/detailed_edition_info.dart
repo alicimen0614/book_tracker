@@ -207,8 +207,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   ),
                   FittedBox(
                     child: Text(
-                      widget.editionInfo.publishDate != null
-                          ? "${widget.editionInfo.publishDate}"
+                      widget.editionInfo.publish_date != null
+                          ? "${widget.editionInfo.publish_date}"
                           : "-",
                       textAlign: TextAlign.center,
                     ),
@@ -226,8 +226,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(
-                      widget.editionInfo.numberOfPages != null
-                          ? "${widget.editionInfo.numberOfPages}"
+                      widget.editionInfo.number_of_pages != null
+                          ? "${widget.editionInfo.number_of_pages}"
                           : "-",
                       textAlign: TextAlign.center)
                 ],
@@ -613,7 +613,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           collectionPath: "usersBooks",
           bookAsMap: {
             "title": editionInfo.title,
-            "numberOfPages": editionInfo.numberOfPages,
+            "number_of_pages": editionInfo.number_of_pages,
             "covers": editionInfo.covers != null ? coverList : null,
             "bookStatus": bookStatus == BookStatus.alreadyRead
                 ? "Okuduklarım"
@@ -621,12 +621,15 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     ? "Şu an okuduklarım"
                     : "Okumak istediklerim",
             "publishers": editionInfo.publishers,
-            "physicalFormat": editionInfo.physicalFormat,
-            "publishDate": editionInfo.publishDate,
+            "physical_format": editionInfo.physical_format,
+            "publish_date": editionInfo.publish_date,
             "isbn_10": editionInfo.isbn_10,
             "isbn_13": editionInfo.isbn_13,
             "authorsNames": authorsNames,
-            "description": editionInfo.description
+            "description": editionInfo.description,
+            "languages": editionInfo.languages != null
+                ? editionInfo.languages!.first!.key
+                : null
           },
           userId: ref.read(authProvider).currentUser!.uid,
         );
@@ -839,9 +842,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       widget.editionInfo.publishers!.first!,
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
-              if (widget.editionInfo.physicalFormat != null)
+              if (widget.editionInfo.physical_format != null)
                 Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.physicalFormat != null)
+              if (widget.editionInfo.physical_format != null)
                 Text(
                   "Kitap formatı",
                   style: TextStyle(
@@ -849,13 +852,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
-              if (widget.editionInfo.physicalFormat != null)
+              if (widget.editionInfo.physical_format != null)
                 Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.physicalFormat != null)
+              if (widget.editionInfo.physical_format != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
-                  child: widget.editionInfo.physicalFormat == "paperback" ||
-                          widget.editionInfo.physicalFormat == "Paperback"
+                  child: widget.editionInfo.physical_format == "paperback" ||
+                          widget.editionInfo.physical_format == "Paperback"
                       ? Text(
                           "Ciltsiz",
                           style: const TextStyle(
@@ -863,8 +866,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             fontSize: 15,
                           ),
                         )
-                      : widget.editionInfo.physicalFormat == "hardcover" ||
-                              widget.editionInfo.physicalFormat == "Hardcover"
+                      : widget.editionInfo.physical_format == "hardcover" ||
+                              widget.editionInfo.physical_format == "Hardcover"
                           ? Text(
                               "Ciltli",
                               style: const TextStyle(
@@ -872,10 +875,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                 fontSize: 15,
                               ),
                             )
-                          : widget.editionInfo.physicalFormat == "E-book" ||
-                                  widget.editionInfo.physicalFormat == "Ebook"
+                          : widget.editionInfo.physical_format == "E-book" ||
+                                  widget.editionInfo.physical_format == "Ebook"
                               ? Text("E-kitap")
-                              : Text(widget.editionInfo.physicalFormat!),
+                              : Text(widget.editionInfo.physical_format!),
                 ),
               if (widget.editionInfo.isbn_10 != null)
                 Divider(color: Colors.transparent, thickness: 0),

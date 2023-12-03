@@ -95,7 +95,8 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           physics: ClampingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            bookWorkModel?.description != null
+            (bookWorkModel?.description != null &&
+                    bookWorkModel?.description != "<Nothing>")
                 ? descriptionInfoBuilder()
                 : const SizedBox.shrink(),
             if ((mainBook.runtimeType == TrendingBooksWorks &&
@@ -549,9 +550,6 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(
-              height: 15,
             ),
           ],
         ),

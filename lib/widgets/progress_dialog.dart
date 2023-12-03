@@ -173,16 +173,18 @@ class _ProgressDialogState extends State<ProgressDialog> {
       collectionPath: "usersBooks",
       bookAsMap: {
         "title": bookInfo.title,
-        "numberOfPages": bookInfo.numberOfPages,
+        "number_of_pages": bookInfo.number_of_pages,
         "covers": bookInfo.covers,
         "bookStatus": bookInfo.bookStatus,
         "publishers": bookInfo.publishers,
-        "physicalFormat": bookInfo.physicalFormat,
-        "publishDate": bookInfo.publishDate,
+        "physical_format": bookInfo.physical_format,
+        "publish_date": bookInfo.publish_date,
         "isbn_10": bookInfo.isbn_10,
         "isbn_13": bookInfo.isbn_13,
         "authorsNames": bookInfo.authorsNames,
-        "description": bookInfo.description
+        "description": bookInfo.description,
+        "languages":
+            bookInfo.languages != null ? bookInfo.languages!.first!.key : null
       },
       userId: _authProvider.currentUser!.uid,
     );

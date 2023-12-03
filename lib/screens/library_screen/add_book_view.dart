@@ -87,7 +87,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           isbn_10: isbnFieldController.text != ""
                               ? [isbnFieldController.text]
                               : null,
-                          numberOfPages: pageNumberFieldController.text != ""
+                          number_of_pages: pageNumberFieldController.text != ""
                               ? int.parse(pageNumberFieldController.text)
                               : null,
                           publishers: publisherFieldController.text != ""
@@ -128,9 +128,10 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           "isbn_10": isbnFieldController.text != ""
                               ? [isbnFieldController.text]
                               : null,
-                          "numberOfPages": pageNumberFieldController.text != ""
-                              ? int.parse(pageNumberFieldController.text)
-                              : null,
+                          "number_of_pages":
+                              pageNumberFieldController.text != ""
+                                  ? int.parse(pageNumberFieldController.text)
+                                  : null,
                           "publishers": publisherFieldController.text != ""
                               ? [publisherFieldController.text]
                               : null,
