@@ -48,7 +48,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
   @override
   void initState() {
     print("home screen init çalıştı");
-    if (ref.read(authProvider).currentUser != null) {
+    if (ref.read(authProvider).currentUser != null &&
+        ref.read(authProvider).currentUser!.displayName != null) {
       userName = ref.read(authProvider).currentUser!.displayName!;
     }
     getPageData();

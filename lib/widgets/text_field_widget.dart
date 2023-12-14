@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TextFieldWidget extends StatelessWidget {
+class TextFieldWidget extends StatefulWidget {
   const TextFieldWidget(
       {Key? key,
       this.keyboardType = TextInputType.none,
@@ -27,25 +27,46 @@ class TextFieldWidget extends StatelessWidget {
   final String? Function(String?)? validator;
 
   @override
+  State<TextFieldWidget> createState() => _TextFieldWidgetState();
+}
+
+class _TextFieldWidgetState extends State<TextFieldWidget> {
+  bool _obscureText = true;
+  @override
   Widget build(BuildContext context) {
     return TextFormField(
-      validator: validator,
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      textCapitalization: textCapitalization,
-      autocorrect: autoCorrect,
+      validator: widget.validator,
+      controller: widget.controller,
+      obscureText:
+          widget.obscureText != true ? widget.obscureText : _obscureText,
+      keyboardType: widget.keyboardType,
+      textCapitalization: widget.textCapitalization,
+      autocorrect: widget.autoCorrect,
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.all(2),
-        hintText: hintText,
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(), borderRadius: BorderRadius.circular(50)),
+        prefixIconColor: Color(0xFFE38B29),
+        contentPadding: EdgeInsets.all(10),
+        hintText: widget.hintText,
         prefixIcon: Icon(
-          prefixIconData,
+          widget.prefixIconData,
           size: 35,
         ),
-        suffixIcon:
-            useSuffixIcon == true ? Icon(suffixIconData, size: 35) : null,
+        suffixIcon: widget.useSuffixIcon == true
+            ? GestureDetector(
+                onTap: () {
+                  print("basıldı");
+                  setState(() {
+                    print(_obscureText);
+                    _obscureText = !_obscureText;
+                    print(_obscureText);
+                  });
+                },
+                child: Icon(
+                    _obscureText == true
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    size: 35),
+              )
+            : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
       ),
     );

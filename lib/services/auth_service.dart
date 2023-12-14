@@ -94,8 +94,9 @@ class AuthService {
           break;
         default:
           ScaffoldMessenger.of(context).clearSnackBars;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Bilinmeyen bir hata meydana geldi')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content:
+                  Text('Bilinmeyen bir hata meydana geldi: ${e.message}')));
           break;
       }
     } catch (e) {
@@ -125,7 +126,7 @@ class AuthService {
         case 'wrong-password':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('Parola geçersiz.'),
+            content: const Text('E-posta veya parola geçersiz.'),
             action: SnackBarAction(label: 'Tamam', onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));

@@ -62,74 +62,90 @@ class _AuthViewState extends ConsumerState<AuthView> {
   Widget build(BuildContext context) {
     return SafeArea(
       minimum: const EdgeInsets.only(top: 30),
-      child: Scaffold(
-          body: Stack(
-        children: [
-          Container(
-            height: 350,
-            decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(25),
-                    bottomRight: Radius.circular(25)),
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.fromRGBO(195, 129, 84, 1),
-                      Color.fromRGBO(122, 70, 55, 1),
-                    ])),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(
-                  Icons.arrow_back,
-                  size: 35,
-                )),
-          ),
-          Align(
-              alignment: Alignment.center,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                        formStatus == FormStatus.register
-                            ? "Kayıt Ol"
-                            : formStatus == FormStatus.signIn
-                                ? "Giriş Yap"
-                                : "Parola Sıfırla",
-                        style: const TextStyle(fontSize: 25)),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Material(
-                      borderRadius: BorderRadius.circular(25),
-                      elevation: 25,
-                      child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(25),
-                            color: const Color.fromRGBO(249, 224, 187, 1),
-                          ),
-                          height: formStatus == FormStatus.register
-                              ? 400
-                              : formStatus == FormStatus.signIn
-                                  ? 400
-                                  : 300,
-                          width: 300,
-                          child: formStatus == FormStatus.register
-                              ? registerForm()
-                              : formStatus == FormStatus.signIn
-                                  ? signInForm()
-                                  : resetForm()),
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+            body: Stack(
+          children: [
+            Container(
+              height: 350,
+              decoration: const BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 2.0,
+                      spreadRadius: 0.0,
+                      offset:
+                          Offset(2.0, 2.0), // shadow direction: bottom right
                     )
                   ],
-                ),
-              )),
-          Container()
-        ],
-      )),
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25)),
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF3A98B9),
+                        Color(0xFF1B7695),
+                      ])),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 30,
+                  )),
+            ),
+            Align(
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          formStatus == FormStatus.register
+                              ? "Kayıt Ol"
+                              : formStatus == FormStatus.signIn
+                                  ? "Giriş Yap"
+                                  : "Parola Sıfırla",
+                          style: const TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Material(
+                        borderRadius: BorderRadius.circular(25),
+                        elevation: 25,
+                        child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: const Color.fromRGBO(249, 224, 187, 1),
+                            ),
+                            height: formStatus == FormStatus.register
+                                ? 400
+                                : formStatus == FormStatus.signIn
+                                    ? 400
+                                    : 300,
+                            width: 300,
+                            child: formStatus == FormStatus.register
+                                ? registerForm()
+                                : formStatus == FormStatus.signIn
+                                    ? signInForm()
+                                    : resetForm()),
+                      )
+                    ],
+                  ),
+                )),
+            Container()
+          ],
+        )),
+      ),
     );
   }
 
@@ -173,7 +189,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
-                suffixIconData: Icons.remove_red_eye,
                 useSuffixIcon: true,
               ),
             ),
@@ -189,7 +204,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                     },
                     child: const Text(
                       "Şifremi Unuttum",
-                      style: TextStyle(color: Colors.teal),
                     )),
               ),
             ),
@@ -198,27 +212,28 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: AnimatedButton(
                   onTap: () async {
                     if (signInFormKey.currentState!.validate()) {
-                      await ref
-                          .read(authProvider)
-                          .signInWithEmailAndPassword(
-                              signInEmailController.text,
-                              signInPasswordController.text,
-                              context)
-                          .then((value) {
-                        if (value != null) {
-                          print("value not null");
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    BottomNavigationBarController(),
-                              ),
-                              (route) => false);
-                        } else {
-                          print("value is null");
-                          return;
-                        }
-                      });
+                      if (mounted)
+                        await ref
+                            .read(authProvider)
+                            .signInWithEmailAndPassword(
+                                signInEmailController.text,
+                                signInPasswordController.text,
+                                context)
+                            .then((value) {
+                          if (value != null) {
+                            print("value not null");
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      BottomNavigationBarController(),
+                                ),
+                                (route) => false);
+                          } else {
+                            print("value is null");
+                            return;
+                          }
+                        });
                     }
                   },
                   text: "Giriş Yap",
@@ -229,7 +244,19 @@ class _AuthViewState extends ConsumerState<AuthView> {
               flex: 4,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [facebookSignIn(), googleSignIn()],
+                children: [
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    endIndent: 5,
+                  )),
+                  googleSignIn(),
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    indent: 5,
+                  )),
+                ],
               ),
             ),
             Expanded(
@@ -246,7 +273,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       },
                       child: const Text(
                         "Üye Ol",
-                        style: TextStyle(color: Colors.teal),
                       )),
                 ],
               ),
@@ -301,7 +327,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
-                suffixIconData: Icons.remove_red_eye,
                 useSuffixIcon: true,
               ),
             ),
@@ -325,7 +350,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
-                suffixIconData: Icons.remove_red_eye,
                 useSuffixIcon: true,
               ),
             ),
@@ -350,7 +374,19 @@ class _AuthViewState extends ConsumerState<AuthView> {
               flex: 4,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [facebookSignIn(), googleSignIn()],
+                children: [
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    endIndent: 5,
+                  )),
+                  googleSignIn(),
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    indent: 5,
+                  )),
+                ],
               ),
             ),
             Expanded(
@@ -367,7 +403,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       },
                       child: const Text(
                         "Giriş Yap",
-                        style: TextStyle(color: Colors.teal),
                       )),
                 ],
               ),
@@ -413,8 +448,19 @@ class _AuthViewState extends ConsumerState<AuthView> {
             Expanded(
               flex: 5,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [facebookSignIn(), googleSignIn()],
+                children: [
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    endIndent: 5,
+                  )),
+                  googleSignIn(),
+                  Expanded(
+                      child: Divider(
+                    color: Colors.black38,
+                    indent: 5,
+                  )),
+                ],
               ),
             ),
             Expanded(
@@ -427,7 +473,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   },
                   child: const Text(
                     "Giriş Yap",
-                    style: TextStyle(color: Colors.teal),
                   )),
             )
           ],
@@ -436,54 +481,40 @@ class _AuthViewState extends ConsumerState<AuthView> {
     );
   }
 
-  SizedBox facebookSignIn() {
-    return SizedBox(
-      height: 35,
-      width: 125,
-      child: ElevatedButton.icon(
-        style: ButtonStyle(
-            textStyle: MaterialStateProperty.all<TextStyle>(
-                const TextStyle(fontSize: 13)),
-            backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.blue.shade700)),
-        onPressed: () {},
-        icon: const Icon(Icons.facebook, size: 30),
-        label: const Text("Facebook ile bağlan"),
-      ),
-    );
-  }
-
-  SizedBox googleSignIn() {
-    return SizedBox(
-      height: 35,
-      width: 125,
-      child: ElevatedButton.icon(
-          style: ButtonStyle(
-              textStyle: MaterialStateProperty.all<TextStyle>(
-                  const TextStyle(fontSize: 13)),
-              backgroundColor: MaterialStateProperty.all<Color>(
-                  const Color.fromRGBO(253, 132, 31, 1))),
-          onPressed: () async {
-            isConnected = await checkForInternetConnection();
-            if (isConnected != true) {
-              await internetConnectionErrorDialog(context);
-            } else {
-              await _signInWithGoogle(ref)!.whenComplete(() {
-                if (ref.read(authProvider).currentUser != null) {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BottomNavigationBarController(),
-                      ),
-                      (route) => false);
-                }
-              });
+  InkWell googleSignIn() {
+    return InkWell(
+      onTap: () async {
+        isConnected = await checkForInternetConnection();
+        if (isConnected != true) {
+          await internetConnectionErrorDialog(context);
+        } else {
+          await _signInWithGoogle(ref)!.whenComplete(() {
+            if (ref.read(authProvider).currentUser != null) {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BottomNavigationBarController(),
+                  ),
+                  (route) => false);
             }
+          });
+        }
 
-            ;
-          },
-          icon: const Icon(Icons.g_mobiledata_sharp, size: 30),
-          label: const Text("Google ile bağlan")),
+        ;
+      },
+      child: Container(
+        padding: EdgeInsets.all(5),
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: Colors.white,
+        ),
+        child: Image.asset(
+          "lib/assets/images/google.png",
+          fit: BoxFit.scaleDown,
+        ),
+      ),
     );
   }
 }
