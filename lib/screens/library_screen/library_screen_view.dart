@@ -203,7 +203,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                         editionInfo: listOfTheCurrentBookStatus[index],
                         isNavigatingFromLibrary: true,
                         bookImage: listOfTheCurrentBookStatus[index].covers !=
-                                null
+                                    null &&
+                                listOfTheCurrentBookStatus[index]
+                                        .covers!
+                                        .first !=
+                                    1
                             ? indexOfMatching != -1
                                 ? Image.memory(
                                     base64Decode(
@@ -373,14 +377,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           isDataLoading = false;
         });
       // error handling yap
-      showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (BuildContext context) {
-            return ProgressDialog(
-                listOfBooksFromFirestore: listOfBooksFromFirestore!,
-                listOfBooksFromSql: listOfBooksFromSql!);
-          });
     } else {
       if (mounted)
         setState(() {

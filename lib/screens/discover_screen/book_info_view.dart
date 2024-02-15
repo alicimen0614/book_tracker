@@ -450,6 +450,8 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                         child: SizedBox(
                           child: Text(
                             mainBook!.title!,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 3,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,

@@ -60,92 +60,88 @@ class _AuthViewState extends ConsumerState<AuthView> {
   late FormStatus formStatus = widget.formStatusData;
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      minimum: const EdgeInsets.only(top: 30),
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-            body: Stack(
-          children: [
-            Container(
-              height: 350,
-              decoration: const BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 2.0,
-                      spreadRadius: 0.0,
-                      offset:
-                          Offset(2.0, 2.0), // shadow direction: bottom right
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+          body: Stack(
+        children: [
+          Container(
+            height: 350,
+            decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 2.0,
+                    spreadRadius: 0.0,
+                    offset: Offset(2.0, 2.0), // shadow direction: bottom right
+                  )
+                ],
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(25),
+                    bottomRight: Radius.circular(25)),
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFF3A98B9),
+                      Color(0xFF1B7695),
+                    ])),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 30,
+                )),
+          ),
+          Align(
+              alignment: Alignment.center,
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                        formStatus == FormStatus.register
+                            ? "Kayıt Ol"
+                            : formStatus == FormStatus.signIn
+                                ? "Giriş Yap"
+                                : "Parola Sıfırla",
+                        style: const TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Material(
+                      borderRadius: BorderRadius.circular(25),
+                      elevation: 25,
+                      child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color: const Color.fromRGBO(249, 224, 187, 1),
+                          ),
+                          height: formStatus == FormStatus.register
+                              ? 400
+                              : formStatus == FormStatus.signIn
+                                  ? 400
+                                  : 300,
+                          width: 300,
+                          child: formStatus == FormStatus.register
+                              ? registerForm()
+                              : formStatus == FormStatus.signIn
+                                  ? signInForm()
+                                  : resetForm()),
                     )
                   ],
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25)),
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF3A98B9),
-                        Color(0xFF1B7695),
-                      ])),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 30,
-                  )),
-            ),
-            Align(
-                alignment: Alignment.center,
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                          formStatus == FormStatus.register
-                              ? "Kayıt Ol"
-                              : formStatus == FormStatus.signIn
-                                  ? "Giriş Yap"
-                                  : "Parola Sıfırla",
-                          style: const TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Material(
-                        borderRadius: BorderRadius.circular(25),
-                        elevation: 25,
-                        child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: const Color.fromRGBO(249, 224, 187, 1),
-                            ),
-                            height: formStatus == FormStatus.register
-                                ? 400
-                                : formStatus == FormStatus.signIn
-                                    ? 400
-                                    : 300,
-                            width: 300,
-                            child: formStatus == FormStatus.register
-                                ? registerForm()
-                                : formStatus == FormStatus.signIn
-                                    ? signInForm()
-                                    : resetForm()),
-                      )
-                    ],
-                  ),
-                )),
-            Container()
-          ],
-        )),
-      ),
+                ),
+              )),
+          Container()
+        ],
+      )),
     );
   }
 

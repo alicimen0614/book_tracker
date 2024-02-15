@@ -3,6 +3,9 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/books_list_error.dart';
+import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -20,6 +23,7 @@ class BookEditionsView extends ConsumerStatefulWidget {
 }
 
 class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
+  bool isConnected = false;
   final PagingController<int, BookWorkEditionsModelEntries?> pagingController =
       PagingController(firstPageKey: 0);
 
@@ -33,6 +37,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
 
   void fetchData(int pageKey) async {
     print("fetchdata");
+    isConnected = await checkForInternetConnection();
     try {
       BookWorkEditionsModel editionsModel = await ref
           .read(booksProvider)
@@ -85,6 +90,24 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           pagingController: pagingController,
           builderDelegate:
               PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
+            newPageErrorIndicatorBuilder: (context) =>
+                newPageErrorIndicatorBuilder(
+                    () => pagingController.retryLastFailedRequest()),
+            firstPageErrorIndicatorBuilder: (context) {
+              if (!isConnected) {
+                return booksListError(
+                  true,
+                  context,
+                  () {
+                    pagingController.retryLastFailedRequest();
+                  },
+                );
+              } else {
+                return booksListError(false, context, () {
+                  pagingController.retryLastFailedRequest();
+                });
+              }
+            },
             firstPageProgressIndicatorBuilder: (context) =>
                 gridViewBooksShimmerEffectBuilder(),
             itemBuilder: (context, item, index) {

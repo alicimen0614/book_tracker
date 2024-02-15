@@ -35,6 +35,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
   int currentCount = 0;
   String currentBookName = "";
   int currentProcessLength = 0;
+  bool didChangeMade = false;
 
   @override
   void initState() {
@@ -47,6 +48,14 @@ class _ProgressDialogState extends State<ProgressDialog> {
   Widget build(BuildContext context) {
     print(percentage);
     return AlertDialog(
+      actions: [
+        TextButton(
+          onPressed: () {
+            if (mounted) Navigator.pop(context, didChangeMade);
+          },
+          child: Text("Kapat"),
+        )
+      ],
       title: Text('Kitaplar senkronize ediliyor.',
           textAlign: TextAlign.center,
           style: TextStyle(fontWeight: FontWeight.bold)),
@@ -103,6 +112,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
       currentProcessLength = listOfBooksFromSql.length;
       for (var i = 0; i < listOfBookIdsFromSql.length; i++) {
         if (!listOfBookIdsFromFirebase.contains(listOfBookIdsFromSql[i])) {
+          didChangeMade = true;
           if (mounted)
             setState(() {
               percentage = ((i + 1) * (100 / listOfBooksFromSql.length) / 100);
@@ -118,6 +128,8 @@ class _ProgressDialogState extends State<ProgressDialog> {
       currentProcessLength = listOfBooksFromFirestore.length;
       for (var i = 0; i < listOfBookIdsFromFirebase.length; i++) {
         if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
+          didChangeMade = true;
+
           print("kitap yazdırıldı => no: $i");
           if (mounted)
             setState(() {
@@ -133,7 +145,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
       }
     }
 
-    if (mounted) Navigator.pop(context);
+    if (mounted) Navigator.pop(context, didChangeMade);
   }
 
   Future<void> insertBookToSql(
@@ -145,18 +157,21 @@ class _ProgressDialogState extends State<ProgressDialog> {
           base64Decode(bookInfo.imageAsByte!), context);
       await insertAuthor(bookInfo, context);
     } else if (bookInfo.imageAsByte == null && bookInfo.covers != null) {
-      print("ikinci if e girdi");
-      String imageLink =
-          "https://covers.openlibrary.org/b/id/${bookInfo.covers!.first}-M.jpg";
-      final ByteData data =
-          await NetworkAssetBundle(Uri.parse(imageLink)).load(imageLink);
-      final Uint8List bytes = data.buffer.asUint8List();
+      try {
+        String imageLink =
+            "https://covers.openlibrary.org/b/id/${bookInfo.covers!.first}-M.jpg";
+        final ByteData data =
+            await NetworkAssetBundle(Uri.parse(imageLink)).load(imageLink);
+        final Uint8List bytes = data.buffer.asUint8List();
 
-      Uint8List imageAsByte = bytes;
+        Uint8List imageAsByte = bytes;
 
-      await _sqlHelper.insertBook(
-          bookInfo, bookInfo.bookStatus!, imageAsByte, context);
-      await insertAuthor(bookInfo, context);
+        await _sqlHelper.insertBook(
+            bookInfo, bookInfo.bookStatus!, imageAsByte, context);
+        await insertAuthor(bookInfo, context);
+      } catch (e) {
+        print("hata yakalandı");
+      }
     } else {
       await _sqlHelper.insertBook(
           bookInfo, bookInfo.bookStatus!, null, context);

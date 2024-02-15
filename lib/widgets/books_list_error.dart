@@ -51,6 +51,9 @@ Center booksListError(
               height: 50,
               width: double.infinity,
               child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white),
                 onPressed: onTryAgain,
                 icon: const Icon(
                   Icons.refresh,

@@ -167,6 +167,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   width: 180,
                                   fit: BoxFit.fill,
                                   image: widget.bookImage!.image,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset("lib/assets/images/error.png",
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2),
                                 ),
                               )
                             : ClipRRect(
@@ -352,8 +358,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => BottomNavigationBarController(
-                                currentIndexParam: 2),
+                            builder: (context) =>
+                                BottomNavigationBarController(),
                           ),
                           (route) => false);
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

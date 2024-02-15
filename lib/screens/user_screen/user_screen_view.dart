@@ -1,5 +1,8 @@
+import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/animated_button.dart';
+import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,10 @@ class UserScreenView extends ConsumerStatefulWidget {
 
 class _UserScreenViewState extends ConsumerState<UserScreenView>
     with AutomaticKeepAliveClientMixin<UserScreenView> {
+  List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
+  List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
+  bool isConnected = false;
+
   late bool isUserLoggedIn =
       ref.read(authProvider).currentUser != null ? true : false;
   @override
@@ -95,7 +102,8 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
       child: Column(
         children: [
           Container(
-            height: 330,
+            height: 280,
+            width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(100),
@@ -106,71 +114,130 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (isUserLoggedIn == true)
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(
-                          color: Colors.white,
-                          onPressed: () async {
-                            alertDialogBuilder(context);
-                          },
-                          icon: const Icon(
-                            Icons.exit_to_app_sharp,
-                            size: 25,
-                          )),
-                    ),
-                  if (isUserLoggedIn == false)
-                    SizedBox(
-                      height: 20,
-                    ),
-                  if (isUserLoggedIn == false) getUserProfileImage(ref, 150),
-                  if (isUserLoggedIn == false) getUserName(ref),
-                  if (isUserLoggedIn == false)
-                    SizedBox(
-                      height: 20,
-                    ),
-                  if (isUserLoggedIn == false)
-                    AnimatedButton(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AuthView(formStatusData: FormStatus.signIn),
-                              ));
-                        },
-                        text: "Giriş Yap",
-                        widthSize: 250,
-                        backgroundColor: const Color.fromRGBO(136, 74, 57, 1))
-                  else
-                    Column(children: [
-                      getUserProfileImage(ref, 150),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      getUserName(ref)
-                    ]),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  isUserLoggedIn == false
-                      ? AnimatedButton(
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AuthView(
-                                      formStatusData: FormStatus.register),
-                                ));
-                          },
-                          text: "Üye Ol",
-                          widthSize: 250,
-                          backgroundColor:
-                              const Color.fromRGBO(204, 149, 68, 1))
-                      : const SizedBox.shrink()
+                  Spacer(),
+                  Expanded(flex: 2, child: getUserProfileImage(ref, 150)),
+                  Expanded(flex: 1, child: getUserName(ref)),
                 ],
               ),
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(children: [
+              ListTile(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                tileColor: Colors.white,
+                title: Text("Kitapları yedekle veya senkronize et"),
+                onTap: () async {
+                  if (ref.read(authProvider).currentUser != null) {
+                    await getBooks();
+                    //returning a bool data from progressdialog if there is a change made or not.
+                    bool? didChangeMade = await showDialog(
+                        barrierDismissible: true,
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ProgressDialog(
+                              listOfBooksFromFirestore:
+                                  listOfBooksFromFirebase!,
+                              listOfBooksFromSql: listOfBooksFromSql!);
+                        });
+                    if (didChangeMade == false) {
+                      ScaffoldMessenger.of(context).clearSnackBars;
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text('Şu anda güncelsiniz!'),
+                        action:
+                            SnackBarAction(label: 'Tamam', onPressed: () {}),
+                        behavior: SnackBarBehavior.floating,
+                      ));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).clearSnackBars;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                          'Kitaplarınızı yedeklemek için giriş yapmalısınız.'),
+                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  }
+                },
+              ),
+              Divider(
+                endIndent: 10,
+                indent: 10,
+              ),
+              ListTile(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                tileColor: Colors.white,
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Bize ulaşın"),
+                    Text(
+                      "cimensoft@gmail.com",
+                      style: TextStyle(fontSize: 12),
+                    )
+                  ],
+                ),
+                onTap: () {},
+              ),
+              if (isUserLoggedIn == false)
+                Divider(
+                  endIndent: 10,
+                  indent: 10,
+                ),
+              isUserLoggedIn == false
+                  ? ListTile(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AuthView(formStatusData: FormStatus.signIn),
+                            ));
+                      },
+                      title: Text("Giriş Yap"),
+                      tileColor: Colors.white)
+                  : SizedBox.shrink(),
+              if (isUserLoggedIn == false)
+                Divider(
+                  endIndent: 10,
+                  indent: 10,
+                ),
+              isUserLoggedIn == false
+                  ? ListTile(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AuthView(formStatusData: FormStatus.register),
+                            ));
+                      },
+                      title: Text("Üye Ol"),
+                      tileColor: Colors.white)
+                  : const SizedBox.shrink(),
+              if (isUserLoggedIn == true)
+                Divider(
+                  endIndent: 10,
+                  indent: 10,
+                ),
+              isUserLoggedIn == true
+                  ? ListTile(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      onTap: () async {
+                        await alertDialogBuilder(context);
+                      },
+                      title: Text("Çıkış Yap"),
+                      tileColor: Colors.white)
+                  : const SizedBox.shrink()
+            ]),
           ),
         ],
       ),
@@ -209,5 +276,21 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
         );
       },
     );
+  }
+
+  Future<void> getBooks() async {
+    isConnected = await checkForInternetConnection();
+    if (isConnected == true && ref.read(authProvider).currentUser != null) {
+      var data = await ref.read(firestoreProvider).getBooks(
+          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+      if (data != null) {
+        listOfBooksFromFirebase = data.docs
+            .map(
+              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+            )
+            .toList();
+      }
+    }
+    listOfBooksFromSql = await ref.read(sqlProvider).getBookShelf(context);
   }
 }

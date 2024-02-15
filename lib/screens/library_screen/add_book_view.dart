@@ -69,7 +69,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
               splashRadius: 25,
               onPressed: () async {
                 if (titleFieldController.text == "") {
-                  ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                  ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     duration: Duration(seconds: 2),
                     content: const Text('Lütfen bir başlık girin'),
@@ -118,7 +118,17 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                                   : "Okumak istediklerim",
                           pickedImage != null ? imageAsByte : null,
                           context)
-                      .whenComplete(() => Navigator.pop(context));
+                      .whenComplete(() {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).clearSnackBars;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text('Kitap başarıyla eklendi!'),
+                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  });
 
                   if (ref.read(authProvider).currentUser != null) {
                     ref.read(firestoreProvider).setBookData(context,

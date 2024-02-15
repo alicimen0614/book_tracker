@@ -56,14 +56,29 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
             (pageStatus == PageStatus.categories ||
                     pageStatus == PageStatus.trending ||
                     widget.searchValue != "")
-                ? Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+                ? Row(mainAxisSize: MainAxisSize.min, children: [
+                    Expanded(
+                      flex: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
                         child: searchBarBuilder(),
                       ),
-                    ],
-                  )
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 4),
+                        child: TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              "Vazgeç",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                      ),
+                    )
+                  ])
                 : Row(mainAxisSize: MainAxisSize.min, children: [
                     Expanded(
                       flex: 4,

@@ -43,7 +43,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
   TextEditingController _searchBarController = TextEditingController();
   List<BooksModelDocs?>? docs = [];
   List<BookWorkEditionsModelEntries?>? editionList = [];
-  String userName = "Kullanıcı";
+  String userName = "";
 
   @override
   void initState() {
@@ -327,7 +327,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
           ),
           Positioned(
               child: Text(
-                "Merhaba, $userName",
+                "Merhaba $userName",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
@@ -417,7 +417,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                         MaterialPageRoute(
                           builder: (context) => DiscoverScreenView(
                               searchValue: _searchBarController.text),
-                        ));
+                        )).then((value) => _searchBarController.clear());
                   }
                 },
                 icon: Icon(
@@ -439,18 +439,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
     setState(() {
       isLoading = true;
     });
-    await getFilteredBooks().whenComplete(() {
-      if (ref.read(authProvider).currentUser != null) {
-        showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext context) {
-              return ProgressDialog(
-                  listOfBooksFromFirestore: listOfBooksFromFirebase!,
-                  listOfBooksFromSql: listOfBooksFromSql!);
-            });
-      }
-    });
+    await getFilteredBooks();
+
     setState(() {
       isLoading = false;
     });
