@@ -135,8 +135,16 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                               uniqueIdCreater(element) ==
                                               notesToShow[index]['bookId'])
                                           .imageAsByte!))
-                                  : Image.asset(
-                                      "lib/assets/images/nocover.jpg"),
+                                  : widget.bookList!
+                                              .firstWhere((element) =>
+                                                  uniqueIdCreater(element) ==
+                                                  notesToShow[index]['bookId'])
+                                              .covers !=
+                                          null
+                                      ? Image.network(
+                                          "https://covers.openlibrary.org/b/id/${widget.bookList!.firstWhere((element) => uniqueIdCreater(element) == notesToShow[index]['bookId']).covers!.first}-M.jpg")
+                                      : Image.asset(
+                                          "lib/assets/images/nocover.jpg"),
                             ),
                             subtitle: SizedBox(
                               child: Text(notesToShow[index]['note'],
