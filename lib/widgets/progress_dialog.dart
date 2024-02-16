@@ -118,7 +118,8 @@ class _ProgressDialogState extends State<ProgressDialog> {
               percentage = ((i + 1) * (100 / listOfBooksFromSql.length) / 100);
               currentCount = i + 1;
             });
-          await insertBookToFirebase(listOfBooksFromSql[i], context);
+          if (mounted)
+            await insertBookToFirebase(listOfBooksFromSql[i], context);
         }
       }
       percentage = 0;

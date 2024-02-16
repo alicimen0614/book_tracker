@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NotesView extends ConsumerStatefulWidget {
-  const NotesView({super.key, required this.listOfBooksFromSql});
+  const NotesView({super.key, required this.bookList});
 
-  final List<BookWorkEditionsModelEntries>? listOfBooksFromSql;
+  final List<BookWorkEditionsModelEntries>? bookList;
 
   @override
   ConsumerState<NotesView> createState() => _NotesViewState();
@@ -49,8 +49,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BooksListView(
-                          listOfBooksFromSql: widget.listOfBooksFromSql),
+                      builder: (context) =>
+                          BooksListView(bookList: widget.bookList),
                     )).then((value) => getPageData()),
                 icon: const Icon(
                   Icons.add_to_photos_rounded,
@@ -66,82 +66,105 @@ class _NotesViewState extends ConsumerState<NotesView> {
               )),
         ),
         body: isLoading == false
-            ? ListView.separated(
-                physics: ClampingScrollPhysics(),
-                separatorBuilder: (context, index) => SizedBox(
-                  height: 15,
-                ),
-                padding: EdgeInsets.all(15),
-                itemCount: notesToShow.length,
-                itemBuilder: (context, index) => InkWell(
-                    customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25)),
-                    onTap: () {
-                      String? getImage = widget.listOfBooksFromSql!
-                              .firstWhere((element) =>
-                                  uniqueIdCreater(element) ==
-                                  notesToShow[index]['bookId'])
-                              .imageAsByte ??
-                          null;
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AddNoteView(
-                                    noteId: notesToShow[index]['id'],
-                                    initialNoteValue: notesToShow[index]
-                                        ['note'],
-                                    bookImage: getImage != null
-                                        ? Image.memory(
-                                            base64Decode(getImage),
-                                            fit: BoxFit.fill,
-                                          )
-                                        : null,
-                                    showDeleteIcon: true,
-                                    bookInfo: widget.listOfBooksFromSql!
-                                        .firstWhere((element) =>
-                                            uniqueIdCreater(element) ==
-                                            notesToShow[index]['bookId']),
-                                    noteDate: notesToShow[index]['noteDate'],
-                                  ))).then((value) {
-                        setState(() {});
-                        getNotesFromSql();
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white60,
-                          borderRadius: BorderRadius.circular(25)),
-                      height: 125,
-                      child: ListTile(
-                        title: Text(widget.listOfBooksFromSql!
-                            .firstWhere((element) =>
-                                uniqueIdCreater(element) ==
-                                notesToShow[index]['bookId'])
-                            .title!),
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: widget.listOfBooksFromSql!
-                                      .firstWhere((element) =>
-                                          uniqueIdCreater(element) ==
-                                          notesToShow[index]['bookId'])
-                                      .imageAsByte !=
-                                  null
-                              ? Image.memory(
-                                  fit: BoxFit.fill,
-                                  base64Decode(widget.listOfBooksFromSql!
-                                      .firstWhere((element) =>
-                                          uniqueIdCreater(element) ==
-                                          notesToShow[index]['bookId'])
-                                      .imageAsByte!))
-                              : Image.asset("lib/assets/images/nocover.jpg"),
+            ? notesToShow.length != 0
+                ? ListView.separated(
+                    physics: ClampingScrollPhysics(),
+                    separatorBuilder: (context, index) => SizedBox(
+                      height: 15,
+                    ),
+                    padding: EdgeInsets.all(15),
+                    itemCount: notesToShow.length,
+                    itemBuilder: (context, index) => InkWell(
+                        customBorder: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)),
+                        onTap: () {
+                          String? getImage = widget.bookList!
+                                  .firstWhere((element) =>
+                                      uniqueIdCreater(element) ==
+                                      notesToShow[index]['bookId'])
+                                  .imageAsByte ??
+                              null;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddNoteView(
+                                        noteId: notesToShow[index]['id'],
+                                        initialNoteValue: notesToShow[index]
+                                            ['note'],
+                                        bookImage: getImage != null
+                                            ? Image.memory(
+                                                base64Decode(getImage),
+                                                fit: BoxFit.fill,
+                                              )
+                                            : null,
+                                        showDeleteIcon: true,
+                                        bookInfo: widget.bookList!.firstWhere(
+                                            (element) =>
+                                                uniqueIdCreater(element) ==
+                                                notesToShow[index]['bookId']),
+                                        noteDate: notesToShow[index]
+                                            ['noteDate'],
+                                      ))).then((value) {
+                            setState(() {});
+                            getNotesFromSql();
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white60,
+                              borderRadius: BorderRadius.circular(25)),
+                          height: 125,
+                          child: ListTile(
+                            title: Text(widget.bookList!
+                                .firstWhere((element) =>
+                                    uniqueIdCreater(element) ==
+                                    notesToShow[index]['bookId'])
+                                .title!),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: widget.bookList!
+                                          .firstWhere((element) =>
+                                              uniqueIdCreater(element) ==
+                                              notesToShow[index]['bookId'])
+                                          .imageAsByte !=
+                                      null
+                                  ? Image.memory(
+                                      fit: BoxFit.fill,
+                                      base64Decode(widget.bookList!
+                                          .firstWhere((element) =>
+                                              uniqueIdCreater(element) ==
+                                              notesToShow[index]['bookId'])
+                                          .imageAsByte!))
+                                  : Image.asset(
+                                      "lib/assets/images/nocover.jpg"),
+                            ),
+                            subtitle: SizedBox(
+                              child: Text(notesToShow[index]['note'],
+                                  maxLines: 5, overflow: TextOverflow.ellipsis),
+                            ),
+                          ),
+                        )),
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          "lib/assets/images/nonotesfound.png",
+                          width: MediaQuery.of(context).size.width / 1.2,
                         ),
-                        subtitle: SizedBox(
-                          child: Text(notesToShow[index]['note'],
-                              maxLines: 5, overflow: TextOverflow.ellipsis),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.width / 10,
                         ),
-                      ),
-                    )),
-              )
+                        Text(
+                          "Not bulunamadı.",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
             : notesViewShimmerEffect());
   }
 

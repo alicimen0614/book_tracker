@@ -2,6 +2,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/animated_button.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -130,7 +131,18 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                 tileColor: Colors.white,
                 title: Text("Kitapları yedekle veya senkronize et"),
                 onTap: () async {
-                  if (ref.read(authProvider).currentUser != null) {
+                  isConnected = await checkForInternetConnection();
+                  if (ref.read(authProvider).currentUser == null) {
+                    ScaffoldMessenger.of(context).clearSnackBars;
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                          'Kitaplarınızı yedeklemek için giriş yapmalısınız.'),
+                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  } else if (isConnected == false) {
+                    internetConnectionErrorDialog(context);
+                  } else {
                     await getBooks();
                     //returning a bool data from progressdialog if there is a change made or not.
                     bool? didChangeMade = await showDialog(
@@ -151,14 +163,6 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                         behavior: SnackBarBehavior.floating,
                       ));
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).clearSnackBars;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text(
-                          'Kitaplarınızı yedeklemek için giriş yapmalısınız.'),
-                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
-                      behavior: SnackBarBehavior.floating,
-                    ));
                   }
                 },
               ),

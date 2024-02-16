@@ -21,7 +21,9 @@ Center booksListError(
         children: [
           isNetworkError == true
               ? Image.asset(
-                  "lib/assets/images/no_internet_connection_icon_without_background.png")
+                  "lib/assets/images/no_internet_connection.png",
+                  width: MediaQuery.of(context).size.width / 1.2,
+                )
               : SizedBox.shrink(),
           isNetworkError == true
               ? SizedBox(

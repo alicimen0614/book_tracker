@@ -116,8 +116,7 @@ class AuthService {
         case 'user-not-found':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                const Text('Bu e-posta ile bağlanmış kullanıcı bulunamadı.'),
+            content: const Text('E-posta veya parola geçersiz.'),
             action: SnackBarAction(label: 'Tamam', onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));

@@ -9,6 +9,7 @@ enum PageStatus { search, categories, trending }
 class DiscoverScreenView extends ConsumerStatefulWidget {
   const DiscoverScreenView({super.key, this.searchValue = ""});
   final String searchValue;
+
   @override
   ConsumerState<DiscoverScreenView> createState() => _DiscoverScreenViewState();
 }
@@ -25,6 +26,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
     print("discover screen init çalıştı");
 
     if (widget.searchValue != "") {
+      pageStatus = PageStatus.search;
       searchBarController.text = widget.searchValue;
     }
     super.initState();
@@ -53,58 +55,62 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            (pageStatus == PageStatus.categories ||
-                    pageStatus == PageStatus.trending ||
-                    widget.searchValue != "")
-                ? Row(mainAxisSize: MainAxisSize.min, children: [
-                    Expanded(
-                      flex: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                        child: searchBarBuilder(),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 4),
-                        child: TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              "Vazgeç",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                      ),
-                    )
-                  ])
-                : Row(mainAxisSize: MainAxisSize.min, children: [
-                    Expanded(
-                      flex: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                        child: searchBarBuilder(),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 4),
-                        child: TextButton(
-                            onPressed: () {
-                              setState(() {
-                                pageStatus = PageStatus.categories;
-                                searchBarController.clear();
-                              });
-                            },
-                            child: Text(
-                              "Vazgeç",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            )),
-                      ),
-                    )
-                  ]),
+            if (pageStatus == PageStatus.categories)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                child: searchBarBuilder(),
+              )
+            else if (widget.searchValue != "")
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                    child: searchBarBuilder(),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "Vazgeç",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                )
+              ])
+            else
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                    child: searchBarBuilder(),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: TextButton(
+                        onPressed: () {
+                          setState(() {
+                            pageStatus = PageStatus.categories;
+                            searchBarController.clear();
+                          });
+                        },
+                        child: Text(
+                          "Vazgeç",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                )
+              ]),
             pageStatus == PageStatus.search || widget.searchValue != ""
                 ? SearchScreenView(
                     searchValue: widget.searchValue == "" ||
