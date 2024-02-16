@@ -105,8 +105,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                         noteDate: notesToShow[index]
                                             ['noteDate'],
                                       ))).then((value) {
-                            setState(() {});
                             getNotesFromSql();
+                            getPageData();
                           });
                         },
                         child: Container(
