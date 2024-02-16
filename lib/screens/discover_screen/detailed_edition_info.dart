@@ -354,22 +354,19 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   onTap: () async {
                     await deleteAuthorsFromSql(widget.editionInfo);
                     await deleteNote(widget.editionInfo);
-                    await deleteBook(widget.editionInfo).whenComplete(() {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BottomNavigationBarController(),
-                          ),
-                          (route) => false);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        duration: Duration(seconds: 2),
-                        content: const Text('Kitap başarıyla silindi.'),
-                        action:
-                            SnackBarAction(label: 'Tamam', onPressed: () {}),
-                        behavior: SnackBarBehavior.floating,
-                      ));
-                    });
+                    deleteBook(widget.editionInfo);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BottomNavigationBarController(),
+                        ),
+                        (route) => false);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      duration: Duration(seconds: 2),
+                      content: const Text('Kitap başarıyla silindi.'),
+                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                      behavior: SnackBarBehavior.floating,
+                    ));
                   },
                   leading: Icon(
                     Icons.delete,
