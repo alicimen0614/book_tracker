@@ -141,7 +141,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                       behavior: SnackBarBehavior.floating,
                     ));
                   } else if (isConnected == false) {
-                    internetConnectionErrorDialog(context);
+                    internetConnectionErrorDialog(context, false);
                   } else {
                     await getBooks();
                     //returning a bool data from progressdialog if there is a change made or not.

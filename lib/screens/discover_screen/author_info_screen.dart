@@ -362,7 +362,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
         });
       }
     } else {
-      internetConnectionErrorDialog(context);
+      internetConnectionErrorDialog(context, true);
     }
   }
 

@@ -482,7 +482,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
       onTap: () async {
         isConnected = await checkForInternetConnection();
         if (isConnected != true) {
-          await internetConnectionErrorDialog(context);
+          await internetConnectionErrorDialog(context, false);
         } else {
           await _signInWithGoogle(ref)!.whenComplete(() {
             if (ref.read(authProvider).currentUser != null) {

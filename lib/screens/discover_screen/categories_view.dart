@@ -54,7 +54,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
         });
       } else {
         items = [];
-        internetConnectionErrorDialog(context);
+        internetConnectionErrorDialog(context, false);
       }
     } catch (e) {
       if (mounted) errorSnackBar(context, e.toString());

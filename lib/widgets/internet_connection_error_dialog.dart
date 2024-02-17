@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-Future<dynamic> internetConnectionErrorDialog(BuildContext context) {
+Future<dynamic> internetConnectionErrorDialog(
+    BuildContext context, bool closeThePage) {
   return showDialog(
     context: context,
     builder: (context) {
@@ -9,6 +10,7 @@ Future<dynamic> internetConnectionErrorDialog(BuildContext context) {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
+                closeThePage == true ? Navigator.pop(context) : null;
               },
               child: Text("Kapat"),
             )

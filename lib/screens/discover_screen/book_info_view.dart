@@ -582,7 +582,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
       await getBookEditionEntriesList();
       await getBookWorkModel();
     } else {
-      internetConnectionErrorDialog(context);
+      internetConnectionErrorDialog(context, false);
     }
     if (mounted) {
       setState(() {
