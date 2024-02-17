@@ -107,10 +107,14 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
                               ? DecorationImage(
                                   image: NetworkImage(
                                       "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
+                                  onError: (exception, stackTrace) =>
+                                      AssetImage("lib/assets/images/error.png"),
                                   fit: BoxFit.fill)
                               : DecorationImage(
                                   image: AssetImage(
                                       "lib/assets/images/nocover.jpg"),
+                                  onError: (exception, stackTrace) =>
+                                      AssetImage("lib/assets/images/error.png"),
                                   fit: BoxFit.fill)),
                     ),
                   )),

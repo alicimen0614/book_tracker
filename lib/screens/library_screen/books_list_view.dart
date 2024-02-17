@@ -79,13 +79,24 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                             base64Decode(getImageAsByte(
                                                 bookListFromSql,
                                                 bookListToShow![index])),
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Image.asset(
+                                              "lib/assets/images/error.png",
+                                            ),
                                           )
                                         : bookListToShow![index]
                                                     .covers!
                                                     .first !=
                                                 null
                                             ? Image.network(
-                                                "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg")
+                                                "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
+                                                    Image.asset(
+                                                  "lib/assets/images/error.png",
+                                                ),
+                                              )
                                             : null,
                                     showDeleteIcon: false,
                                     bookInfo: bookListToShow![index]),

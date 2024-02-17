@@ -105,20 +105,31 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                                             .firstWhere((element) =>
                                                                 uniqueIdCreater(
                                                                     element) ==
-                                                                notesToShow[index][
+                                                                notesToShow[index]
+                                                                    [
                                                                     'bookId']))) ==
                                                     true
-                                                ? Image.memory(base64Decode(
-                                                    getImageAsByte(
-                                                        widget.bookListFromSql,
-                                                        bookListToShow!.firstWhere(
-                                                            (element) =>
-                                                                uniqueIdCreater(
-                                                                    element) ==
-                                                                notesToShow[
-                                                                        index][
-                                                                    'bookId'])),
-                                                  ))
+                                                ? Image.memory(
+                                                    base64Decode(
+                                                      getImageAsByte(
+                                                          widget
+                                                              .bookListFromSql,
+                                                          bookListToShow!.firstWhere(
+                                                              (element) =>
+                                                                  uniqueIdCreater(
+                                                                      element) ==
+                                                                  notesToShow[
+                                                                          index]
+                                                                      [
+                                                                      'bookId'])),
+                                                    ),
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
+                                                      "lib/assets/images/error.png",
+                                                    ),
+                                                  )
                                                 : bookListToShow!
                                                             .firstWhere((element) =>
                                                                 uniqueIdCreater(
@@ -135,8 +146,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                                             Image.asset(
                                                                 "lib/assets/images/error.png"),
                                                       )
-                                                    : Image.asset(
-                                                        "lib/assets/images/nocover.jpg"),
+                                                    : Image.asset("lib/assets/images/nocover.jpg"),
                                             showDeleteIcon: true,
                                             bookInfo: bookListToShow!
                                                 .firstWhere((element) =>
@@ -166,7 +176,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                   child: BookIdsListFromSql.contains(
                                               uniqueIdCreater(bookListToShow!
                                                   .firstWhere((element) =>
-                                                      uniqueIdCreater(element) ==
+                                                      uniqueIdCreater(
+                                                          element) ==
                                                       notesToShow[index]
                                                           ['bookId']))) ==
                                           true
@@ -176,10 +187,24 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                               widget.bookListFromSql,
                                               bookListToShow!.firstWhere(
                                                   (element) =>
-                                                      uniqueIdCreater(element) ==
+                                                      uniqueIdCreater(
+                                                          element) ==
                                                       notesToShow[index]
-                                                          ['bookId']))))
-                                      : bookListToShow!.firstWhere((element) => uniqueIdCreater(element) == notesToShow[index]['bookId']).covers != null
+                                                          ['bookId']))),
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Image.asset(
+                                            "lib/assets/images/error.png",
+                                          ),
+                                        )
+                                      : bookListToShow!
+                                                  .firstWhere((element) =>
+                                                      uniqueIdCreater(
+                                                          element) ==
+                                                      notesToShow[index]
+                                                          ['bookId'])
+                                                  .covers !=
+                                              null
                                           ? Image.network(
                                               "https://covers.openlibrary.org/b/id/${bookListToShow!.firstWhere((element) => uniqueIdCreater(element) == notesToShow[index]['bookId']).covers!.first}-M.jpg",
                                               errorBuilder: (context, error,
@@ -187,7 +212,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                                   Image.asset(
                                                       "lib/assets/images/error.png"),
                                             )
-                                          : Image.asset("lib/assets/images/nocover.jpg"),
+                                          : Image.asset(
+                                              "lib/assets/images/nocover.jpg"),
                                 ),
                                 subtitle: SizedBox(
                                   child: Text(notesToShow[index]['note'],

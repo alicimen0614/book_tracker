@@ -1021,7 +1021,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                 : widget.editionInfo.covers != null
                                     ? Image(
                                         image: NetworkImage(
-                                            "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first!}-M.jpg"))
+                                            "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first!}-M.jpg"),
+                                        errorBuilder: (context, error,
+                                                stackTrace) =>
+                                            Image.asset(
+                                                "lib/assets/images/error.png"),
+                                      )
                                     : null,
                             showDeleteIcon: true,
                             bookInfo: widget.editionInfo,

@@ -126,6 +126,11 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                             bookImage: item.covers != null
                                 ? Image.network(
                                     "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                      "lib/assets/images/error.png",
+                                    ),
                                   )
                                 : null,
                             indexOfEdition: index,
@@ -146,11 +151,17 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                                       ? DecorationImage(
                                           image: NetworkImage(
                                               "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
+                                          onError: (exception, stackTrace) =>
+                                              AssetImage(
+                                                  "lib/assets/images/error.png"),
                                           fit: BoxFit.fill,
                                         )
                                       : DecorationImage(
                                           image: AssetImage(
                                               "lib/assets/images/nocover.jpg"),
+                                          onError: (exception, stackTrace) =>
+                                              AssetImage(
+                                                  "lib/assets/images/error.png"),
                                           fit: BoxFit.fill)),
                             ),
                           ),

@@ -163,7 +163,11 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                     child: Ink(
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: getBookCover(item), fit: BoxFit.fill),
+                          image: getBookCover(item),
+                          fit: BoxFit.fill,
+                          onError: (exception, stackTrace) =>
+                              AssetImage("lib/assets/images/error.png"),
+                        ),
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.transparent,
                       ),

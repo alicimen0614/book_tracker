@@ -113,8 +113,11 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                         decoration: BoxDecoration(
                             color: Colors.transparent,
                             image: DecorationImage(
-                                image: AssetImage(
-                                    "lib/assets/images/${mainCategoriesImages[index]}"))),
+                              image: AssetImage(
+                                  "lib/assets/images/${mainCategoriesImages[index]}"),
+                              onError: (exception, stackTrace) =>
+                                  AssetImage("lib/assets/images/error.png"),
+                            )),
                       )),
                   const SizedBox(
                     width: double.infinity,

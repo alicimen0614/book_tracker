@@ -287,10 +287,18 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                                     ? DecorationImage(
                                                         image: NetworkImage(
                                                             "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
+                                                        onError: (exception,
+                                                                stackTrace) =>
+                                                            AssetImage(
+                                                                "lib/assets/images/error.png"),
                                                         fit: BoxFit.fill)
                                                     : DecorationImage(
                                                         image: AssetImage(
-                                                            "lib/assets/images/nocover.jpg"))),
+                                                            "lib/assets/images/nocover.jpg"),
+                                                        onError: (exception,
+                                                                stackTrace) =>
+                                                            AssetImage(
+                                                                "lib/assets/images/error.png"))),
                                           ),
                                         )),
                                     Expanded(

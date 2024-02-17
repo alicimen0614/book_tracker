@@ -175,16 +175,32 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                         books[
                                                                             index])) ==
                                                                 true
-                                                            ? Image.memory(base64Decode(
-                                                                getImageAsByte(
-                                                                    listOfBooksFromSql,
-                                                                    books[
-                                                                        index])))
+                                                            ? Image.memory(
+                                                                base64Decode(
+                                                                    getImageAsByte(
+                                                                        listOfBooksFromSql,
+                                                                        books[
+                                                                            index])),
+                                                                errorBuilder: (context,
+                                                                        error,
+                                                                        stackTrace) =>
+                                                                    Image.asset(
+                                                                  "lib/assets/images/error.png",
+                                                                ),
+                                                              )
                                                             : books[index]
                                                                         .covers !=
                                                                     null
                                                                 ? Image.network(
-                                                                    "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg")
+                                                                    "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
+                                                                    errorBuilder: (context,
+                                                                            error,
+                                                                            stackTrace) =>
+                                                                        Image
+                                                                            .asset(
+                                                                      "lib/assets/images/error.png",
+                                                                    ),
+                                                                  )
                                                                 : null),
                                               ));
                                         },
@@ -229,6 +245,12 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                 fit:
                                                                     BoxFit.fill,
                                                                 width: 90,
+                                                                errorBuilder: (context,
+                                                                        error,
+                                                                        stackTrace) =>
+                                                                    Image.asset(
+                                                                  "lib/assets/images/error.png",
+                                                                ),
                                                               ),
                                                             ),
                                                           )
@@ -354,7 +376,10 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                 height: 150,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage("lib/assets/images/add_book.png"))),
+                  image: AssetImage("lib/assets/images/add_book.png"),
+                  onError: (exception, stackTrace) =>
+                      AssetImage("lib/assets/images/error.png"),
+                )),
                 child: InkWell(
                   onTap: () {
                     modalBottomSheetBuilderForPopUpMenu(context);
