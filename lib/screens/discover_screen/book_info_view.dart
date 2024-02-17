@@ -242,25 +242,28 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 child: Column(children: [
                   Expanded(
                       flex: 10,
-                      child: Ink(
-                        width: 70,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            image: editionsList![index]!.covers != null
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                        "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
-                                    onError: (exception, stackTrace) =>
-                                        AssetImage(
-                                            "lib/assets/images/error.png"),
-                                    fit: BoxFit.fill)
-                                : DecorationImage(
-                                    image: AssetImage(
-                                        "lib/assets/images/nocover.jpg"),
-                                    onError: (exception, stackTrace) =>
-                                        AssetImage(
-                                            "lib/assets/images/error.png"),
-                                  )),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink(
+                          width: 70,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              image: editionsList![index]!.covers != null
+                                  ? DecorationImage(
+                                      image: NetworkImage(
+                                          "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
+                                      onError: (exception, stackTrace) =>
+                                          AssetImage(
+                                              "lib/assets/images/error.png"),
+                                      fit: BoxFit.fill)
+                                  : DecorationImage(
+                                      image: AssetImage(
+                                          "lib/assets/images/nocover.jpg"),
+                                      onError: (exception, stackTrace) =>
+                                          AssetImage(
+                                              "lib/assets/images/error.png"),
+                                    )),
+                        ),
                       )),
                   Spacer(),
                   Expanded(

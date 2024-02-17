@@ -277,28 +277,31 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                         flex: 10,
                                         child: Padding(
                                           padding: EdgeInsets.all(5),
-                                          child: Ink(
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                image: authorsWorks![index]!
-                                                            .covers !=
-                                                        null
-                                                    ? DecorationImage(
-                                                        image: NetworkImage(
-                                                            "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
-                                                        onError: (exception,
-                                                                stackTrace) =>
-                                                            AssetImage(
-                                                                "lib/assets/images/error.png"),
-                                                        fit: BoxFit.fill)
-                                                    : DecorationImage(
-                                                        image: AssetImage(
-                                                            "lib/assets/images/nocover.jpg"),
-                                                        onError: (exception,
-                                                                stackTrace) =>
-                                                            AssetImage(
-                                                                "lib/assets/images/error.png"))),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: Ink(
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                  image: authorsWorks![index]!
+                                                              .covers !=
+                                                          null
+                                                      ? DecorationImage(
+                                                          image: NetworkImage(
+                                                              "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
+                                                          onError: (exception,
+                                                                  stackTrace) =>
+                                                              AssetImage(
+                                                                  "lib/assets/images/error.png"),
+                                                          fit: BoxFit.fill)
+                                                      : DecorationImage(
+                                                          image: AssetImage(
+                                                              "lib/assets/images/nocover.jpg"),
+                                                          onError: (exception,
+                                                                  stackTrace) =>
+                                                              AssetImage(
+                                                                  "lib/assets/images/error.png"))),
+                                            ),
                                           ),
                                         )),
                                     Expanded(
