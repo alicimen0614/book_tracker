@@ -49,22 +49,25 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       child: Scaffold(
         appBar: AppBar(
           actions: [
-            IconButton(
-                tooltip: "Notlar",
-                splashRadius: 25,
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            NotesView(bookList: listOfBooksToShow),
-                      ));
-                },
-                icon: Icon(
-                  Icons.library_books,
-                  size: 30,
-                  color: Colors.white,
-                )),
+            isDataLoading == false
+                ? IconButton(
+                    tooltip: "Notlar",
+                    splashRadius: 25,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotesView(
+                                bookListFromFirebase: listOfBooksFromFirestore,
+                                bookListFromSql: listOfBooksFromSql),
+                          ));
+                    },
+                    icon: Icon(
+                      Icons.library_books,
+                      size: 30,
+                      color: Colors.white,
+                    ))
+                : SizedBox.shrink(),
             IconButton(
                 tooltip: "Kitap Ekle",
                 splashRadius: 25,
@@ -160,7 +163,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus,
       String bookStatus) {
     //we create a list of ids of the books coming from sql
-    int indexOfMatching = 0;
     List<int> listOfBookIdsFromSql = [];
     listOfBooksFromSql != null
         ? listOfBookIdsFromSql =
@@ -179,45 +181,32 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             ),
             padding: EdgeInsets.all(20),
             itemBuilder: (context, index) {
-              print(listOfTheCurrentBookStatus[index].publish_date);
-              //in here we check if the book list from sql has the current book
-              indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
-                  element ==
-                  uniqueIdCreater(listOfTheCurrentBookStatus[index]));
               return InkWell(
                 customBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 onTap: () async {
-                  indexOfMatching = listOfBookIdsFromSql.indexWhere((element) =>
-                      element ==
-                      uniqueIdCreater(listOfTheCurrentBookStatus[index]));
-                  print("$indexOfMatching - indexofmatching");
-
-                  print(
-                      "${uniqueIdCreater(listOfTheCurrentBookStatus[index]) + index}-libraryscreen");
                   final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DetailedEditionInfo(
                             editionInfo: listOfTheCurrentBookStatus[index],
                             isNavigatingFromLibrary: true,
-                            bookImage: listOfTheCurrentBookStatus[index]
-                                            .covers !=
-                                        null &&
-                                    listOfTheCurrentBookStatus[index]
-                                            .covers!
-                                            .first !=
-                                        1
-                                ? indexOfMatching != -1
-                                    ? Image.memory(
-                                        base64Decode(
-                                            listOfBooksFromSql![indexOfMatching]
-                                                .imageAsByte!),
-                                        cacheHeight: 270,
-                                        cacheWidth: 180,
-                                      )
-                                    : Image.network(
-                                        "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg")
+                            bookImage: listOfBookIdsFromSql.contains(
+                                        uniqueIdCreater(
+                                            listOfTheCurrentBookStatus[
+                                                index])) ==
+                                    true
+                                ? Image.memory(
+                                    width: 80,
+                                    base64Decode(getImageAsByte(
+                                        listOfBooksFromSql,
+                                        listOfTheCurrentBookStatus[index])),
+                                    fit: BoxFit.fill,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                                "lib/assets/images/error.png"),
+                                  )
                                 : null),
                       ));
                   //if there has been a change in the page we have popped we will get all the info again with new values
@@ -226,107 +215,64 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   }
                 },
                 child: Column(children: [
-                  listOfTheCurrentBookStatus[index].covers != null
-                      ? Expanded(
-                          flex: 5,
-                          child: Card(
-                            color: Colors.transparent,
-                            elevation: 0,
-                            child: listOfTheCurrentBookStatus[index]
-                                        .imageAsByte !=
-                                    null
-                                ? Hero(
-                                    tag: uniqueIdCreater(
-                                        listOfTheCurrentBookStatus[index]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Image.memory(
-                                        width: 80,
-                                        base64Decode(
-                                            listOfTheCurrentBookStatus[index]
-                                                .imageAsByte!),
-                                        fit: BoxFit.fill,
-                                        errorBuilder: (context, error,
-                                                stackTrace) =>
-                                            Image.asset(
-                                                "lib/assets/images/error.png"),
-                                      ),
-                                    ),
-                                  )
-                                /* if there is a list of books coming from firebase it doesn't
-                              have the imageAsByte value and we checked above if the sqlbooklist
-                            has the current book if it does
-                              ı want to show the book image from local so ı compare 
-                            it in here if we have the book in sql show it from local 
-                            if it doesn't have it show it from network */
-                                : indexOfMatching != -1
-                                    ? Hero(
-                                        tag: uniqueIdCreater(
-                                            listOfBooksFromSql![
-                                                indexOfMatching]),
-                                        child: listOfBooksFromSql![
-                                                        indexOfMatching]
-                                                    .imageAsByte !=
-                                                null
-                                            ? ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                child: Image.memory(
-                                                  base64Decode(
-                                                      listOfBooksFromSql![
-                                                              indexOfMatching]
-                                                          .imageAsByte!),
-                                                  width: 80,
-                                                  fit: BoxFit.fill,
-                                                  errorBuilder: (context, error,
-                                                          stackTrace) =>
-                                                      Image.asset(
-                                                          "lib/assets/images/error.png"),
-                                                ),
-                                              )
-                                            : ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                child: Image.asset(
-                                                  "lib/assets/images/nocover.jpg",
-                                                  fit: BoxFit.fill,
-                                                ),
-                                              ),
-                                      )
-                                    : Hero(
-                                        tag: uniqueIdCreater(
-                                            listOfTheCurrentBookStatus[index]),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: FadeInImage.memoryNetwork(
-                                            width: 80,
-                                            image:
-                                                "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                            placeholder: kTransparentImage,
-                                            fit: BoxFit.fill,
-                                            imageErrorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                Image.asset(
-                                                    "lib/assets/images/error.png"),
-                                          ),
-                                        ),
-                                      ),
-                          ),
-                        )
-                      : Expanded(
-                          flex: 5,
-                          child: Card(
-                            color: Colors.transparent,
-                            elevation: 0,
-                            child: ClipRRect(
+                  Expanded(
+                    flex: 5,
+                    child: Card(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      child: listOfTheCurrentBookStatus[index].covers == null
+                          ? ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
                                 "lib/assets/images/nocover.jpg",
                                 fit: BoxFit.fill,
                               ),
-                            ),
-                          )),
+                            )
+                          /* if there is a list of books coming from firebase it doesn't have the imageAsByte value and
+                            we are checking here if the current book exist in sql if it does this means the book has imageAsByte
+                            value and I want to show the book image from local so I compare it in here if we have the book in 
+                            sql show it from local if it doesn't have it show it from network */
+                          : listOfBookIdsFromSql.contains(uniqueIdCreater(
+                                      listOfTheCurrentBookStatus[index])) ==
+                                  true
+                              ? Hero(
+                                  tag: uniqueIdCreater(
+                                      listOfTheCurrentBookStatus[index]),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.memory(
+                                      width: 80,
+                                      base64Decode(getImageAsByte(
+                                          listOfBooksFromSql,
+                                          listOfTheCurrentBookStatus[index])),
+                                      fit: BoxFit.fill,
+                                      errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png"),
+                                    ),
+                                  ),
+                                )
+                              : Hero(
+                                  tag: uniqueIdCreater(
+                                      listOfTheCurrentBookStatus[index]),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: FadeInImage.memoryNetwork(
+                                      width: 80,
+                                      image:
+                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                      placeholder: kTransparentImage,
+                                      fit: BoxFit.fill,
+                                      imageErrorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png"),
+                                    ),
+                                  ),
+                                ),
+                    ),
+                  ),
                   Expanded(
                     flex: 2,
                     child: SizedBox(

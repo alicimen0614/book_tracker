@@ -175,10 +175,28 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               2),
                                 ),
                               )
-                            : ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.asset(
-                                    "lib/assets/images/nocover.jpg")))),
+                            : widget.editionInfo.covers != null
+                                ? ClipRRect(
+                                    borderRadius:
+                                        BorderRadiusDirectional.circular(15),
+                                    child: Image(
+                                      height: 290,
+                                      image: NetworkImage(
+                                          "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg"),
+                                      errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png",
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2),
+                                    ),
+                                  )
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.asset(
+                                        "lib/assets/images/nocover.jpg")))),
               )
             : Align(
                 alignment: Alignment.center,
@@ -998,7 +1016,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       builder: (context) => AddNoteView(
                             noteId: notesList![index]['id'],
                             initialNoteValue: notesList![index]['note'],
-                            bookImage: getImage != null ? getImage : null,
+                            bookImage: getImage != null
+                                ? getImage
+                                : widget.editionInfo.covers != null
+                                    ? Image(
+                                        image: NetworkImage(
+                                            "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first!}-M.jpg"))
+                                    : null,
                             showDeleteIcon: true,
                             bookInfo: widget.editionInfo,
                             noteDate: notesList![index]['noteDate'],

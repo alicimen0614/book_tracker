@@ -126,13 +126,13 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     if (ref.read(authProvider).currentUser != null) {
                       if (widget.noteId != null) {
                         //deleting the old note from firebase if there is any
-                        await ref.read(firestoreProvider).deleteNote(context,
+                        ref.read(firestoreProvider).deleteNote(context,
                             referencePath: 'usersBooks',
                             userId: ref.read(authProvider).currentUser!.uid,
                             noteId: oldNoteId.toString());
                       }
                       //inserting the note to firebase
-                      await ref.read(firestoreProvider).setNoteData(context,
+                      ref.read(firestoreProvider).setNoteData(context,
                           collectionPath: 'usersBooks',
                           note: noteFieldController.text,
                           userId: ref.read(authProvider).currentUser!.uid,
@@ -159,7 +159,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         context,
                         date);
                     if (ref.read(authProvider).currentUser != null) {
-                      await ref.read(firestoreProvider).setNoteData(context,
+                      ref.read(firestoreProvider).setNoteData(context,
                           collectionPath: 'usersBooks',
                           note: noteFieldController.text,
                           userId: ref.read(authProvider).currentUser!.uid,

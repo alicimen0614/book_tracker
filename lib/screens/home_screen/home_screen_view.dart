@@ -10,7 +10,6 @@ import 'package:book_tracker/screens/home_screen/home_screen_shimmer/home_screen
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/text_shimmer_effect.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
-import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -29,6 +28,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
 
   bool isLoading = true;
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
+  List<int>? listOfBookIdsFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
   List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
 
@@ -170,97 +170,95 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                             books[index],
                                                         isNavigatingFromLibrary:
                                                             true,
-                                                        bookImage: (isConnected == true &&
-                                                                ref
-                                                                        .read(
-                                                                            authProvider)
-                                                                        .currentUser !=
-                                                                    null &&
-                                                                books[index]
-                                                                        .covers !=
-                                                                    null)
-                                                            ? Image.network(
-                                                                "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
-                                                                width: 90,
-                                                                fit:
-                                                                    BoxFit.fill,
-                                                              )
+                                                        bookImage: listOfBookIdsFromSql!.contains(
+                                                                    uniqueIdCreater(
+                                                                        books[
+                                                                            index])) ==
+                                                                true
+                                                            ? Image.memory(base64Decode(
+                                                                getImageAsByte(
+                                                                    listOfBooksFromSql,
+                                                                    books[
+                                                                        index])))
                                                             : books[index]
-                                                                        .imageAsByte !=
+                                                                        .covers !=
                                                                     null
-                                                                ? Image.memory(
-                                                                    base64Decode(
-                                                                        books[index]
-                                                                            .imageAsByte!))
-                                                                : Image.asset(
-                                                                    "lib/assets/images/nocover.jpg")),
+                                                                ? Image.network(
+                                                                    "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg")
+                                                                : null),
                                               ));
                                         },
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Expanded(
-                                              flex: 10,
-                                              child: (isConnected == true &&
-                                                      ref
-                                                              .read(
-                                                                  authProvider)
-                                                              .currentUser !=
-                                                          null &&
-                                                      books[index].covers !=
-                                                          null)
-                                                  ? Hero(
-                                                      tag: uniqueIdCreater(
-                                                          books[index]),
-                                                      child: ClipRRect(
+                                                flex: 10,
+                                                child: books[index].covers ==
+                                                        null
+                                                    ? ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(15),
-                                                        child: FadeInImage
-                                                            .memoryNetwork(
-                                                          width: 90,
-                                                          image:
-                                                              "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
-                                                          placeholder:
-                                                              kTransparentImage,
-                                                          fit: BoxFit.fill,
-                                                          imageErrorBuilder: (context,
-                                                                  error,
-                                                                  stackTrace) =>
-                                                              Image.asset(
-                                                                  "lib/assets/images/error.png"),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : books[index].imageAsByte !=
-                                                          null
-                                                      ? Hero(
-                                                          tag: uniqueIdCreater(
-                                                              books[index]),
-                                                          child: ClipRRect(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        15),
-                                                            child: Image.memory(
-                                                              base64Decode(books[
-                                                                      index]
-                                                                  .imageAsByte!),
-                                                              fit: BoxFit.fill,
-                                                              width: 90,
+                                                        child: Image.asset(
+                                                            width: 90,
+                                                            fit: BoxFit.fill,
+                                                            "lib/assets/images/nocover.jpg"),
+                                                      )
+                                                    : listOfBookIdsFromSql!.contains(
+                                                                uniqueIdCreater(
+                                                                    books[
+                                                                        index])) ==
+                                                            true
+                                                        ? Hero(
+                                                            tag:
+                                                                uniqueIdCreater(
+                                                                    books[
+                                                                        index]),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15),
+                                                              child:
+                                                                  Image.memory(
+                                                                base64Decode(
+                                                                    getImageAsByte(
+                                                                        listOfBooksFromSql,
+                                                                        books[
+                                                                            index])),
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                                width: 90,
+                                                              ),
                                                             ),
-                                                          ),
-                                                        )
-                                                      : ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                          child: Image.asset(
-                                                              width: 90,
-                                                              fit: BoxFit.fill,
-                                                              "lib/assets/images/nocover.jpg"),
-                                                        ),
-                                            ),
+                                                          )
+                                                        : Hero(
+                                                            tag:
+                                                                uniqueIdCreater(
+                                                                    books[
+                                                                        index]),
+                                                            child: ClipRRect(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15),
+                                                              child: FadeInImage
+                                                                  .memoryNetwork(
+                                                                width: 90,
+                                                                image:
+                                                                    "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
+                                                                placeholder:
+                                                                    kTransparentImage,
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                                imageErrorBuilder: (context,
+                                                                        error,
+                                                                        stackTrace) =>
+                                                                    Image.asset(
+                                                                        "lib/assets/images/error.png"),
+                                                              ),
+                                                            ),
+                                                          )),
                                             Spacer(),
                                             Expanded(
                                               flex: 3,
@@ -462,6 +460,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
       }
     }
     listOfBooksFromSql = await ref.read(sqlProvider).getBookShelf(context);
+    if (listOfBooksFromSql != null) {
+      listOfBookIdsFromSql =
+          listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList();
+    }
+
     if (listOfBooksFromSql != null) {
       if (listOfBooksFromSql!.length > listOfBooksFromFirebase!.length) {
         listOfBooksToShow = listOfBooksFromSql;

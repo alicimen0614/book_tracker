@@ -122,6 +122,14 @@ String countryNameCreater(BookWorkEditionsModelEntries bookEdition) {
   }
 }
 
+String getImageAsByte(List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
+    BookWorkEditionsModelEntries book) {
+  return listOfBooksFromSql!
+      .elementAt(listOfBooksFromSql!.indexWhere(
+          (element) => uniqueIdCreater(element) == uniqueIdCreater(book)))
+      .imageAsByte!;
+}
+
 final List mainCategoriesImages = [
   "classical.png",
   "fantasy.png",
