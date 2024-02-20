@@ -160,8 +160,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                       height: 220,
                                       width: 100,
                                       child: InkWell(
-                                        onTap: () {
-                                          Navigator.push(
+                                        onTap: () async {
+                                          var data = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
@@ -203,6 +203,13 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                   )
                                                                 : null),
                                               ));
+                                          if (data == true) {
+                                            listOfBooksToShow!.clear();
+                                            listOfBooksAlreadyRead.clear();
+                                            listOfBooksCurrentlyReading.clear();
+                                            listOfBooksWantToRead.clear();
+                                            await getPageData();
+                                          }
                                         },
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,

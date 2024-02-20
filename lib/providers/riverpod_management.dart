@@ -14,3 +14,7 @@ final booksProvider = StateProvider((ref) => BooksService());
 final firestoreProvider = StateProvider((ref) => FirestoreDatabase());
 
 final sqlProvider = StateProvider((ref) => SqlHelper());
+
+final indexBottomNavbarProvider = StateProvider<int>((ref) {
+  return 0;
+});

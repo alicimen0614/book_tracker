@@ -21,7 +21,7 @@ class CategoriesView extends ConsumerStatefulWidget {
 }
 
 class _CategoriesViewState extends ConsumerState<CategoriesView> {
-  bool isConnected = false;
+  bool isConnected = true;
   bool isLoading = true;
   List<TrendingBooksWorks?>? items = [];
 
@@ -31,16 +31,19 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   );
   @override
   void initState() {
+    print("initstate girdi");
+
     getTrendingBooks();
     super.initState();
   }
 
   Future<void> getTrendingBooks() async {
+    isConnected = await checkForInternetConnection();
+
     setState(() {
       isLoading = true;
     });
     try {
-      isConnected = await checkForInternetConnection();
       if (isConnected == true) {
         items = await ref
             .read(booksProvider)
@@ -178,75 +181,11 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                 ],
               ),
             ),
-            isLoading == false
-                ? Container(
-                    height: 120,
-                    width: double.infinity,
-                    child: ListView.builder(
-                        physics: ClampingScrollPhysics(),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: items?.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: SizedBox(
-                              width: 85,
-                              child: InkWell(
-                                  borderRadius: BorderRadius.circular(15),
-                                  onTap: () {
-                                    Navigator.push(context, MaterialPageRoute(
-                                      builder: (context) {
-                                        return BookInfoView(
-                                            trendingBook: items?[index]);
-                                      },
-                                    ));
-                                  },
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: CachedNetworkImage(
-                                            fit: BoxFit.fill,
-                                            width: 60,
-                                            imageUrl:
-                                                "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
-                                            placeholder: (context, url) =>
-                                                ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                              child: Transform.scale(
-                                                scale: 0.3,
-                                                child: Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                              ),
-                                            ),
-                                            cacheManager: customCacheManager,
-                                            errorWidget: (context, url,
-                                                    error) =>
-                                                Image.asset(
-                                                    "lib/assets/images/error.png"),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: items != null
-                                            ? Text(
-                                                items![index]!.title!,
-                                                overflow: TextOverflow.ellipsis,
-                                              )
-                                            : SizedBox.shrink(),
-                                      )
-                                    ],
-                                  )),
-                            ),
-                          );
-                        }))
-                : categoriesViewShimmerEffect(),
+            if (isLoading == true && isConnected == true)
+              categoriesViewShimmerEffect(),
+            if (isConnected == false) trendingErrorWidget(context),
+            if (isLoading == false && isConnected == true)
+              trendingBooksWidget(),
             const Text(
               "Kategoriler",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
@@ -258,5 +197,88 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
         ),
       ),
     );
+  }
+
+  Center trendingErrorWidget(BuildContext context) {
+    return Center(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Text("Bir hata meydana geldi."),
+        Text("Lütfen yenilemek için tıklayın."),
+        IconButton(
+            color: Theme.of(context).primaryColor,
+            iconSize: 30,
+            onPressed: () async {
+              isConnected = await checkForInternetConnection();
+              setState(() {
+                isLoading = true;
+              });
+              getTrendingBooks();
+            },
+            icon: Icon(Icons.refresh_sharp))
+      ]),
+    );
+  }
+
+  Container trendingBooksWidget() {
+    return Container(
+        height: 120,
+        width: double.infinity,
+        child: ListView.builder(
+            physics: ClampingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemCount: items?.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: SizedBox(
+                  width: 85,
+                  child: InkWell(
+                      borderRadius: BorderRadius.circular(15),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return BookInfoView(trendingBook: items?[index]);
+                          },
+                        ));
+                      },
+                      child: Column(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: CachedNetworkImage(
+                                fit: BoxFit.fill,
+                                width: 60,
+                                imageUrl:
+                                    "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
+                                placeholder: (context, url) => ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Transform.scale(
+                                    scale: 0.3,
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  ),
+                                ),
+                                cacheManager: customCacheManager,
+                                errorWidget: (context, url, error) =>
+                                    Image.asset("lib/assets/images/error.png"),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: items != null
+                                ? Text(
+                                    items![index]!.title!,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : SizedBox.shrink(),
+                          )
+                        ],
+                      )),
+                ),
+              );
+            }));
   }
 }

@@ -5,7 +5,6 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/detailed_edition_view_shimmer.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
-import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,7 +40,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   List<Map<String, dynamic>>? notesList = [];
   bool doesBookHasSameStatus = false;
   String bookStatusAsString = "";
-  bool hasStatusChanged = false;
+  bool hasChangeMade = false;
 
   BookStatus bookStatus = BookStatus.wantToRead;
 
@@ -62,7 +61,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     print(bookStatus);
     return WillPopScope(
       onWillPop: () {
-        Navigator.pop(context, hasStatusChanged);
+        Navigator.pop(context, hasChangeMade);
         return Future(() => true);
       },
       child: Scaffold(
@@ -121,7 +120,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 onPressed: () =>
                     //we are checking if we changed the book status on database and returning the result as true or false after popping we
                     //are in the library_screen_view if the value is true we call the getPageData() and get all the info with new changed data
-                    Navigator.pop(context, hasStatusChanged),
+                    Navigator.pop(context, hasChangeMade),
                 icon: const Icon(
                   Icons.arrow_back_sharp,
                   size: 30,
@@ -343,7 +342,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         if (value != null) {
                           setState(() {
                             bookStatusAsString = value;
-                            hasStatusChanged = true;
+                            hasChangeMade = true;
                           });
                         }
                       });
@@ -370,15 +369,14 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               ? ListTile(
                   visualDensity: VisualDensity(vertical: 3),
                   onTap: () async {
+                    hasChangeMade = true;
                     await deleteAuthorsFromSql(widget.editionInfo);
                     await deleteNote(widget.editionInfo);
                     deleteBook(widget.editionInfo);
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BottomNavigationBarController(),
-                        ),
-                        (route) => false);
+
+                    Navigator.pop(context);
+                    Navigator.pop(context, hasChangeMade);
+
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       duration: Duration(seconds: 2),
                       content: const Text('Kitap başarıyla silindi.'),

@@ -8,9 +8,8 @@ import '../screens/library_screen/library_screen_view.dart';
 import '../screens/user_screen/user_screen_view.dart';
 
 class BottomNavigationBarController extends ConsumerStatefulWidget {
-  BottomNavigationBarController(
-      {super.key, this.currentIndexParam = 0, this.searchValue = ""});
-  final int currentIndexParam;
+  BottomNavigationBarController({super.key, this.searchValue = ""});
+
   final String searchValue;
 
   @override
@@ -27,23 +26,17 @@ class _BottomNavigationBarControllerState
     UserScreenView()
   ];
   PageController _pageController = PageController();
-  late int currentIndex;
+
   late String value = widget.searchValue;
+  int indexBottomNavbar = 0;
 
   void onTap(int index) {
-    if (currentIndex != index) {
-      _pageController.jumpToPage(index);
+    if (indexBottomNavbar != index) {
+      _pageController.jumpToPage(ref.read(indexBottomNavbarProvider));
       setState(() {
-        currentIndex = index;
+        indexBottomNavbar = index;
       });
     }
-  }
-
-  @override
-  void initState() {
-    currentIndex = widget.currentIndexParam;
-
-    super.initState();
   }
 
   @override
@@ -54,6 +47,14 @@ class _BottomNavigationBarControllerState
 
   @override
   Widget build(BuildContext context) {
+    indexBottomNavbar = ref.watch(indexBottomNavbarProvider);
+    if (_pageController.hasClients) {
+      if (indexBottomNavbar != _pageController.page) {
+        _pageController.jumpToPage(ref.read(indexBottomNavbarProvider));
+        setState(() {});
+      }
+    }
+
     return StreamBuilder<User?>(
         stream: ref.read(authProvider).authState,
         builder: (context, snapshot) {
@@ -71,11 +72,13 @@ class _BottomNavigationBarControllerState
 
   Widget bottomNavigationBarBuilder() {
     return NavigationBar(
-      onDestinationSelected: (int index) {
+      onDestinationSelected: (index) {
+        ref.read(indexBottomNavbarProvider.notifier).update((state) => index);
+
         onTap(index);
       },
       indicatorColor: Theme.of(context).primaryColor,
-      selectedIndex: currentIndex,
+      selectedIndex: indexBottomNavbar,
       destinations: const <Widget>[
         NavigationDestination(
           selectedIcon: Icon(Icons.home_outlined),
