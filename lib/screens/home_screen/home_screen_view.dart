@@ -87,21 +87,21 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                 booksBuilder(
                     listOfBooksCurrentlyReading,
                     listOfBooksCurrentlyReading.length != 0
-                        ? "Şu anda ${listOfBooksCurrentlyReading.length} kitap okuyorsunuz"
+                        ? "Şu anda ${listOfBooksCurrentlyReading.length} kitap okuyorsunuz."
                         : "Şu anda okuduğunuz kitap bulunmamakta.",
                     listOfBooksCurrentlyReading.length,
                     _scrollControllerCurrReading),
                 booksBuilder(
                     listOfBooksWantToRead,
                     listOfBooksWantToRead.length != 0
-                        ? "Toplamda ${listOfBooksWantToRead.length} okumak istediğiniz kitap var"
+                        ? "Toplamda ${listOfBooksWantToRead.length} okumak istediğiniz kitap var."
                         : "Şu anda okumak istediğiniz kitap bulunmamakta.",
                     listOfBooksWantToRead.length,
                     _scrollControllerWantToRead),
                 booksBuilder(
                     listOfBooksAlreadyRead,
                     listOfBooksAlreadyRead.length != 0
-                        ? "Tebrikler toplamda ${listOfBooksAlreadyRead.length} kitap okudunuz"
+                        ? "Tebrikler toplamda ${listOfBooksAlreadyRead.length} kitap okudunuz."
                         : "Şu anda bitirdiğiniz kitap bulunmamakta.",
                     listOfBooksAlreadyRead.length,
                     _scrollControllerAlrRead)

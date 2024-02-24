@@ -1,12 +1,12 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
-import 'package:book_tracker/widgets/animated_button.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth_screen/auth_view.dart';
@@ -18,16 +18,14 @@ class UserScreenView extends ConsumerStatefulWidget {
   ConsumerState<UserScreenView> createState() => _UserScreenViewState();
 }
 
-class _UserScreenViewState extends ConsumerState<UserScreenView>
-    with AutomaticKeepAliveClientMixin<UserScreenView> {
+class _UserScreenViewState extends ConsumerState<UserScreenView> {
+  String contactMail = "cimensoft@gmail.com";
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
   bool isConnected = false;
 
   late bool isUserLoggedIn =
       ref.read(authProvider).currentUser != null ? true : false;
-  @override
-  bool get wantKeepAlive => true;
 
   User? getCurrentUser(WidgetRef ref) {
     return ref.read(authProvider).currentUser;
@@ -58,9 +56,9 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
           ),
         );
       } else {
-        return const Icon(
+        return Icon(
           Icons.account_circle_sharp,
-          size: 40,
+          size: size,
         );
       }
     }
@@ -94,7 +92,6 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
   Widget build(
     BuildContext context,
   ) {
-    super.build(context);
     print("yenilendi");
     print("$isUserLoggedIn -1");
 
@@ -116,7 +113,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Spacer(),
-                  Expanded(flex: 2, child: getUserProfileImage(ref, 150)),
+                  Expanded(flex: 2, child: getUserProfileImage(ref, 140)),
                   Expanded(flex: 1, child: getUserName(ref)),
                 ],
               ),
@@ -171,21 +168,31 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
                 indent: 10,
               ),
               ListTile(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                tileColor: Colors.white,
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Bize ulaşın"),
-                    Text(
-                      "cimensoft@gmail.com",
-                      style: TextStyle(fontSize: 12),
-                    )
-                  ],
-                ),
-                onTap: () {},
-              ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  tileColor: Colors.white,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Bize ulaşın"),
+                      Text(
+                        "cimensoft@gmail.com",
+                        style: TextStyle(fontSize: 12),
+                      )
+                    ],
+                  ),
+                  onLongPress: () {
+                    Clipboard.setData(ClipboardData(text: contactMail))
+                        .then((value) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: Duration(seconds: 2),
+                        content: const Text('E-posta adresi kopyalandı.'),
+                        action:
+                            SnackBarAction(label: 'Tamam', onPressed: () {}),
+                        behavior: SnackBarBehavior.floating,
+                      ));
+                    });
+                  }),
               if (isUserLoggedIn == false)
                 Divider(
                   endIndent: 10,

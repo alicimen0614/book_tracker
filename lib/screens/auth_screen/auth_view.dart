@@ -486,12 +486,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
         } else {
           await _signInWithGoogle(ref)!.whenComplete(() {
             if (ref.read(authProvider).currentUser != null) {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BottomNavigationBarController(),
-                  ),
-                  (route) => false);
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ref.read(indexBottomNavbarProvider.notifier).update((state) => 0);
             }
           });
         }
