@@ -171,10 +171,12 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                         isNavigatingFromLibrary:
                                                             true,
                                                         bookImage: listOfBookIdsFromSql!.contains(
-                                                                    uniqueIdCreater(
-                                                                        books[
+                                                                        uniqueIdCreater(books[
                                                                             index])) ==
-                                                                true
+                                                                    true &&
+                                                                books[index]
+                                                                        .covers !=
+                                                                    null
                                                             ? Image.memory(
                                                                 base64Decode(
                                                                     getImageAsByte(
@@ -228,10 +230,13 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                             "lib/assets/images/nocover.jpg"),
                                                       )
                                                     : listOfBookIdsFromSql!.contains(
-                                                                uniqueIdCreater(
-                                                                    books[
-                                                                        index])) ==
-                                                            true
+                                                                    uniqueIdCreater(
+                                                                        books[
+                                                                            index])) ==
+                                                                true &&
+                                                            books[index]
+                                                                    .covers !=
+                                                                null
                                                         ? Hero(
                                                             tag:
                                                                 uniqueIdCreater(
@@ -545,11 +550,15 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
           Divider(height: 0),
           ListTile(
             visualDensity: VisualDensity(vertical: 3),
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddBookView(),
-                )),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddBookView(),
+                  )).then((value) async {
+                if (value == true) await getPageData();
+              });
+            },
             leading: Icon(
               Icons.keyboard,
               size: 30,

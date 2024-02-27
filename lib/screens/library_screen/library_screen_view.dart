@@ -76,7 +76,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => AddBookView(),
-                      )).then((value) async => await getPageData());
+                      )).then((value) async {
+                    if (value == true) await getPageData();
+                  });
                 },
                 icon: Icon(
                   Icons.add_circle,
@@ -192,10 +194,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                             editionInfo: listOfTheCurrentBookStatus[index],
                             isNavigatingFromLibrary: true,
                             bookImage: listOfBookIdsFromSql.contains(
-                                        uniqueIdCreater(
-                                            listOfTheCurrentBookStatus[
-                                                index])) ==
-                                    true
+                                            uniqueIdCreater(
+                                                listOfTheCurrentBookStatus[
+                                                    index])) ==
+                                        true &&
+                                    listOfTheCurrentBookStatus[index].covers !=
+                                        null
                                 ? Image.memory(
                                     width: 80,
                                     base64Decode(getImageAsByte(
@@ -233,8 +237,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                             value and I want to show the book image from local so I compare it in here if we have the book in 
                             sql show it from local if it doesn't have it show it from network */
                           : listOfBookIdsFromSql.contains(uniqueIdCreater(
-                                      listOfTheCurrentBookStatus[index])) ==
-                                  true
+                                          listOfTheCurrentBookStatus[index])) ==
+                                      true &&
+                                  listOfTheCurrentBookStatus[index].covers !=
+                                      null
                               ? Hero(
                                   tag: uniqueIdCreater(
                                       listOfTheCurrentBookStatus[index]),

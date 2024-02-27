@@ -22,6 +22,7 @@ class AddBookView extends ConsumerStatefulWidget {
 }
 
 class _AddBookViewState extends ConsumerState<AddBookView> {
+  bool isSaved = false;
   File? pickedImage;
   BookFormat bookFormat = BookFormat.paperBook;
   BookStatus bookStatus = BookStatus.wantToRead;
@@ -80,9 +81,10 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     behavior: SnackBarBehavior.floating,
                   ));
                 } else {
+                  isSaved = true;
                   BookWorkEditionsModelEntries bookInfo =
                       BookWorkEditionsModelEntries(
-                          covers: [1],
+                          covers: null,
                           title: titleFieldController.text,
                           isbn_10: isbnFieldController.text != ""
                               ? [isbnFieldController.text]
@@ -107,28 +109,15 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   }
 
                   //insert book
-                  ref
-                      .read(sqlProvider)
-                      .insertBook(
-                          bookInfo,
-                          bookStatus == BookStatus.alreadyRead
-                              ? "Okuduklarım"
-                              : bookStatus == BookStatus.currentlyReading
-                                  ? "Şu an okuduklarım"
-                                  : "Okumak istediklerim",
-                          pickedImage != null ? imageAsByte : null,
-                          context)
-                      .whenComplete(() {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-
-                    ScaffoldMessenger.of(context).clearSnackBars;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text('Kitap başarıyla eklendi!'),
-                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
-                      behavior: SnackBarBehavior.floating,
-                    ));
-                  });
+                  ref.read(sqlProvider).insertBook(
+                      bookInfo,
+                      bookStatus == BookStatus.alreadyRead
+                          ? "Okuduklarım"
+                          : bookStatus == BookStatus.currentlyReading
+                              ? "Şu an okuduklarım"
+                              : "Okumak istediklerim",
+                      pickedImage != null ? imageAsByte : null,
+                      context);
 
                   if (ref.read(authProvider).currentUser != null) {
                     ref.read(firestoreProvider).setBookData(context,
@@ -145,7 +134,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           "publishers": publisherFieldController.text != ""
                               ? [publisherFieldController.text]
                               : null,
-                          "covers": [1],
+                          "covers": null,
                           "imageAsByte": pickedImage != null
                               ? base64Encode(imageAsByte)
                               : null,
@@ -157,6 +146,19 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                         },
                         userId: ref.read(authProvider).currentUser!.uid);
                   }
+                  if (ref.read(indexBottomNavbarProvider) == 0) {
+                    Navigator.pop(context, isSaved);
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pop(context, isSaved);
+                  }
+
+                  ScaffoldMessenger.of(context).clearSnackBars;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: const Text('Kitap başarıyla eklendi!'),
+                    action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                    behavior: SnackBarBehavior.floating,
+                  ));
                 }
               },
               icon: Icon(Icons.check_sharp, size: 30),
