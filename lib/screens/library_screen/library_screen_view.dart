@@ -211,7 +211,31 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                             Image.asset(
                                                 "lib/assets/images/error.png"),
                                   )
-                                : null),
+                                : listOfTheCurrentBookStatus[index].covers !=
+                                            null &&
+                                        listOfTheCurrentBookStatus[index]
+                                                .imageAsByte ==
+                                            null
+                                    ? Image.network(
+                                        "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Image.asset(
+                                          "lib/assets/images/error.png",
+                                        ),
+                                      )
+                                    : listOfTheCurrentBookStatus[index]
+                                                .imageAsByte !=
+                                            null
+                                        ? Image.memory(
+                                            base64Decode(
+                                                listOfTheCurrentBookStatus[
+                                                        index]
+                                                    .imageAsByte!),
+                                            width: 90,
+                                            fit: BoxFit.fill,
+                                          )
+                                        : null),
                       ));
                   //if there has been a change in the page we have popped we will get all the info again with new values
                   if (result == true) {
@@ -224,7 +248,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     child: Card(
                       color: Colors.transparent,
                       elevation: 0,
-                      child: listOfTheCurrentBookStatus[index].covers == null
+                      child: listOfTheCurrentBookStatus[index].covers == null &&
+                              listOfTheCurrentBookStatus[index].imageAsByte ==
+                                  null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
@@ -259,24 +285,40 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                     ),
                                   ),
                                 )
-                              : Hero(
-                                  tag: uniqueIdCreater(
-                                      listOfTheCurrentBookStatus[index]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: FadeInImage.memoryNetwork(
-                                      width: 80,
-                                      image:
-                                          "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                      placeholder: kTransparentImage,
-                                      fit: BoxFit.fill,
-                                      imageErrorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Image.asset(
-                                              "lib/assets/images/error.png"),
+                              : listOfTheCurrentBookStatus[index].imageAsByte !=
+                                      null
+                                  ? Hero(
+                                      tag: uniqueIdCreater(
+                                          listOfTheCurrentBookStatus[index]),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.memory(
+                                          base64Decode(
+                                              listOfTheCurrentBookStatus[index]
+                                                  .imageAsByte!),
+                                          width: 90,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    )
+                                  : Hero(
+                                      tag: uniqueIdCreater(
+                                          listOfTheCurrentBookStatus[index]),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: FadeInImage.memoryNetwork(
+                                          width: 80,
+                                          image:
+                                              "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                          placeholder: kTransparentImage,
+                                          fit: BoxFit.fill,
+                                          imageErrorBuilder: (context, error,
+                                                  stackTrace) =>
+                                              Image.asset(
+                                                  "lib/assets/images/error.png"),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
                     ),
                   ),
                   Expanded(

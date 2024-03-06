@@ -72,9 +72,12 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                 builder: (context) => AddNoteView(
                                     isNavigatingFromNotesView: true,
                                     bookImage: listOfBookIdsFromSql!.contains(
-                                                uniqueIdCreater(
-                                                    bookListToShow![index])) ==
-                                            true
+                                                    uniqueIdCreater(
+                                                        bookListToShow![
+                                                            index])) ==
+                                                true &&
+                                            bookListToShow![index].covers !=
+                                                null
                                         ? Image.memory(
                                             base64Decode(getImageAsByte(
                                                 bookListFromSql,
@@ -85,10 +88,11 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                               "lib/assets/images/error.png",
                                             ),
                                           )
-                                        : bookListToShow![index]
-                                                    .covers!
-                                                    .first !=
-                                                null
+                                        : bookListToShow![index].covers !=
+                                                    null &&
+                                                bookListToShow![index]
+                                                        .imageAsByte ==
+                                                    null
                                             ? Image.network(
                                                 "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
                                                 errorBuilder: (context, error,
@@ -97,7 +101,17 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                                   "lib/assets/images/error.png",
                                                 ),
                                               )
-                                            : null,
+                                            : bookListToShow![index]
+                                                        .imageAsByte !=
+                                                    null
+                                                ? Image.memory(
+                                                    base64Decode(
+                                                        bookListToShow![index]
+                                                            .imageAsByte!),
+                                                    width: 90,
+                                                    fit: BoxFit.fill,
+                                                  )
+                                                : null,
                                     showDeleteIcon: false,
                                     bookInfo: bookListToShow![index]),
                               ));
@@ -118,10 +132,13 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                               AssetImage(
                                                   "lib/assets/images/error.png"),
                                           image: listOfBookIdsFromSql!.contains(
-                                                      uniqueIdCreater(
-                                                          bookListToShow![
-                                                              index])) ==
-                                                  true
+                                                          uniqueIdCreater(
+                                                              bookListToShow![
+                                                                  index])) ==
+                                                      true &&
+                                                  bookListToShow![index]
+                                                          .covers !=
+                                                      null
                                               ? Image.memory(
                                                   base64Decode(getImageAsByte(
                                                       bookListFromSql,
@@ -133,13 +150,27 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                                   fit: BoxFit.fill,
                                                 ).image
                                               : bookListToShow![index].covers !=
-                                                      null
+                                                          null &&
+                                                      bookListToShow![index]
+                                                              .imageAsByte ==
+                                                          null
                                                   ? NetworkImage(
                                                       "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
                                                     )
-                                                  : Image.asset(
-                                                      "lib/assets/images/nocover.jpg",
-                                                    ).image,
+                                                  : bookListToShow![index]
+                                                              .imageAsByte !=
+                                                          null
+                                                      ? Image.memory(
+                                                          base64Decode(
+                                                              bookListToShow![
+                                                                      index]
+                                                                  .imageAsByte!),
+                                                          width: 90,
+                                                          fit: BoxFit.fill,
+                                                        ).image
+                                                      : Image.asset(
+                                                          "lib/assets/images/nocover.jpg",
+                                                        ).image,
                                         )),
                                     padding: EdgeInsets.zero,
                                   ),

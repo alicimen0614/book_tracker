@@ -179,7 +179,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                       Future.delayed(
                         Duration(milliseconds: 100),
                         () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, hasNoteSaved);
                         },
                       );
                     }
@@ -220,7 +220,12 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                           tag: uniqueIdCreater(widget.bookInfo),
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
-                              child: widget.bookImage!)),
+                              child: Image(
+                                fit: BoxFit.fill,
+                                width: 170,
+                                image: widget.bookImage!.image,
+                                height: 270,
+                              ))),
                     ),
                   )
                 : Expanded(

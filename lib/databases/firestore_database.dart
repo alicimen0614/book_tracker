@@ -156,15 +156,20 @@ class FirestoreDatabase extends ChangeNotifier {
       required String note,
       required String userId,
       required int uniqueBookId,
-      required String noteDate}) async {
+      required String noteDate,
+      int? noteId}) async {
     try {
       await _firestore
           .collection(collectionPath)
           .doc(userId)
           .collection("notes")
-          .doc((uniqueBookId + note.hashCode).toString())
+          .doc(noteId != null
+              ? noteId.toString()
+              : (uniqueBookId + note.hashCode).toString())
           .set({
-        'id': (uniqueBookId + note.hashCode).toString(),
+        'id': noteId != null
+            ? noteId.toString()
+            : (uniqueBookId + note.hashCode).toString(),
         'bookId': uniqueBookId,
         'note': note,
         'noteDate': noteDate

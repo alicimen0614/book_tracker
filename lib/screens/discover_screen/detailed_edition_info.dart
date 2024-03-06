@@ -3,6 +3,7 @@ import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/detailed_edition_view_shimmer.dart';
+import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
@@ -148,7 +149,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         color: Color(0xFF1B7695),
       ),
       child: Column(children: [
-        widget.editionInfo.covers != null
+        widget.editionInfo.covers != null ||
+                widget.editionInfo.imageAsByte != null
             ? Align(
                 alignment: Alignment.center,
                 child: Card(
@@ -159,8 +161,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             widget.indexOfEdition,
                         child: widget.bookImage != null
                             ? ClipRRect(
-                                borderRadius:
-                                    BorderRadiusDirectional.circular(15),
+                                borderRadius: BorderRadius.circular(15),
                                 child: Image(
                                   height: 290,
                                   width: 180,
@@ -176,8 +177,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               )
                             : widget.editionInfo.covers != null
                                 ? ClipRRect(
-                                    borderRadius:
-                                        BorderRadiusDirectional.circular(15),
+                                    borderRadius: BorderRadius.circular(15),
                                     child: Image(
                                       height: 290,
                                       image: NetworkImage(
@@ -300,9 +300,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    bookStatusDialog(context);
+                    await bookStatusDialog(context);
                   },
                   leading: Icon(
                     Icons.shelves,
@@ -323,7 +323,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
                   leading: Icon(
-                    Icons.menu_book,
+                    Icons.menu_book_rounded,
                     size: 30,
                   ),
                   onTap: () {
@@ -341,6 +341,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           .then((value) {
                         if (value != null) {
                           setState(() {
+                            bookStatus = value == "Okumak istediklerim"
+                                ? BookStatus.wantToRead
+                                : value == "Şu an okuduklarım"
+                                    ? BookStatus.currentlyReading
+                                    : BookStatus.alreadyRead;
                             bookStatusAsString = value;
                             hasChangeMade = true;
                           });
@@ -357,12 +362,45 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 )
               : SizedBox.shrink(),
           ListTile(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddBookView(
+                            bookImage: widget.bookImage,
+                            physical_format:
+                                widget.editionInfo.physical_format ?? null,
+                            covers: widget.editionInfo.covers ?? null,
+                            title: widget.editionInfo.title ?? null,
+                            authorName: widget.editionInfo.authorsNames != null
+                                ? widget.editionInfo.authorsNames!.isEmpty ==
+                                        false
+                                    ? widget.editionInfo.authorsNames!.first
+                                    : null
+                                : null,
+                            bookStatus: bookStatusAsString,
+                            isbn10: widget.editionInfo.isbn_10 != null
+                                ? widget.editionInfo.isbn_10!.first!
+                                : widget.editionInfo.isbn_13 != null
+                                    ? widget.editionInfo.isbn_13!.first!
+                                    : null,
+                            pageNumber:
+                                widget.editionInfo.number_of_pages ?? null,
+                            publisher: widget.editionInfo.publishers != null
+                                ? widget.editionInfo.publishers!.first
+                                : null,
+                            publishDate: widget.editionInfo.publish_date != null
+                                ? widget.editionInfo.publish_date
+                                : null,
+                            bookId: uniqueIdCreater(widget.editionInfo),
+                          )));
+            },
             visualDensity: VisualDensity(vertical: 3),
             leading: Icon(
-              Icons.info,
+              Icons.edit_document,
               size: 30,
             ),
-            title: Text("Bilgi", style: TextStyle(fontSize: 20)),
+            title: Text("Kitabı düzenle", style: TextStyle(fontSize: 20)),
           ),
           Divider(height: 0),
           widget.isNavigatingFromLibrary != false
@@ -439,7 +477,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           builder: (context, setState) {
             return Center(
               child: Dialog(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.center,
                   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
@@ -450,7 +488,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Text(
-                                "Kitaplıktaki durumunu seçiniz.",
+                                "Yeni kitap durumunu seçiniz.",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
@@ -1068,15 +1106,32 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Future<bool> checkIfAlreadyExist(int bookId) async {
-    List<int>? bookIds = [];
-    List<BookWorkEditionsModelEntries>? booksList =
+    List<int>? bookIdsFromSql = [];
+    List<BookWorkEditionsModelEntries>? booksListFromSql =
         await ref.read(sqlProvider).getBookShelf(context);
-    if (booksList != null) {
-      bookIds = booksList.map((e) => uniqueIdCreater(e)).toList();
+    List<BookWorkEditionsModelEntries>? booksListFromFirestore = [];
+    List<int>? bookIdsFromFirestore = [];
+    List<int>? allBookIdList = [];
 
-      return bookIds.contains(bookId);
+    if (isConnected == true && ref.read(authProvider).currentUser != null) {
+      var data = await ref.read(firestoreProvider).getBooks(
+          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+      if (data != null) {
+        booksListFromFirestore = data.docs
+            .map(
+              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
+            )
+            .toList();
+
+        bookIdsFromFirestore =
+            booksListFromFirestore.map((e) => uniqueIdCreater(e)).toList();
+      }
     }
-    return false;
+    if (booksListFromSql != null) {
+      bookIdsFromSql = booksListFromSql.map((e) => uniqueIdCreater(e)).toList();
+    }
+    allBookIdList = bookIdsFromFirestore + bookIdsFromSql;
+    return allBookIdList.contains(bookId);
   }
 
   bool checkIfBookHasSameStatus(

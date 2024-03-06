@@ -106,7 +106,8 @@ class SqlHelper {
   }
 
   Future<void> insertNoteToBook(
-      String note, int bookId, BuildContext context, String noteDate) async {
+      String note, int bookId, BuildContext context, String noteDate,
+      {int? noteId}) async {
     try {
       print("not eklenen kitabın id'si $bookId");
       // Get a reference to the database.
@@ -115,7 +116,7 @@ class SqlHelper {
       await db.insert(
         'notes',
         {
-          "id": bookId + note.hashCode,
+          "id": noteId != null ? noteId : bookId + note.hashCode,
           "bookId": bookId,
           "note": note,
           "noteDate": noteDate

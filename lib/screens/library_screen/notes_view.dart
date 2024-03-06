@@ -58,7 +58,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => BooksListView(),
-                    )).then((value) => getPageData()),
+                    )).then((value) => value == true ? getPageData() : null),
                 icon: const Icon(
                   Icons.add_to_photos_rounded,
                   size: 30,
@@ -75,155 +75,152 @@ class _NotesViewState extends ConsumerState<NotesView> {
         body: isLoading == false
             ? notesToShow.length != 0
                 ? ListView.separated(
+                    shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
                     separatorBuilder: (context, index) => SizedBox(
-                      height: 15,
-                    ),
+                          height: 15,
+                        ),
                     padding: EdgeInsets.all(15),
                     itemCount: notesToShow.length,
-                    itemBuilder: (context, index) => BookIdsListToShow.contains(
-                                notesToShow[index]['bookId']) ==
-                            true
-                        ? InkWell(
-                            customBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25)),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AddNoteView(
-                                            noteId: notesToShow[index]['id']
-                                                        .runtimeType ==
-                                                    String
-                                                ? int.parse(
-                                                    notesToShow[index]['id'])
-                                                : notesToShow[index]['id'],
-                                            initialNoteValue: notesToShow[index]
-                                                ['note'],
-                                            bookImage: BookIdsListFromSql.contains(
-                                                        uniqueIdCreater(bookListToShow!
-                                                            .firstWhere((element) =>
-                                                                uniqueIdCreater(
-                                                                    element) ==
-                                                                notesToShow[index]
-                                                                    [
-                                                                    'bookId']))) ==
-                                                    true
-                                                ? Image.memory(
-                                                    base64Decode(
-                                                      getImageAsByte(
-                                                          widget
-                                                              .bookListFromSql,
-                                                          bookListToShow!.firstWhere(
-                                                              (element) =>
-                                                                  uniqueIdCreater(
-                                                                      element) ==
-                                                                  notesToShow[
-                                                                          index]
-                                                                      [
-                                                                      'bookId'])),
-                                                    ),
-                                                    errorBuilder: (context,
-                                                            error,
-                                                            stackTrace) =>
-                                                        Image.asset(
-                                                      "lib/assets/images/error.png",
-                                                    ),
-                                                  )
-                                                : bookListToShow!
-                                                            .firstWhere((element) =>
-                                                                uniqueIdCreater(
-                                                                    element) ==
-                                                                notesToShow[index]
-                                                                    ['bookId'])
-                                                            .covers !=
-                                                        null
-                                                    ? Image.network(
-                                                        "https://covers.openlibrary.org/b/id/${bookListToShow!.firstWhere((element) => uniqueIdCreater(element) == notesToShow[index]['bookId']).covers!.first}-M.jpg",
-                                                        errorBuilder: (context,
-                                                                error,
-                                                                stackTrace) =>
-                                                            Image.asset(
-                                                                "lib/assets/images/error.png"),
-                                                      )
-                                                    : Image.asset("lib/assets/images/nocover.jpg"),
-                                            showDeleteIcon: true,
-                                            bookInfo: bookListToShow!
-                                                .firstWhere((element) =>
-                                                    uniqueIdCreater(element) ==
-                                                    notesToShow[index]
-                                                        ['bookId']),
-                                            noteDate: notesToShow[index]
-                                                ['noteDate'],
-                                          ))).then((value) {
-                                getNotesFromSql();
-                                getPageData();
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.white60,
+                    itemBuilder: (context, index) {
+                      BookWorkEditionsModelEntries book =
+                          BookWorkEditionsModelEntries();
+                      BookIdsListToShow.contains(
+                                  notesToShow[index]['bookId']) ==
+                              true
+                          ? book = bookListToShow!.firstWhere((element) =>
+                              uniqueIdCreater(element) ==
+                              notesToShow[index]['bookId'])
+                          : null;
+                      return BookIdsListToShow.contains(
+                                  notesToShow[index]['bookId']) ==
+                              true
+                          ? InkWell(
+                              customBorder: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25)),
-                              height: 125,
-                              child: ListTile(
-                                title: Text(bookListToShow!
-                                    .firstWhere((element) =>
-                                        uniqueIdCreater(element) ==
-                                        notesToShow[index]['bookId'])
-                                    .title!),
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(5),
-                                  child: BookIdsListFromSql.contains(
-                                              uniqueIdCreater(bookListToShow!
-                                                  .firstWhere((element) =>
-                                                      uniqueIdCreater(
-                                                          element) ==
-                                                      notesToShow[index]
-                                                          ['bookId']))) ==
-                                          true
-                                      ? Image.memory(
-                                          fit: BoxFit.fill,
-                                          base64Decode(getImageAsByte(
-                                              widget.bookListFromSql,
-                                              bookListToShow!.firstWhere(
-                                                  (element) =>
-                                                      uniqueIdCreater(
-                                                          element) ==
-                                                      notesToShow[index]
-                                                          ['bookId']))),
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Image.asset(
-                                            "lib/assets/images/error.png",
-                                          ),
-                                        )
-                                      : bookListToShow!
-                                                  .firstWhere((element) =>
-                                                      uniqueIdCreater(
-                                                          element) ==
-                                                      notesToShow[index]
-                                                          ['bookId'])
-                                                  .covers !=
-                                              null
-                                          ? Image.network(
-                                              "https://covers.openlibrary.org/b/id/${bookListToShow!.firstWhere((element) => uniqueIdCreater(element) == notesToShow[index]['bookId']).covers!.first}-M.jpg",
-                                              errorBuilder: (context, error,
-                                                      stackTrace) =>
-                                                  Image.asset(
-                                                      "lib/assets/images/error.png"),
-                                            )
-                                          : Image.asset(
-                                              "lib/assets/images/nocover.jpg"),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddNoteView(
+                                              noteId: notesToShow[index]['id']
+                                                          .runtimeType ==
+                                                      String
+                                                  ? int.parse(
+                                                      notesToShow[index]['id'])
+                                                  : notesToShow[index]['id'],
+                                              initialNoteValue:
+                                                  notesToShow[index]['note'],
+                                              bookImage: BookIdsListFromSql
+                                                              .contains(
+                                                                  uniqueIdCreater(
+                                                                      book)) ==
+                                                          true &&
+                                                      book.covers != null
+                                                  ? Image.memory(
+                                                      base64Decode(
+                                                        getImageAsByte(
+                                                            widget
+                                                                .bookListFromSql,
+                                                            book),
+                                                      ),
+                                                      errorBuilder: (context,
+                                                              error,
+                                                              stackTrace) =>
+                                                          Image.asset(
+                                                        "lib/assets/images/error.png",
+                                                      ),
+                                                    )
+                                                  : book.covers != null &&
+                                                          book.imageAsByte ==
+                                                              null
+                                                      ? Image.network(
+                                                          "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
+                                                          errorBuilder: (context,
+                                                                  error,
+                                                                  stackTrace) =>
+                                                              Image.asset(
+                                                                  "lib/assets/images/error.png"),
+                                                        )
+                                                      : book.imageAsByte != null
+                                                          ? Image.memory(
+                                                              base64Decode(book
+                                                                  .imageAsByte!),
+                                                              width: 90,
+                                                              fit: BoxFit.fill,
+                                                            )
+                                                          : Image.asset(
+                                                              "lib/assets/images/nocover.jpg"),
+                                              showDeleteIcon: true,
+                                              bookInfo: book,
+                                              noteDate: notesToShow[index]
+                                                  ['noteDate'],
+                                            ))).then((value) {
+                                  if (value == true) {
+                                    getNotesFromSql();
+                                    getPageData();
+                                  }
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white60,
+                                    borderRadius: BorderRadius.circular(25)),
+                                height: 125,
+                                child: ListTile(
+                                  title: Text(book.title!),
+                                  leading: ClipRRect(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: BookIdsListFromSql.contains(
+                                                    uniqueIdCreater(book)) ==
+                                                true &&
+                                            book.covers != null
+                                        ? Image.memory(
+                                            width: 40,
+                                            height: 100,
+                                            fit: BoxFit.fill,
+                                            base64Decode(getImageAsByte(
+                                                widget.bookListFromSql, book)),
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Image.asset(
+                                              "lib/assets/images/error.png",
+                                            ),
+                                          )
+                                        : book.covers != null &&
+                                                book.imageAsByte == null
+                                            ? Image.network(
+                                                width: 40,
+                                                height: 100,
+                                                fit: BoxFit.fill,
+                                                "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
+                                                    Image.asset(
+                                                        "lib/assets/images/error.png"),
+                                              )
+                                            : book.imageAsByte != null
+                                                ? Image.memory(
+                                                    width: 40,
+                                                    height: 100,
+                                                    base64Decode(
+                                                        book.imageAsByte!),
+                                                    fit: BoxFit.fill,
+                                                  )
+                                                : Image.asset(
+                                                    "lib/assets/images/nocover.jpg",
+                                                    fit: BoxFit.fill,
+                                                  ),
+                                  ),
+                                  subtitle: SizedBox(
+                                    child: Text(notesToShow[index]['note'],
+                                        maxLines: 5,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
                                 ),
-                                subtitle: SizedBox(
-                                  child: Text(notesToShow[index]['note'],
-                                      maxLines: 5,
-                                      overflow: TextOverflow.ellipsis),
-                                ),
-                              ),
-                            ))
-                        : null,
-                  )
+                              ))
+                          : SizedBox.shrink();
+                    })
                 : Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -266,6 +263,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
       await insertingProcesses();
     } else {
       bookListToShow = widget.bookListFromSql;
+      BookIdsListToShow =
+          bookListToShow!.map((e) => uniqueIdCreater(e)).toList();
       await getNotesFromSql();
     }
 
@@ -304,7 +303,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
 
   Future<void> insertingProcesses() async {
     List<int?>? listOfNoteIdsFromSql = [];
-    List<int?>? listOfNoteIdsFromFirestore = [];
+    List<int?> listOfNoteIdsFromFirestore = [];
     if (notesFromFirestore != null) {
       notesFromFirestore!.isEmpty != true
           ? listOfNoteIdsFromFirestore =

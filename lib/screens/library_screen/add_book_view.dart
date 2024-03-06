@@ -15,13 +15,76 @@ enum BookFormat { paperBook, ebook, audioBook }
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
 class AddBookView extends ConsumerStatefulWidget {
-  const AddBookView({super.key});
+  const AddBookView(
+      {super.key,
+      this.title,
+      this.authorName,
+      this.publisher,
+      this.bookStatus = "",
+      this.isbn10,
+      this.pageNumber,
+      this.publishDate,
+      this.bookId,
+      this.covers,
+      this.physical_format,
+      this.bookImage,
+      this.indexOfEdition = 0});
+
+  final String? title;
+  final String? authorName;
+  final String? publisher;
+  final String? isbn10;
+  final int? pageNumber;
+  final String bookStatus;
+  final String? publishDate;
+  final int? bookId;
+  final List<int?>? covers;
+  final String? physical_format;
+  final Image? bookImage;
+  final int indexOfEdition;
 
   @override
   ConsumerState<AddBookView> createState() => _AddBookViewState();
 }
 
 class _AddBookViewState extends ConsumerState<AddBookView> {
+  bool isImageSizeSuitable = false;
+  @override
+  void initState() {
+    if (widget.title != "") {
+      if (widget.physical_format == "paperback" ||
+          widget.physical_format == "Paperback") {
+        bookFormat = BookFormat.paperBook;
+      } else if (widget.physical_format == "E-book" ||
+          widget.physical_format == "Ebook" ||
+          widget.physical_format == "E-Book") {
+        bookFormat = BookFormat.ebook;
+      } else if (widget.physical_format == "CD" ||
+          widget.physical_format == "audio cd" ||
+          widget.physical_format == "Audio cassette") {
+        bookFormat = BookFormat.audioBook;
+      } else {
+        bookFormat = BookFormat.paperBook;
+      }
+      titleFieldController.text = widget.title ?? "";
+      authorFieldController.text = widget.authorName ?? "";
+      publisherFieldController.text = widget.publisher ?? "";
+      isbnFieldController.text = widget.isbn10 ?? "";
+      publishDateFieldController.text = widget.publishDate ?? "";
+      widget.pageNumber != null
+          ? pageNumberFieldController.text = widget.pageNumber.toString()
+          : "";
+
+      bookStatus = widget.bookStatus == "Okuduklarım"
+          ? BookStatus.alreadyRead
+          : widget.bookStatus == "Okumak istediklerim"
+              ? BookStatus.wantToRead
+              : BookStatus.currentlyReading;
+    }
+
+    super.initState();
+  }
+
   bool isSaved = false;
   File? pickedImage;
   BookFormat bookFormat = BookFormat.paperBook;
@@ -32,6 +95,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
   final publisherFieldController = TextEditingController();
   final isbnFieldController = TextEditingController();
   final pageNumberFieldController = TextEditingController();
+  final publishDateFieldController = TextEditingController();
 
   @override
   void dispose() {
@@ -82,9 +146,22 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   ));
                 } else {
                   isSaved = true;
+                  List<String?>? authorsNames = authorFieldController.text != ""
+                      ? [authorFieldController.text]
+                      : null;
+
                   BookWorkEditionsModelEntries bookInfo =
                       BookWorkEditionsModelEntries(
-                          covers: null,
+                          physical_format: bookFormat.name == "ebook"
+                              ? "E-kitap"
+                              : bookFormat.name == "audioBook"
+                                  ? "Sesli kitap"
+                                  : "Kağıt kitap",
+                          publish_date: publishDateFieldController.text != ""
+                              ? publishDateFieldController.text
+                              : null,
+                          covers: widget.covers ?? null,
+                          authorsNames: authorsNames,
                           title: titleFieldController.text,
                           isbn_10: isbnFieldController.text != ""
                               ? [isbnFieldController.text]
@@ -99,17 +176,86 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   if (pickedImage != null) {
                     imageAsByte = await pickedImage!.readAsBytes();
                   }
+                  if (uniqueIdCreater(bookInfo) != widget.bookId) {
+                    //handle notes in sql while editing
+                    if (widget.bookId != null) {
+                      //delete book in sql
+                      await ref
+                          .read(sqlProvider)
+                          .deleteBook(widget.bookId!, context);
+                      var notes = await ref
+                          .read(sqlProvider)
+                          .getNotes(context, bookId: widget.bookId);
+                      if (notes != []) {
+                        for (var element in notes!) {
+                          await ref.read(sqlProvider).insertNoteToBook(
+                                element["note"],
+                                uniqueIdCreater(bookInfo),
+                                context,
+                                element["noteDate"],
+                                noteId: element["id"].runtimeType == String
+                                    ? int.parse(element["id"])
+                                    : element["id"],
+                              );
+                        }
+                      }
+                    }
+                    //handle notes in firebase
+                    if (widget.bookId != null &&
+                        ref.read(authProvider).currentUser != null) {
+                      //delete book on firebase
+                      ref.read(firestoreProvider).deleteBook(context,
+                          referencePath: "usersBooks",
+                          userId: ref.read(authProvider).currentUser!.uid,
+                          bookId: widget.bookId.toString());
+                      var notes;
+                      ref
+                          .read(firestoreProvider)
+                          .getNotes("usersBooks",
+                              ref.read(authProvider).currentUser!.uid, context)
+                          .then((value) {
+                        if (value != null) {
+                          notes = value.docs
+                              .map(
+                                (e) => e.data(),
+                              )
+                              .toList();
+                        }
+                        ;
+                      });
+
+                      if (notes != null) {
+                        var wantedNotes = notes
+                            .where((e) => e["bookId"] == widget.bookId)
+                            .toList();
+                        if (wantedNotes != []) {
+                          for (var element in wantedNotes) {
+                            await ref.read(firestoreProvider).setNoteData(
+                                context,
+                                noteId: element["id"].runtimeType == int
+                                    ? element["id"]
+                                    : int.tryParse(element["id"]),
+                                collectionPath: "usersBooks",
+                                note: element["note"],
+                                userId: ref.read(authProvider).currentUser!.uid,
+                                uniqueBookId: uniqueIdCreater(bookInfo),
+                                noteDate: element["noteDate"]);
+                          }
+                        }
+                      }
+                    }
+                  }
 
                   //insert author
                   if (authorFieldController.text != "") {
-                    ref.read(sqlProvider).insertAuthors(
+                    await ref.read(sqlProvider).insertAuthors(
                         authorFieldController.text,
                         uniqueIdCreater(bookInfo),
                         context);
                   }
 
                   //insert book
-                  ref.read(sqlProvider).insertBook(
+                  await ref.read(sqlProvider).insertBook(
                       bookInfo,
                       bookStatus == BookStatus.alreadyRead
                           ? "Okuduklarım"
@@ -123,6 +269,17 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     ref.read(firestoreProvider).setBookData(context,
                         collectionPath: "usersBooks",
                         bookAsMap: {
+                          "authorsNames": authorFieldController.text != ""
+                              ? [authorFieldController.text]
+                              : null,
+                          "physical_format": bookFormat.name == "ebook"
+                              ? "E-kitap"
+                              : bookFormat.name == "audioBook"
+                                  ? "Sesli kitap"
+                                  : "Kağıt kitap",
+                          "publish_date": publishDateFieldController.text != ""
+                              ? publishDateFieldController.text
+                              : null,
                           "title": titleFieldController.text,
                           "isbn_10": isbnFieldController.text != ""
                               ? [isbnFieldController.text]
@@ -134,10 +291,11 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           "publishers": publisherFieldController.text != ""
                               ? [publisherFieldController.text]
                               : null,
-                          "covers": null,
-                          "imageAsByte": pickedImage != null
-                              ? base64Encode(imageAsByte)
-                              : null,
+                          "covers": widget.covers ?? null,
+                          "imageAsByte":
+                              pickedImage != null && isImageSizeSuitable == true
+                                  ? base64Encode(imageAsByte)
+                                  : null,
                           "bookStatus": bookStatus == BookStatus.alreadyRead
                               ? "Okuduklarım"
                               : bookStatus == BookStatus.currentlyReading
@@ -168,6 +326,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           elevation: 0,
         ),
         body: Scrollbar(
+          thumbVisibility: true,
           thickness: 3,
           radius: Radius.circular(20),
           child: Padding(
@@ -189,7 +348,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                         alignment: Alignment.center,
                         clipBehavior: Clip.none,
                         children: [
-                          pickedImage == null
+                          pickedImage == null && widget.bookImage == null
                               ? Center(
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -201,14 +360,31 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                                     width: 120,
                                   ),
                                 )
-                              : Image.file(
-                                  pickedImage!,
-                                  fit: BoxFit.cover,
-                                  height: 200,
-                                  width: 120,
-                                  filterQuality: FilterQuality.medium,
-                                ),
-                          pickedImage == null
+                              : (pickedImage != null &&
+                                          widget.bookImage == null) ||
+                                      (pickedImage != null &&
+                                          widget.bookImage != null)
+                                  ? Image.file(
+                                      pickedImage!,
+                                      fit: BoxFit.cover,
+                                      height: 200,
+                                      width: 120,
+                                      filterQuality: FilterQuality.medium,
+                                    )
+                                  : Hero(
+                                      tag: widget.bookId! +
+                                          widget.indexOfEdition,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image(
+                                          fit: BoxFit.fill,
+                                          image: widget.bookImage!.image,
+                                          width: 120,
+                                          height: 200,
+                                        ),
+                                      ),
+                                    ),
+                          pickedImage == null && widget.bookImage == null
                               ? Icon(
                                   Icons.photo,
                                   color: Colors.grey,
@@ -287,19 +463,32 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     color: Colors.transparent,
                   ),
                   Text(
-                    "Kitap türü",
+                    "Kitap durumu",
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                   Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  bookTypeSelectionSection(),
+                  bookStatusSelectionSection(),
                   Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   TextFormField(
+                    controller: publishDateFieldController,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Yayın tarihi",
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30))),
+                  ),
+                  Divider(
+                    thickness: 0,
+                    color: Colors.transparent,
+                  ),
+                  TextFormField(
+                    enabled: widget.isbn10 != null ? false : true,
                     controller: isbnFieldController,
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.all(10),
@@ -324,14 +513,14 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  Text("Kitap durumu",
+                  Text("Kitap türü",
                       style:
                           TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                   Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  bookStatusSelectionSection(),
+                  bookTypeSelectionSection(),
                 ],
               ),
             ),
@@ -489,6 +678,8 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       final image = await ImagePicker().pickImage(
           source: source,
           preferredCameraDevice: CameraDevice.rear,
+          maxHeight: 800,
+          maxWidth: 480,
           imageQuality: 70);
       if (image == null) {
         return;
@@ -499,18 +690,22 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
         });
 
         if (croppedFile != null) {
-          if (checkImageSize(File(croppedFile.path)) < 2.0) {
-            setState(() {
-              pickedImage = File(croppedFile.path);
-            });
+          if (await checkImageSize(File(croppedFile.path)) < 1048487) {
+            print("girdi");
+            isImageSizeSuitable = true;
           } else {
+            isImageSizeSuitable = false;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: Duration(seconds: 2),
-              content: const Text("Seçtiğiniz resim 2 MB'dan küçük olmalıdır."),
+              duration: Duration(seconds: 4),
+              content: const Text(
+                  "Seçtiğiniz resimin boyutu yüksek olduğundan dolayı yedeklemede kaybedebilirsiniz."),
               action: SnackBarAction(label: 'Tamam', onPressed: () {}),
               behavior: SnackBarBehavior.floating,
             ));
           }
+          setState(() {
+            pickedImage = File(croppedFile.path);
+          });
         }
       }
     } on PlatformException catch (e) {
@@ -525,18 +720,14 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
     );
   }
 
-  double checkImageSize(File image) {
-    var imageSize = image.readAsBytesSync().lengthInBytes;
-    print("$imageSize imageSize");
-    double byte = imageSize.floorToDouble();
-    print("$byte byte");
+  Future<int> checkImageSize(File image) async {
+    print("check girdi");
 
-    double kilobyte = (byte / 1024.0);
-    print("$kilobyte kilobyte");
+    Uint8List imageAsByte = await image.readAsBytes();
+    String base64Data = base64Encode(imageAsByte);
+    int base64Size = base64Data.length;
+    print("$base64Size----------------------------------------------");
 
-    double megabyte = (kilobyte / 1024.0);
-    print("$megabyte megabyte");
-
-    return megabyte;
+    return base64Size;
   }
 }
