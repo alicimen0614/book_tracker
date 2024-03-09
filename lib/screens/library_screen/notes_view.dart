@@ -169,7 +169,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                   borderRadius: BorderRadius.circular(25)),
                               height: 125,
                               child: ListTile(
-                                title: Text(book!.title!),
+                                title: Text(book.title!),
                                 leading: ClipRRect(
                                   borderRadius: BorderRadius.circular(5),
                                   child: BookIdsListFromSql.contains(

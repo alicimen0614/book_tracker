@@ -142,10 +142,11 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     }
 
                     showSnackBar(context, "Not Başarıyla Güncellendi");
+                    hasNoteSaved = true;
                     Future.delayed(
                       Duration(milliseconds: 100),
                       () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, hasNoteSaved);
                       },
                     );
                   }
@@ -224,18 +225,19 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             widget.bookImage != null
                 ? Expanded(
                     flex: 5,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Hero(
-                          tag: uniqueIdCreater(widget.bookInfo),
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image(
-                                fit: BoxFit.fill,
-                                width: 170,
-                                image: widget.bookImage!.image,
-                                height: 270,
-                              ))),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Hero(
+                            tag: uniqueIdCreater(widget.bookInfo),
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image(
+                                  fit: BoxFit.fitHeight,
+                                  image: widget.bookImage!.image,
+                                ))),
+                      ),
                     ),
                   )
                 : Expanded(
@@ -248,12 +250,15 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                                 Image.asset("lib/assets/images/nocover.jpg"))),
                   ),
             Expanded(
-                flex: 1,
+                flex: widget.bookInfo.title!.characters.length > 20 ? 2 : 1,
                 child: Align(
                     alignment: Alignment.center,
-                    child: Text(widget.bookInfo.title!,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17)))),
+                    child: Text(
+                      widget.bookInfo.title!,
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                      textAlign: TextAlign.center,
+                    ))),
             Expanded(
               flex: 1,
               child: Text(
@@ -264,7 +269,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                       color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),
             Expanded(
-              flex: 4,
+              flex: 5,
               child: TextFormField(
                 controller: noteFieldController,
                 decoration: InputDecoration(

@@ -136,7 +136,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                               fontSize: 17,
                             )))
                     : textShimmerEffect(
-                        context, MediaQuery.of(context).size.width / 2),
+                        context, MediaQuery.of(context).size.width / 1.2),
                 Spacer(),
                 isLoading != true && lenghtOfBooks != 0
                     ? Expanded(

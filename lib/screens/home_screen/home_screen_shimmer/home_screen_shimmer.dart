@@ -24,10 +24,20 @@ ListView homeScreenShimmer(BuildContext context) {
           ),
           Spacer(),
           Expanded(
-              flex: 3, child: ShimmerWidget.rectangular(width: 100, height: 1)),
+              flex: 3,
+              child: ShimmerWidget.rounded(
+                  width: 100,
+                  height: 1,
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)))),
           Spacer(),
           Expanded(
-              flex: 3, child: ShimmerWidget.rectangular(width: 70, height: 1))
+              flex: 3,
+              child: ShimmerWidget.rounded(
+                  width: 70,
+                  height: 1,
+                  shapeBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15))))
         ],
       ),
     ),

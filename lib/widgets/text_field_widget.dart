@@ -43,7 +43,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       textCapitalization: widget.textCapitalization,
       autocorrect: widget.autoCorrect,
       decoration: InputDecoration(
-        prefixIconColor: Color(0xFFE38B29),
+        prefixIconColor: const Color.fromRGBO(204, 149, 68, 1),
         contentPadding: EdgeInsets.all(10),
         hintText: widget.hintText,
         prefixIcon: Icon(

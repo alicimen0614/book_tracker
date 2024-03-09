@@ -648,6 +648,11 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
+            visualDensity: VisualDensity(vertical: 3),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30))),
             onTap: () {
               pickImage(ImageSource.camera);
             },
@@ -658,8 +663,11 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             ),
             title: Text("Kamera", style: TextStyle(fontSize: 20)),
           ),
-          Divider(),
+          Divider(
+            height: 0,
+          ),
           ListTile(
+            visualDensity: VisualDensity(vertical: 3),
             onTap: () => pickImage(ImageSource.gallery),
             leading: Icon(
               Icons.image_outlined,

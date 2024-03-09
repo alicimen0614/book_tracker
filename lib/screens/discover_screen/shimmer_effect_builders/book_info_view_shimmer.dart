@@ -62,7 +62,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                             width: 80,
                             height: 25,
                             shapeBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5))),
+                                borderRadius: BorderRadius.circular(25))),
                       ),
                     )
                   ],

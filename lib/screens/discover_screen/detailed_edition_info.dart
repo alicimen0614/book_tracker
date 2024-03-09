@@ -783,7 +783,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Expanded editionInfoBodyBuilder(BuildContext context) {
     String descriptionText = "";
     if (widget.editionInfo.description != null) {
-      descriptionText = widget.editionInfo.description!.startsWith("{}")
+      descriptionText = widget.editionInfo.description!.startsWith("{")
           ? widget.editionInfo.description!.replaceRange(0, 26, "")
           : widget.editionInfo.description!;
     }

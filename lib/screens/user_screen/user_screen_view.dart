@@ -194,6 +194,21 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       ));
                     });
                   }),
+              Divider(
+                endIndent: 10,
+                indent: 10,
+              ),
+              ListTile(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AlertForDataSource()));
+                  },
+                  title: Text("Uygulama veri kaynağı ve sorumluluk bildirimi"),
+                  tileColor: Colors.white),
               if (isUserLoggedIn == false)
                 Divider(
                   endIndent: 10,
@@ -234,21 +249,6 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       title: Text("Üye Ol"),
                       tileColor: Colors.white)
                   : const SizedBox.shrink(),
-              Divider(
-                endIndent: 10,
-                indent: 10,
-              ),
-              ListTile(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  onTap: () async {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AlertForDataSource()));
-                  },
-                  title: Text("Uygulama veri kaynağı ve sorumluluk bildirimi"),
-                  tileColor: Colors.white),
               if (isUserLoggedIn == true)
                 Divider(
                   endIndent: 10,

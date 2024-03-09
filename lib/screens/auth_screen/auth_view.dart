@@ -87,8 +87,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       Color(0xFF1B7695),
                     ])),
           ),
-          Align(
-            alignment: Alignment.topLeft,
+          Positioned(
+            top: 25,
+            left: 10,
             child: IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: Icon(
