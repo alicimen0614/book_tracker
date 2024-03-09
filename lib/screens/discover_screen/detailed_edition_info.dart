@@ -5,6 +5,7 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/detailed_edition_view_shimmer.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
+import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -361,46 +362,72 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   height: 0,
                 )
               : SizedBox.shrink(),
+          widget.isNavigatingFromLibrary == true
+              ? ListTile(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddBookView(
+                                  bookImage: widget.bookImage,
+                                  physical_format:
+                                      widget.editionInfo.physical_format ??
+                                          null,
+                                  covers: widget.editionInfo.covers ?? null,
+                                  title: widget.editionInfo.title ?? null,
+                                  authorName:
+                                      widget.editionInfo.authorsNames != null
+                                          ? widget.editionInfo.authorsNames!
+                                                      .isEmpty ==
+                                                  false
+                                              ? widget.editionInfo.authorsNames!
+                                                  .first
+                                              : null
+                                          : null,
+                                  bookStatus: bookStatusAsString,
+                                  isbn10: widget.editionInfo.isbn_10 != null
+                                      ? widget.editionInfo.isbn_10!.first!
+                                      : widget.editionInfo.isbn_13 != null
+                                          ? widget.editionInfo.isbn_13!.first!
+                                          : null,
+                                  pageNumber:
+                                      widget.editionInfo.number_of_pages ??
+                                          null,
+                                  publisher:
+                                      widget.editionInfo.publishers != null
+                                          ? widget.editionInfo.publishers!.first
+                                          : null,
+                                  publishDate:
+                                      widget.editionInfo.publish_date != null
+                                          ? widget.editionInfo.publish_date
+                                          : null,
+                                  bookId: uniqueIdCreater(widget.editionInfo),
+                                )));
+                  },
+                  visualDensity: VisualDensity(vertical: 3),
+                  leading: Icon(
+                    Icons.edit_document,
+                    size: 30,
+                  ),
+                  title: Text("Kitabı düzenle", style: TextStyle(fontSize: 20)),
+                )
+              : SizedBox.shrink(),
+          Divider(
+            height: 0,
+          ),
           ListTile(
-            onTap: () {
+            visualDensity: VisualDensity(vertical: 3),
+            onTap: () async {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AddBookView(
-                            bookImage: widget.bookImage,
-                            physical_format:
-                                widget.editionInfo.physical_format ?? null,
-                            covers: widget.editionInfo.covers ?? null,
-                            title: widget.editionInfo.title ?? null,
-                            authorName: widget.editionInfo.authorsNames != null
-                                ? widget.editionInfo.authorsNames!.isEmpty ==
-                                        false
-                                    ? widget.editionInfo.authorsNames!.first
-                                    : null
-                                : null,
-                            bookStatus: bookStatusAsString,
-                            isbn10: widget.editionInfo.isbn_10 != null
-                                ? widget.editionInfo.isbn_10!.first!
-                                : widget.editionInfo.isbn_13 != null
-                                    ? widget.editionInfo.isbn_13!.first!
-                                    : null,
-                            pageNumber:
-                                widget.editionInfo.number_of_pages ?? null,
-                            publisher: widget.editionInfo.publishers != null
-                                ? widget.editionInfo.publishers!.first
-                                : null,
-                            publishDate: widget.editionInfo.publish_date != null
-                                ? widget.editionInfo.publish_date
-                                : null,
-                            bookId: uniqueIdCreater(widget.editionInfo),
-                          )));
+                      builder: (context) => AlertForDataSource()));
             },
-            visualDensity: VisualDensity(vertical: 3),
             leading: Icon(
-              Icons.edit_document,
+              Icons.info_outline,
               size: 30,
             ),
-            title: Text("Kitabı düzenle", style: TextStyle(fontSize: 20)),
+            title: Text("Bilgi", style: TextStyle(fontSize: 20)),
           ),
           Divider(height: 0),
           widget.isNavigatingFromLibrary != false
@@ -756,7 +783,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Expanded editionInfoBodyBuilder(BuildContext context) {
     String descriptionText = "";
     if (widget.editionInfo.description != null) {
-      descriptionText = widget.editionInfo.description!.replaceRange(0, 26, "");
+      descriptionText = widget.editionInfo.description!.startsWith("{}")
+          ? widget.editionInfo.description!.replaceRange(0, 26, "")
+          : widget.editionInfo.description!;
     }
     print(widget.editionInfo.isbn_10);
     return Expanded(

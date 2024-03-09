@@ -77,9 +77,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
 
       bookStatus = widget.bookStatus == "Okuduklarım"
           ? BookStatus.alreadyRead
-          : widget.bookStatus == "Okumak istediklerim"
-              ? BookStatus.wantToRead
-              : BookStatus.currentlyReading;
+          : widget.bookStatus == "Şu an okuduklarım"
+              ? BookStatus.currentlyReading
+              : BookStatus.wantToRead;
     }
 
     super.initState();

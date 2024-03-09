@@ -91,8 +91,11 @@ class _BottomNavigationBarControllerState
           label: 'Keşfet',
         ),
         NavigationDestination(
-          selectedIcon: Icon(Icons.local_library_outlined),
-          icon: Icon(Icons.local_library_sharp),
+          selectedIcon: Icon(Icons.shelves),
+          icon: Icon(
+            Icons.shelves,
+            size: 23,
+          ),
           label: 'Kitaplığım',
         ),
         NavigationDestination(

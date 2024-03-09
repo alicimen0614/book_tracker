@@ -264,7 +264,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                       color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),
             Expanded(
-              flex: 5,
+              flex: 4,
               child: TextFormField(
                 controller: noteFieldController,
                 decoration: InputDecoration(

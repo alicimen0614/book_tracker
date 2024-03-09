@@ -1,5 +1,6 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
@@ -233,6 +234,21 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       title: Text("Üye Ol"),
                       tileColor: Colors.white)
                   : const SizedBox.shrink(),
+              Divider(
+                endIndent: 10,
+                indent: 10,
+              ),
+              ListTile(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AlertForDataSource()));
+                  },
+                  title: Text("Uygulama veri kaynağı ve sorumluluk bildirimi"),
+                  tileColor: Colors.white),
               if (isUserLoggedIn == true)
                 Divider(
                   endIndent: 10,
