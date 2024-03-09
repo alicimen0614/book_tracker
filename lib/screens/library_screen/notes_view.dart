@@ -83,143 +83,146 @@ class _NotesViewState extends ConsumerState<NotesView> {
                     padding: EdgeInsets.all(15),
                     itemCount: notesToShow.length,
                     itemBuilder: (context, index) {
-                      BookWorkEditionsModelEntries book =
-                          BookWorkEditionsModelEntries();
-                      BookIdsListToShow.contains(
-                                  notesToShow[index]['bookId']) ==
-                              true
-                          ? book = bookListToShow!.firstWhere((element) =>
-                              uniqueIdCreater(element) ==
-                              notesToShow[index]['bookId'])
-                          : null;
-                      return BookIdsListToShow.contains(
-                                  notesToShow[index]['bookId']) ==
-                              true
-                          ? InkWell(
-                              customBorder: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25)),
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddNoteView(
-                                              noteId: notesToShow[index]['id']
-                                                          .runtimeType ==
-                                                      String
-                                                  ? int.parse(
-                                                      notesToShow[index]['id'])
-                                                  : notesToShow[index]['id'],
-                                              initialNoteValue:
-                                                  notesToShow[index]['note'],
-                                              bookImage: BookIdsListFromSql
-                                                              .contains(
-                                                                  uniqueIdCreater(
-                                                                      book)) ==
-                                                          true &&
-                                                      book.covers != null
-                                                  ? Image.memory(
-                                                      base64Decode(
-                                                        getImageAsByte(
-                                                            widget
-                                                                .bookListFromSql,
-                                                            book),
-                                                      ),
-                                                      errorBuilder: (context,
-                                                              error,
-                                                              stackTrace) =>
-                                                          Image.asset(
-                                                        "lib/assets/images/error.png",
-                                                      ),
-                                                    )
-                                                  : book.covers != null &&
-                                                          book.imageAsByte ==
-                                                              null
-                                                      ? Image.network(
-                                                          "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
-                                                          errorBuilder: (context,
-                                                                  error,
-                                                                  stackTrace) =>
-                                                              Image.asset(
-                                                                  "lib/assets/images/error.png"),
-                                                        )
-                                                      : book.imageAsByte != null
-                                                          ? Image.memory(
-                                                              base64Decode(book
-                                                                  .imageAsByte!),
-                                                              width: 90,
-                                                              fit: BoxFit.fill,
-                                                            )
-                                                          : Image.asset(
-                                                              "lib/assets/images/nocover.jpg"),
-                                              showDeleteIcon: true,
-                                              bookInfo: book,
-                                              noteDate: notesToShow[index]
-                                                  ['noteDate'],
-                                            ))).then((value) {
-                                  if (value == true) {
-                                    getNotesFromSql();
-                                    getPageData();
-                                  }
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(25)),
-                                height: 125,
-                                child: ListTile(
-                                  title: Text(book.title!),
-                                  leading: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5),
-                                    child: BookIdsListFromSql.contains(
-                                                    uniqueIdCreater(book)) ==
-                                                true &&
-                                            book.covers != null
-                                        ? Image.memory(
-                                            width: 40,
-                                            height: 100,
-                                            fit: BoxFit.fill,
-                                            base64Decode(getImageAsByte(
-                                                widget.bookListFromSql, book)),
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    Image.asset(
-                                              "lib/assets/images/error.png",
-                                            ),
-                                          )
-                                        : book.covers != null &&
-                                                book.imageAsByte == null
-                                            ? Image.network(
-                                                width: 40,
-                                                height: 100,
-                                                fit: BoxFit.fill,
-                                                "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
-                                                errorBuilder: (context, error,
-                                                        stackTrace) =>
-                                                    Image.asset(
-                                                        "lib/assets/images/error.png"),
-                                              )
-                                            : book.imageAsByte != null
+                      BookWorkEditionsModelEntries? book;
+                      bool isBookExist = false;
+                      isBookExist = BookIdsListToShow.contains(
+                          notesToShow[index]['bookId']);
+
+                      if (isBookExist) {
+                        book = bookListToShow!.firstWhere((element) =>
+                            uniqueIdCreater(element) ==
+                            notesToShow[index]['bookId']);
+                      } else {
+                        book = null;
+                      }
+
+                      if (isBookExist && book != null) {
+                        return InkWell(
+                            customBorder: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25)),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddNoteView(
+                                            noteId: notesToShow[index]['id']
+                                                        .runtimeType ==
+                                                    String
+                                                ? int.parse(
+                                                    notesToShow[index]['id'])
+                                                : notesToShow[index]['id'],
+                                            initialNoteValue: notesToShow[index]
+                                                ['note'],
+                                            bookImage: BookIdsListFromSql
+                                                            .contains(
+                                                                uniqueIdCreater(
+                                                                    book)) ==
+                                                        true &&
+                                                    book!.covers != null
                                                 ? Image.memory(
-                                                    width: 40,
-                                                    height: 100,
                                                     base64Decode(
-                                                        book.imageAsByte!),
-                                                    fit: BoxFit.fill,
+                                                      getImageAsByte(
+                                                          widget
+                                                              .bookListFromSql,
+                                                          book),
+                                                    ),
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
+                                                      "lib/assets/images/error.png",
+                                                    ),
                                                   )
-                                                : Image.asset(
-                                                    "lib/assets/images/nocover.jpg",
-                                                    fit: BoxFit.fill,
-                                                  ),
-                                  ),
-                                  subtitle: SizedBox(
-                                    child: Text(notesToShow[index]['note'],
-                                        maxLines: 5,
-                                        overflow: TextOverflow.ellipsis),
-                                  ),
+                                                : book!.covers != null &&
+                                                        book.imageAsByte == null
+                                                    ? Image.network(
+                                                        "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
+                                                        errorBuilder: (context,
+                                                                error,
+                                                                stackTrace) =>
+                                                            Image.asset(
+                                                                "lib/assets/images/error.png"),
+                                                      )
+                                                    : book.imageAsByte != null
+                                                        ? Image.memory(
+                                                            base64Decode(book
+                                                                .imageAsByte!),
+                                                            width: 90,
+                                                            fit: BoxFit.fill,
+                                                          )
+                                                        : Image.asset(
+                                                            "lib/assets/images/nocover.jpg"),
+                                            showDeleteIcon: true,
+                                            bookInfo: book,
+                                            noteDate: notesToShow[index]
+                                                ['noteDate'],
+                                          ))).then((value) {
+                                if (value == true) {
+                                  getNotesFromSql();
+                                  getPageData();
+                                }
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.white60,
+                                  borderRadius: BorderRadius.circular(25)),
+                              height: 125,
+                              child: ListTile(
+                                title: Text(book!.title!),
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: BookIdsListFromSql.contains(
+                                                  uniqueIdCreater(book)) ==
+                                              true &&
+                                          book.covers != null
+                                      ? Image.memory(
+                                          width: 40,
+                                          height: 100,
+                                          fit: BoxFit.fill,
+                                          base64Decode(getImageAsByte(
+                                              widget.bookListFromSql, book)),
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Image.asset(
+                                            "lib/assets/images/error.png",
+                                          ),
+                                        )
+                                      : book.covers != null &&
+                                              book.imageAsByte == null
+                                          ? Image.network(
+                                              width: 40,
+                                              height: 100,
+                                              fit: BoxFit.fill,
+                                              "https://covers.openlibrary.org/b/id/${book.covers!.first}-M.jpg",
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Image.asset(
+                                                      "lib/assets/images/error.png"),
+                                            )
+                                          : book.imageAsByte != null
+                                              ? Image.memory(
+                                                  width: 40,
+                                                  height: 100,
+                                                  base64Decode(
+                                                      book.imageAsByte!),
+                                                  fit: BoxFit.fill,
+                                                )
+                                              : Image.asset(
+                                                  "lib/assets/images/nocover.jpg",
+                                                  fit: BoxFit.fill,
+                                                ),
                                 ),
-                              ))
-                          : SizedBox.shrink();
+                                subtitle: SizedBox(
+                                  child: Text(notesToShow[index]['note'],
+                                      maxLines: 5,
+                                      overflow: TextOverflow.ellipsis),
+                                ),
+                              ),
+                            ));
+                      } else {
+                        return SizedBox.shrink();
+                      }
                     })
                 : Center(
                     child: Column(

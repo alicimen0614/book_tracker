@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:book_tracker/const.dart';
@@ -152,12 +153,21 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   else if (widget.initialNoteValue == "" &&
                       noteFieldController.text != "") {
                     FocusScope.of(context).unfocus();
-                    //inserting the note to sql
+                    //inserting the note to sql and inserting the book to sql if it isn't already
                     await ref.read(sqlProvider).insertNoteToBook(
                         noteFieldController.text,
                         uniqueIdCreater(widget.bookInfo),
                         context,
                         date);
+
+                    await ref.read(sqlProvider).insertBook(
+                        widget.bookInfo,
+                        widget.bookInfo.bookStatus!,
+                        widget.bookInfo.imageAsByte != null
+                            ? base64Decode(widget.bookInfo.imageAsByte!)
+                            : null,
+                        context);
+
                     if (ref.read(authProvider).currentUser != null) {
                       ref.read(firestoreProvider).setNoteData(context,
                           collectionPath: 'usersBooks',
