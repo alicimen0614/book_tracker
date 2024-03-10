@@ -22,7 +22,6 @@ class BookWorkEditionsModelEntriesAuthors {
   });
   BookWorkEditionsModelEntriesAuthors.fromJson(Map<String, dynamic> json) {
     key = json['key']?.toString();
-    ;
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};

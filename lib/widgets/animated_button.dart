@@ -21,7 +21,6 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   @override
   Widget build(BuildContext context) {
-    print("animatedbutton build çalıştı");
     final double height = 40 - _shadowHeight;
 
     return GestureDetector(

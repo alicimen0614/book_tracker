@@ -20,11 +20,9 @@ class SearchScreenView extends ConsumerStatefulWidget {
 
 class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
   ImageProvider getBookCover(BooksModelDocs? item) {
-    print(item!.language);
-    print(item.coverI);
-    if (item.coverI != null) {
+    if (item?.coverI != null) {
       return NetworkImage(
-          "https://covers.openlibrary.org/b/id/${item.coverI}-M.jpg");
+          "https://covers.openlibrary.org/b/id/${item?.coverI}-M.jpg");
     } else {
       return const AssetImage("lib/assets/images/nocover.jpg");
     }
@@ -46,7 +44,6 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
   @override
   void didUpdateWidget(covariant SearchScreenView oldWidget) {
-    print("didupdatewidget çalıştı");
     if (widget.searchValue != oldWidget.searchValue) {
       if (list != null) {
         list!.clear();
@@ -55,18 +52,15 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
       pagingController.refresh();
 
       setState(() {});
-      print("didupdatewidget if girdi");
       pagingController.addPageRequestListener((pageKey) {
         fetchBooks(pageKey);
       });
     }
 
-    print("didupdatewidget bitirdi");
     super.didUpdateWidget(oldWidget);
   }
 
   void fetchBooks(int pageKey) async {
-    print("${widget.searchValue}---fetchBooks çalıştı");
     isConnected = await checkForInternetConnection();
 
     try {
@@ -87,15 +81,11 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
       }
     } catch (e) {
       pagingController.error = e;
-      print("$e-1");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print("search screenview çalıştı");
-    print(widget.searchValue);
-
     return Expanded(
       child: PagedGridView<int, BooksModelDocs?>(
           showNewPageProgressIndicatorAsGridChild: false,
@@ -103,8 +93,10 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 1,
-              crossAxisSpacing: 25,
-              mainAxisExtent: 250,
+              crossAxisSpacing:
+                  MediaQuery.of(context).size.width > 500 ? 75 : 25,
+              mainAxisExtent:
+                  MediaQuery.of(context).size.width > 500 ? 400 : 250,
               mainAxisSpacing: 25),
           pagingController: pagingController,
           physics: const ClampingScrollPhysics(),
@@ -159,14 +151,14 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                 Expanded(
                   flex: 18,
                   child: Padding(
-                    padding: EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(5),
                     child: Ink(
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: getBookCover(item),
                           fit: BoxFit.fill,
                           onError: (exception, stackTrace) =>
-                              AssetImage("lib/assets/images/error.png"),
+                              const AssetImage("lib/assets/images/error.png"),
                         ),
                         borderRadius: BorderRadius.circular(15),
                         color: Colors.transparent,
@@ -174,14 +166,15 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                     ),
                   ),
                 ),
-                Spacer(
+                const Spacer(
                   flex: 1,
                 ),
                 Expanded(
                   flex: 6,
                   child: Text(
                     "${item?.title!} ",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -203,7 +196,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                     ),
                   ),
                 if (item.authorName == null)
-                  Expanded(flex: 6, child: SizedBox.shrink())
+                  const Expanded(flex: 6, child: SizedBox.shrink())
               ],
             )));
   }

@@ -12,22 +12,22 @@ Future<dynamic> internetConnectionErrorDialog(
                 Navigator.pop(context);
                 closeThePage == true ? Navigator.pop(context) : null;
               },
-              child: Text("Kapat"),
+              child: const Text("Kapat"),
             )
           ],
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          content: Container(
+          content: SizedBox(
             height: MediaQuery.of(context).size.height / 2.5,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(15, 0, 0, 15),
+              padding: const EdgeInsets.fromLTRB(15, 0, 0, 15),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
+                  const Expanded(
                     flex: 1,
-                    child: const Text(
+                    child: Text(
                       "İnternete bağlanılamadı.",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -37,7 +37,7 @@ Future<dynamic> internetConnectionErrorDialog(
                       flex: 6,
                       child: Image.asset(
                           "lib/assets/images/no_internet_connection.png")),
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: Text(
                       "Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.",

@@ -36,7 +36,6 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
   }
 
   void fetchData(int pageKey) async {
-    print("fetchdata");
     isConnected = await checkForInternetConnection();
     try {
       BookWorkEditionsModel editionsModel = await ref
@@ -53,7 +52,6 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
       }
     } catch (e) {
       pagingController.error = e;
-      print("$e-1");
     }
   }
 
@@ -68,7 +66,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           leadingWidth: 50,
           title: Text(
             "${widget.title} Baskıları",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
               splashRadius: 25,
@@ -81,7 +79,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           elevation: 5,
         ),
         body: PagedGridView<int, BookWorkEditionsModelEntries?>(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 1,
               mainAxisExtent: 250,
@@ -143,7 +141,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                         Expanded(
                           flex: 15,
                           child: Padding(
-                            padding: EdgeInsets.all(5),
+                            padding: const EdgeInsets.all(5),
                             child: Ink(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
@@ -152,21 +150,21 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                                           image: NetworkImage(
                                               "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
                                           onError: (exception, stackTrace) =>
-                                              AssetImage(
+                                              const AssetImage(
                                                   "lib/assets/images/error.png"),
                                           fit: BoxFit.fill,
                                         )
                                       : DecorationImage(
-                                          image: AssetImage(
+                                          image: const AssetImage(
                                               "lib/assets/images/nocover.jpg"),
                                           onError: (exception, stackTrace) =>
-                                              AssetImage(
+                                              const AssetImage(
                                                   "lib/assets/images/error.png"),
                                           fit: BoxFit.fill)),
                             ),
                           ),
                         ),
-                        Spacer(flex: 1),
+                        const Spacer(flex: 1),
                         Expanded(
                           flex: 6,
                           child: SizedBox(
@@ -196,16 +194,16 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                             ),
                           ),
                         if (item.languages == null)
-                          Expanded(
-                            child: SizedBox.shrink(),
+                          const Expanded(
                             flex: 3,
+                            child: SizedBox.shrink(),
                           )
                       ]),
                 ),
               );
             },
           ),
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
         ),
       ),
     );

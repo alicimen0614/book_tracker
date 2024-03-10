@@ -45,7 +45,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "Notlarım",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -57,7 +57,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BooksListView(),
+                      builder: (context) => const BooksListView(),
                     )).then((value) => value == true ? getPageData() : null),
                 icon: const Icon(
                   Icons.add_to_photos_rounded,
@@ -73,14 +73,14 @@ class _NotesViewState extends ConsumerState<NotesView> {
               )),
         ),
         body: isLoading == false
-            ? notesToShow.length != 0
+            ? notesToShow.isNotEmpty
                 ? ListView.separated(
                     shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
-                    separatorBuilder: (context, index) => SizedBox(
+                    physics: const ClampingScrollPhysics(),
+                    separatorBuilder: (context, index) => const SizedBox(
                           height: 15,
                         ),
-                    padding: EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(15),
                     itemCount: notesToShow.length,
                     itemBuilder: (context, index) {
                       BookWorkEditionsModelEntries? book;
@@ -221,7 +221,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                               ),
                             ));
                       } else {
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       }
                     })
                 : Center(
@@ -235,7 +235,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
                         SizedBox(
                           height: MediaQuery.of(context).size.width / 10,
                         ),
-                        Text(
+                        const Text(
                           "Not bulunamadı.",
                           style: TextStyle(
                             fontSize: 20,
@@ -283,7 +283,6 @@ class _NotesViewState extends ConsumerState<NotesView> {
     if (notesFromSql != null) {
       notesToShow = notesFromSql!;
     }
-    print("notlar sqlden gösteriliyor");
   }
 
   Future<void> getNotesFromFirestore() async {
@@ -300,8 +299,6 @@ class _NotesViewState extends ConsumerState<NotesView> {
         notesToShow = notesFromFirestore!;
       }
     }
-
-    print("notlar firestoredan gösteriliyor");
   }
 
   Future<void> insertingProcesses() async {
@@ -312,17 +309,12 @@ class _NotesViewState extends ConsumerState<NotesView> {
           ? listOfNoteIdsFromFirestore =
               notesFromFirestore!.map((e) => int.parse(e['id'])).toList()
           : null;
-      print("notesFromFirestore : $notesFromFirestore");
-      print("listOfNoteIdsFromFirestore: $listOfNoteIdsFromFirestore");
     }
     if (notesFromSql != null) {
       notesFromSql!.isEmpty != true
           ? listOfNoteIdsFromSql =
               notesFromSql!.map((e) => e['id'] as int).toList()
           : null;
-
-      print("notesFromSql : $notesFromSql");
-      print("listOfNoteIdsFromSql: $listOfNoteIdsFromSql");
     }
 
     if (notesFromSql != null) {

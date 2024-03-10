@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
   return Container(
-    padding: EdgeInsets.all(10),
-    decoration: BoxDecoration(
+    padding: const EdgeInsets.all(10),
+    decoration: const BoxDecoration(
         color: Color(0xFF1B7695),
         borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50))),
     child: Column(
       children: [
         ShimmerWidget.rectangular(width: 150, height: 200),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         Container(
@@ -27,7 +27,7 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Doğum Tarihi",
+                  const Text("Doğum Tarihi",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   ShimmerWidget.rectangular(
@@ -35,13 +35,13 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
                 ],
               ),
             ),
-            VerticalDivider(),
+            const VerticalDivider(),
             SizedBox(
               width: 150,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Ölüm Tarihi",
+                  const Text("Ölüm Tarihi",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   ShimmerWidget.rectangular(

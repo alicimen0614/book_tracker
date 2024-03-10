@@ -46,7 +46,6 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
     }
     date = DateFormat("dd MMMM yyy H.m").format(DateTime.now());
 
-    print(oldNoteId);
     noteFieldController.text = widget.initialNoteValue;
 
     super.initState();
@@ -72,13 +71,14 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       child: Scaffold(
         appBar: AppBar(
             title: Text("Kitaba bir not ekle: ${widget.bookInfo.title}",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             centerTitle: true,
             leadingWidth: 50,
             leading: IconButton(
                 splashRadius: 25,
                 onPressed: () => Future.delayed(
-                      Duration(milliseconds: 100),
+                      const Duration(milliseconds: 100),
                       () {
                         Navigator.pop(context, hasNoteSaved);
                       },
@@ -96,13 +96,13 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                       onPressed: () async {
                         alertDialogBuilder(context);
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.delete_forever,
                         size: 30,
                       ),
                       splashRadius: 25,
                     )
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
               IconButton(
                 splashRadius: 25,
                 onPressed: () async {
@@ -144,7 +144,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     showSnackBar(context, "Not Başarıyla Güncellendi");
                     hasNoteSaved = true;
                     Future.delayed(
-                      Duration(milliseconds: 100),
+                      const Duration(milliseconds: 100),
                       () {
                         Navigator.pop(context, hasNoteSaved);
                       },
@@ -181,14 +181,14 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     showSnackBar(context, "Not Başarıyla Eklendi");
                     hasNoteSaved = true;
                     Future.delayed(
-                      Duration(milliseconds: 100),
+                      const Duration(milliseconds: 100),
                       () {
                         Navigator.pop(context, hasNoteSaved);
                       },
                     );
                     if (widget.isNavigatingFromNotesView == true) {
                       Future.delayed(
-                        Duration(milliseconds: 100),
+                        const Duration(milliseconds: 100),
                         () {
                           Navigator.pop(context, hasNoteSaved);
                         },
@@ -209,18 +209,18 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   } else {
                     FocusScope.of(context).unfocus();
                     Future.delayed(
-                      Duration(milliseconds: 100),
+                      const Duration(milliseconds: 100),
                       () {
                         Navigator.pop(context);
                       },
                     );
                   }
                 },
-                icon: Icon(Icons.check_sharp, size: 30),
+                icon: const Icon(Icons.check_sharp, size: 30),
               )
             ]),
         body: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(children: [
             widget.bookImage != null
                 ? Expanded(
@@ -255,8 +255,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     alignment: Alignment.center,
                     child: Text(
                       widget.bookInfo.title!,
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 17),
                       textAlign: TextAlign.center,
                     ))),
             Expanded(
@@ -265,14 +265,14 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   widget.noteDate != ""
                       ? widget.noteDate
                       : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
             ),
             Expanded(
               flex: 5,
               child: TextFormField(
                 controller: noteFieldController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Notunuzu girin.",
                 ),
                 maxLines: null,
@@ -288,7 +288,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
 
   void showSnackBar(BuildContext context, String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: Duration(seconds: 2),
+      duration: const Duration(seconds: 2),
       content: Text(text),
       action: SnackBarAction(label: 'Tamam', onPressed: () {}),
       behavior: SnackBarBehavior.floating,

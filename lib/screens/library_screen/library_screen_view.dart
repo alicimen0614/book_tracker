@@ -35,8 +35,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
 
   @override
   void initState() {
-    print("library screen init çalıştı");
-
     getPageData();
     super.initState();
   }
@@ -62,12 +60,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                 bookListFromSql: listOfBooksFromSql),
                           ));
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.library_books,
                       size: 30,
                       color: Colors.white,
                     ))
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
             IconButton(
                 tooltip: "Kitap Ekle",
                 splashRadius: 25,
@@ -75,18 +73,18 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AddBookView(),
+                        builder: (context) => const AddBookView(),
                       )).then((value) async {
                     if (value == true) await getPageData();
                   });
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.add_circle,
                   size: 30,
                 ))
           ],
           centerTitle: true,
-          title: Text(
+          title: const Text(
             "Kitaplığım",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -97,7 +95,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               labelColor: Colors.white,
               isScrollable: true,
               indicatorSize: TabBarIndicatorSize.tab,
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                 fontSize: 15,
                 fontFamily: "Nunito Sans",
                 fontWeight: FontWeight.bold,
@@ -156,6 +154,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             .where((element) => element.bookStatus == bookStatus)
             .toList()
         : listOfTheCurrentBookStatus = listOfBooksToShow;
+    // ignore: empty_statements
     ;
 
     return bookContentBuilder(listOfTheCurrentBookStatus, bookStatus);
@@ -171,17 +170,16 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList()
         : null;
 
-    print("bookContentBuilder çalıştı");
-    return listOfTheCurrentBookStatus!.length != 0
+    return listOfTheCurrentBookStatus!.isNotEmpty
         ? GridView.builder(
-            physics: ClampingScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            physics: const ClampingScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 0.6,
               crossAxisSpacing: 25,
               mainAxisSpacing: 25,
             ),
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             itemBuilder: (context, index) {
               return InkWell(
                 customBorder: RoundedRectangleBorder(
@@ -350,7 +348,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 SizedBox(
                   height: MediaQuery.of(context).size.width / 10,
                 ),
-                Text(
+                const Text(
                   "Şu anda kitaplığınız boş.",
                   style: TextStyle(
                     fontSize: 20,
@@ -384,23 +382,23 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       isUserAvailable = false;
     }
     if (mounted) await getSqlBookList();
-    print("${isConnected}-1");
     isConnected = await checkForInternetConnection();
-    print("${isConnected}-2");
 
     if (isUserAvailable == true && isConnected == true && mounted) {
       await getFirestoreBookList();
 
-      if (mounted)
+      if (mounted) {
         setState(() {
           isDataLoading = false;
         });
+      }
       // error handling yap
     } else {
-      if (mounted)
+      if (mounted) {
         setState(() {
           isDataLoading = false;
         });
+      }
     }
   }
 
@@ -421,7 +419,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
             )
             .toList();
-        print("gösterilen kitaplar firestore");
       }
     }
   }
@@ -430,7 +427,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     var data = await _sqlHelper.getBookShelf(context);
 
     listOfBooksFromSql = data;
-    print("gösterilen kitaplar sql");
     List<BookWorkEditionsModelEntries>? dummyBooks = [];
     //get authors from sql and insert into booksToShow list
     for (var element in listOfBooksFromSql!) {
@@ -451,8 +447,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           publishers: element.publishers,
           title: element.title,
           works: element.works));
-
-      print(authorData);
     }
     listOfBooksToShow = dummyBooks;
   }

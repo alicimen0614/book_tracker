@@ -113,7 +113,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             "Kitap ekle",
             textAlign: TextAlign.left,
             style: TextStyle(
@@ -136,7 +136,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                 if (titleFieldController.text == "") {
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    duration: Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                     content: const Text('Lütfen bir başlık girin'),
                     action: SnackBarAction(
                       label: 'Tamam',
@@ -160,7 +160,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           publish_date: publishDateFieldController.text != ""
                               ? publishDateFieldController.text
                               : null,
-                          covers: widget.covers ?? null,
+                          covers: widget.covers,
                           authorsNames: authorsNames,
                           title: titleFieldController.text,
                           isbn_10: isbnFieldController.text != ""
@@ -221,7 +221,6 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                               )
                               .toList();
                         }
-                        ;
                       });
 
                       if (notes != null) {
@@ -291,7 +290,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                           "publishers": publisherFieldController.text != ""
                               ? [publisherFieldController.text]
                               : null,
-                          "covers": widget.covers ?? null,
+                          "covers": widget.covers,
                           "imageAsByte":
                               pickedImage != null && isImageSizeSuitable == true
                                   ? base64Encode(imageAsByte)
@@ -319,7 +318,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   ));
                 }
               },
-              icon: Icon(Icons.check_sharp, size: 30),
+              icon: const Icon(Icons.check_sharp, size: 30),
             )
           ],
           automaticallyImplyLeading: false,
@@ -328,20 +327,20 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
         body: Scrollbar(
           thumbVisibility: true,
           thickness: 3,
-          radius: Radius.circular(20),
+          radius: const Radius.circular(20),
           child: Padding(
-            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: SingleChildScrollView(
-              physics: ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   Center(
-                    child: Container(
+                    child: SizedBox(
                       height: 220,
                       width: 140,
                       child: Stack(
@@ -354,7 +353,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                                     decoration: BoxDecoration(
                                         color: Colors.grey.shade400,
                                         border: Border.all(color: Colors.white),
-                                        borderRadius: BorderRadius.all(
+                                        borderRadius: const BorderRadius.all(
                                             Radius.circular(5))),
                                     height: 200,
                                     width: 120,
@@ -385,34 +384,35 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                                       ),
                                     ),
                           pickedImage == null && widget.bookImage == null
-                              ? Icon(
+                              ? const Icon(
                                   Icons.photo,
                                   color: Colors.grey,
                                 )
-                              : SizedBox.shrink(),
+                              : const SizedBox.shrink(),
                           Positioned(
                               bottom: 0,
                               right: 0,
                               child: Material(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(color: Colors.white)),
+                                    side:
+                                        const BorderSide(color: Colors.white)),
                                 child: ClipOval(
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade400,
                                     ),
-                                    padding: EdgeInsets.all(0),
+                                    padding: const EdgeInsets.all(0),
                                     height: 40,
                                     width: 40,
                                     child: IconButton(
-                                        padding: EdgeInsets.all(0),
+                                        padding: const EdgeInsets.all(0),
                                         splashRadius: 25,
                                         onPressed: () {
                                           modalBottomSheetBuilderForPopUpMenu(
                                               context);
                                         },
-                                        icon: Icon(
+                                        icon: const Icon(
                                           Icons.add_a_photo_rounded,
                                           size: 23,
                                         )),
@@ -423,67 +423,67 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 16,
                   ),
                   TextFormField(
                     controller: titleFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Başlık",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   TextFormField(
                     controller: authorFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Yazar",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   TextFormField(
                     controller: publisherFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Yayıncı",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  Text(
+                  const Text(
                     "Kitap durumu",
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   bookStatusSelectionSection(),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
                   TextFormField(
                     controller: publishDateFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Yayın tarihi",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
@@ -491,12 +491,12 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     enabled: widget.isbn10 != null ? false : true,
                     controller: isbnFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "ISBN",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
@@ -504,19 +504,19 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     keyboardType: TextInputType.number,
                     controller: pageNumberFieldController,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10),
+                        contentPadding: const EdgeInsets.all(10),
                         hintText: "Sayfa sayısı",
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  Text("Kitap türü",
+                  const Text("Kitap türü",
                       style:
                           TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                  Divider(
+                  const Divider(
                     thickness: 0,
                     color: Colors.transparent,
                   ),
@@ -534,26 +534,26 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
               text: "Okumak İstiyorum", bookStatusName: BookStatus.wantToRead),
         ),
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
               text: "Şu an okuyorum",
               bookStatusName: BookStatus.currentlyReading),
         ),
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
               text: "Okudum", bookStatusName: BookStatus.alreadyRead),
         ),
-        Spacer()
+        const Spacer()
       ],
     );
   }
@@ -566,47 +566,51 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             bookStatus = bookStatusName;
           });
         },
+        style: ElevatedButton.styleFrom(
+            fixedSize: const Size(30, 45),
+            padding: EdgeInsets.zero,
+            foregroundColor: bookStatus == bookStatusName
+                ? Colors.white
+                : const Color(0xFF1B7695),
+            backgroundColor: bookStatus == bookStatusName
+                ? const Color(0xFF1B7695)
+                : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            )),
         child: Text(text,
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: bookStatus == bookStatusName
                     ? Colors.white
-                    : Colors.black54),
-            maxLines: 2),
-        style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            foregroundColor:
-                bookStatus == bookStatusName ? Colors.white : Color(0xFF1B7695),
-            backgroundColor:
-                bookStatus == bookStatusName ? Color(0xFF1B7695) : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            )));
+                    : Colors.black54,
+                fontSize: MediaQuery.of(context).size.height / 60),
+            maxLines: 2));
   }
 
   Row bookTypeSelectionSection() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
               text: "Kağıt kitap", bookFormatName: BookFormat.paperBook),
         ),
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
               text: "E-kitap", bookFormatName: BookFormat.ebook),
         ),
-        Spacer(),
+        const Spacer(),
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
               text: "Sesli kitap", bookFormatName: BookFormat.audioBook),
         ),
-        Spacer()
+        const Spacer()
       ],
     );
   }
@@ -619,6 +623,17 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             bookFormat = bookFormatName;
           });
         },
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.zero,
+            foregroundColor: bookFormat == bookFormatName
+                ? Colors.white
+                : const Color(0xFF1B7695),
+            backgroundColor: bookFormat == bookFormatName
+                ? const Color(0xFF1B7695)
+                : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            )),
         child: Text(text,
             style: TextStyle(
                 color: bookFormat == bookFormatName
@@ -626,55 +641,46 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     : Colors.black54),
             maxLines: 2,
             textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis),
-        style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            foregroundColor:
-                bookFormat == bookFormatName ? Colors.white : Color(0xFF1B7695),
-            backgroundColor:
-                bookFormat == bookFormatName ? Color(0xFF1B7695) : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            )));
+            overflow: TextOverflow.ellipsis));
   }
 
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.grey.shade300,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30), topRight: Radius.circular(30))),
       context: context,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
-            visualDensity: VisualDensity(vertical: 3),
-            shape: RoundedRectangleBorder(
+            visualDensity: const VisualDensity(vertical: 3),
+            shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30))),
             onTap: () {
               pickImage(ImageSource.camera);
             },
-            leading: Icon(
+            leading: const Icon(
               color: Colors.black,
               Icons.photo_camera_outlined,
               size: 30,
             ),
-            title: Text("Kamera", style: TextStyle(fontSize: 20)),
+            title: const Text("Kamera", style: TextStyle(fontSize: 20)),
           ),
-          Divider(
+          const Divider(
             height: 0,
           ),
           ListTile(
-            visualDensity: VisualDensity(vertical: 3),
+            visualDensity: const VisualDensity(vertical: 3),
             onTap: () => pickImage(ImageSource.gallery),
-            leading: Icon(
+            leading: const Icon(
               Icons.image_outlined,
               color: Colors.black,
               size: 30,
             ),
-            title: Text("Galeri", style: TextStyle(fontSize: 20)),
+            title: const Text("Galeri", style: TextStyle(fontSize: 20)),
           ),
         ]);
       },
@@ -699,12 +705,11 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
 
         if (croppedFile != null) {
           if (await checkImageSize(File(croppedFile.path)) < 1048487) {
-            print("girdi");
             isImageSizeSuitable = true;
           } else {
             isImageSizeSuitable = false;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: Duration(seconds: 4),
+              duration: const Duration(seconds: 4),
               content: const Text(
                   "Seçtiğiniz resimin boyutu yüksek olduğundan dolayı yedeklemede kaybedebilirsiniz."),
               action: SnackBarAction(label: 'Tamam', onPressed: () {}),
@@ -716,9 +721,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           });
         }
       }
-    } on PlatformException catch (e) {
-      print("Failed to pick image: $e");
-    }
+    } on PlatformException {}
   }
 
   Future<CroppedFile?> cropImage({required XFile file}) async {
@@ -729,12 +732,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
   }
 
   Future<int> checkImageSize(File image) async {
-    print("check girdi");
-
     Uint8List imageAsByte = await image.readAsBytes();
     String base64Data = base64Encode(imageAsByte);
     int base64Size = base64Data.length;
-    print("$base64Size----------------------------------------------");
 
     return base64Size;
   }

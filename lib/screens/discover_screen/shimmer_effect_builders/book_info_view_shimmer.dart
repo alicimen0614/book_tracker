@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
   return SingleChildScrollView(
-    physics: NeverScrollableScrollPhysics(),
+    physics: const NeverScrollableScrollPhysics(),
     child: Column(
       children: [
         Container(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           height: MediaQuery.of(context).size.height / 4,
           decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(50),
                   bottomRight: Radius.circular(50))),
           child: Row(
@@ -27,7 +27,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)))),
               ),
-              Spacer(),
+              const Spacer(),
               Expanded(
                 flex: 16,
                 child: Column(
@@ -39,7 +39,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                         height: 20,
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15))),
-                    SizedBox(
+                    const SizedBox(
                       height: 35,
                     ),
                     ShimmerWidget.rounded(
@@ -47,14 +47,14 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                         height: 15,
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15))),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     SizedBox(
                       height: 30,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
-                        separatorBuilder: (context, index) => SizedBox(
+                        separatorBuilder: (context, index) => const SizedBox(
                           width: 10,
                         ),
                         itemCount: 5,
@@ -72,10 +72,10 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
           ),
         ),
         Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(
@@ -86,20 +86,21 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) => ShimmerWidget.rounded(
                       width: MediaQuery.sizeOf(context).width - 40,
                       height: 10,
                       shapeBorder: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15))),
-                  separatorBuilder: (context, index) => SizedBox(height: 10),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
                   itemCount: 5),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(
@@ -110,7 +111,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(
@@ -121,13 +122,13 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Container(
+              SizedBox(
                 height: 10,
                 child: ListView.separated(
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     shrinkWrap: true,
                     itemBuilder: (context, index) => ShimmerWidget.rounded(
@@ -135,10 +136,11 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                         height: 10,
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15))),
-                    separatorBuilder: (context, index) => SizedBox(width: 10),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 10),
                     itemCount: 12),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(
@@ -149,20 +151,21 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) => ShimmerWidget.rounded(
                       width: MediaQuery.sizeOf(context).width - 40,
                       height: 10,
                       shapeBorder: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15))),
-                  separatorBuilder: (context, index) => SizedBox(height: 10),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 10),
                   itemCount: 5),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(
@@ -173,7 +176,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 7,
               ),
               Align(
@@ -184,13 +187,13 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15))),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Container(
+              SizedBox(
                 height: 100,
                 child: ListView.separated(
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     shrinkWrap: true,
                     itemBuilder: (context, index) => Column(
@@ -200,7 +203,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                                 height: 70,
                                 shapeBorder: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15))),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             ShimmerWidget.rounded(
@@ -208,7 +211,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                                 height: 10,
                                 shapeBorder: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15))),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             ShimmerWidget.rounded(
@@ -218,10 +221,11 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                                     borderRadius: BorderRadius.circular(15))),
                           ],
                         ),
-                    separatorBuilder: (context, index) => SizedBox(width: 10),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 10),
                     itemCount: 6),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Align(

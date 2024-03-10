@@ -56,27 +56,15 @@ class SqlHelper {
           "imageAsByte": imageAsByte != null ? base64Encode(imageAsByte) : null,
           "bookStatus": bookStatus,
           "title": bookEditionInfo.title,
-          "publish_date": bookEditionInfo.publish_date ?? null,
-          "number_of_pages": bookEditionInfo.number_of_pages ?? null,
-          "publishers": bookEditionInfo.publishers != null
-              ? bookEditionInfo.publishers!.first
-              : null,
-          "physical_format": bookEditionInfo.physical_format ?? null,
-          "isbn_10": bookEditionInfo.isbn_10 != null
-              ? bookEditionInfo.isbn_10!.first
-              : null,
-          "isbn_13": bookEditionInfo.isbn_13 != null
-              ? bookEditionInfo.isbn_13!.first
-              : null,
-          "covers": bookEditionInfo.covers != null
-              ? bookEditionInfo.covers!.first
-              : null,
-          "languages": bookEditionInfo.languages != null
-              ? bookEditionInfo.languages!.first!.key
-              : null,
-          "description": bookEditionInfo.description != null
-              ? bookEditionInfo.description
-              : null
+          "publish_date": bookEditionInfo.publish_date,
+          "number_of_pages": bookEditionInfo.number_of_pages,
+          "publishers": bookEditionInfo.publishers?.first,
+          "physical_format": bookEditionInfo.physical_format,
+          "isbn_10": bookEditionInfo.isbn_10?.first,
+          "isbn_13": bookEditionInfo.isbn_13?.first,
+          "covers": bookEditionInfo.covers?.first,
+          "languages": bookEditionInfo.languages?.first?.key,
+          "description": bookEditionInfo.description
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -97,8 +85,7 @@ class SqlHelper {
       //for uniqueId we are creating a unique int because ı want to avoid duplicates and sqlite only wants an int as id//
 
       await db.rawUpdate('UPDATE bookshelf SET bookStatus = ? WHERE id = ?',
-          ['$newBookStatus', '$bookId']);
-      print(await db.rawQuery("SELECT * FROM bookshelf"));
+          [newBookStatus, '$bookId']);
     } catch (e) {
       errorSnackBar(context, e.toString(),
           infoMessage: "Kitap yazdırılırken bir hata oluştu");
@@ -109,14 +96,13 @@ class SqlHelper {
       String note, int bookId, BuildContext context, String noteDate,
       {int? noteId}) async {
     try {
-      print("not eklenen kitabın id'si $bookId");
       // Get a reference to the database.
       final db = await _openDatabase();
 
       await db.insert(
         'notes',
         {
-          "id": noteId != null ? noteId : bookId + note.hashCode,
+          "id": noteId ?? bookId + note.hashCode,
           "bookId": bookId,
           "note": note,
           "noteDate": noteDate
@@ -177,7 +163,6 @@ class SqlHelper {
 
       // Query the table for all The Books.
       final List<Map<String, dynamic>> maps = await db.query('bookshelf');
-      print(maps);
 
       // Convert the List<Map<String, dynamic> into a List<BookWorkEditionsModelEntries>.
       booksList = List.generate(maps.length, (i) {
@@ -203,7 +188,6 @@ class SqlHelper {
         List<String?>? isbn13_List = [];
         if (maps[i]['isbn_13'] != null) {
           isbn13_List.add(maps[i]['isbn_13']);
-          ;
         } else {
           isbn13_List = null;
         }
@@ -264,11 +248,9 @@ class SqlHelper {
       // Query the table for all The Books.
       List<Map<String, Object?>> newStatus = await db
           .rawQuery('SELECT bookStatus FROM bookshelf WHERE id= $bookId');
-      print(newStatus);
 
       return newStatus.first.values.first;
     } catch (e) {
-      print(e);
       errorSnackBar(context, e.toString(),
           infoMessage: "Kitaplar getirilirken bir hata oluştu");
       return null;
@@ -284,12 +266,9 @@ class SqlHelper {
       // Query the table for all The Notes.
       final List<Map<String, dynamic>> maps = await db.query('notes');
 
-      print("gelen bookid=$bookId first $maps");
       if (bookId == null) {
-        print(maps);
         return maps;
       } else {
-        print(maps.where((element) => element['bookId'] == bookId).toList());
         return maps.where((element) => element['bookId'] == bookId).toList();
       }
 
@@ -350,7 +329,7 @@ class SqlHelper {
       where: 'bookId = ?',
       // Pass the Author's id as a whereArg to prevent SQL injection.
       whereArgs: [bookId],
-    ).whenComplete(() => print("sql document deleted"));
+    );
   }
 
   Future<void> deleteNotesFromBook(int bookId) async {
@@ -362,6 +341,6 @@ class SqlHelper {
       'notes',
       where: 'bookId = ?',
       whereArgs: [bookId],
-    ).whenComplete(() => print("sql document deleted"));
+    );
   }
 }

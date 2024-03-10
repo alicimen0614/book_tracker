@@ -14,7 +14,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'shimmer_effect_builders/author_image_and_details_shimmer.dart';
 
 class AuthorInfoScreen extends ConsumerStatefulWidget {
-  AuthorInfoScreen({super.key, required this.authorKey});
+  const AuthorInfoScreen({super.key, required this.authorKey});
 
   final String authorKey;
 
@@ -69,8 +69,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
 
   Container authorImageAndDetailsBuilder() {
     return Container(
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(10),
+      decoration: const BoxDecoration(
           color: Color(0xFF1B7695),
           borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(50),
@@ -81,7 +81,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               ? Align(
                   alignment: Alignment.center,
                   child: Container(
-                      decoration: BoxDecoration(color: Colors.transparent),
+                      decoration:
+                          const BoxDecoration(color: Colors.transparent),
                       height: 200,
                       width: 150,
                       child: FadeInImage.memoryNetwork(
@@ -94,7 +95,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               : Align(
                   alignment: Alignment.center,
                   child: Image.asset("lib/assets/images/nocover.jpg")),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Container(
@@ -111,7 +112,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Doğum Tarihi",
+                        const Text("Doğum Tarihi",
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
@@ -122,13 +123,13 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       ],
                     ),
                   ),
-                  VerticalDivider(),
+                  const VerticalDivider(),
                   SizedBox(
                     width: 150,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Ölüm Tarihi",
+                        const Text("Ölüm Tarihi",
                             textAlign: TextAlign.center,
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
@@ -151,12 +152,12 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.grey.shade300,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30), topRight: Radius.circular(30))),
       context: context,
       builder: (context) {
-        return Column(mainAxisSize: MainAxisSize.min, children: [
+        return const Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
             leading: Icon(
               Icons.info,
@@ -186,18 +187,18 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
     return Expanded(
       child: Scrollbar(
         thickness: 2,
-        radius: Radius.circular(20),
+        radius: const Radius.circular(20),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          physics: ClampingScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          physics: const ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Yazar Adı",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              Divider(color: Colors.transparent, thickness: 0),
+              const Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.name != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
@@ -208,16 +209,16 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                     ),
                   ),
                 ),
-              Divider(color: Colors.transparent, thickness: 0),
+              const Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.bio != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.bio != null)
-                Text(
+                const Text(
                   "Biyografi",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               if (authorsModel.bio != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (authorsModel.bio != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
@@ -240,26 +241,26 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                         });
                       },
                       child: biographyShowMore != true
-                          ? Text("Daha fazla göster")
-                          : Text("Daha az göster")),
+                          ? const Text("Daha fazla göster")
+                          : const Text("Daha az göster")),
                 ),
               if (authorsModel.birthDate != null)
-                Divider(color: Colors.transparent, thickness: 0),
-              Text(
+                const Divider(color: Colors.transparent, thickness: 0),
+              const Text(
                 "Yazara Ait Kitaplar",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              Divider(color: Colors.transparent, thickness: 0),
+              const Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
                   height: 150,
                   width: double.infinity,
                   child: ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(
+                      separatorBuilder: (context, index) => const SizedBox(
                             width: 10,
                           ),
-                      physics: ClampingScrollPhysics(),
+                      physics: const ClampingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) => Container(
+                      itemBuilder: (context, index) => SizedBox(
                             height: 100,
                             width: 80,
                             child: InkWell(
@@ -276,7 +277,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                     Expanded(
                                         flex: 10,
                                         child: Padding(
-                                          padding: EdgeInsets.all(5),
+                                          padding: const EdgeInsets.all(5),
                                           child: Material(
                                             color: Colors.transparent,
                                             child: Ink(
@@ -291,15 +292,15 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                                               "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
                                                           onError: (exception,
                                                                   stackTrace) =>
-                                                              AssetImage(
+                                                              const AssetImage(
                                                                   "lib/assets/images/error.png"),
                                                           fit: BoxFit.fill)
                                                       : DecorationImage(
-                                                          image: AssetImage(
+                                                          image: const AssetImage(
                                                               "lib/assets/images/nocover.jpg"),
                                                           onError: (exception,
                                                                   stackTrace) =>
-                                                              AssetImage(
+                                                              const AssetImage(
                                                                   "lib/assets/images/error.png"))),
                                             ),
                                           ),
@@ -331,8 +332,8 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                           ));
                     },
                     child: Text(
-                      "${authorsWorksSize} Kitabın Tümünü Görüntüle",
-                      style: TextStyle(
+                      "$authorsWorksSize Kitabın Tümünü Görüntüle",
+                      style: const TextStyle(
                           color: Color(0xFF1B7695),
                           fontWeight: FontWeight.bold),
                     )),

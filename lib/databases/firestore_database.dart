@@ -69,7 +69,6 @@ class FirestoreDatabase extends ChangeNotifier {
       required String userId,
       required String noteId}) async {
     try {
-      print("note deleted");
       await _firestore
           .collection(referencePath)
           .doc(userId)
@@ -94,7 +93,6 @@ class FirestoreDatabase extends ChangeNotifier {
           .where('bookId', isEqualTo: bookId)
           .get()
           .then((value) => value.docs.forEach((element) async {
-                print(element.data());
                 await _firestore
                     .collection(referencePath)
                     .doc(userId)
@@ -119,8 +117,7 @@ class FirestoreDatabase extends ChangeNotifier {
     try {
       int uniqueBookId =
           uniqueIdCreater(BookWorkEditionsModelEntries.fromJson(bookAsMap));
-      print("firebase yazdı");
-      print(bookAsMap['title']);
+
       await _firestore
           .collection(collectionPath)
           .doc(userId)

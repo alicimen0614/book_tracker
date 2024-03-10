@@ -23,8 +23,6 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
 
   @override
   void initState() {
-    print("discover screen init çalıştı");
-
     if (widget.searchValue != "") {
       pageStatus = PageStatus.search;
       searchBarController.text = widget.searchValue;
@@ -32,6 +30,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
     super.initState();
   }
 
+  @override
   void dispose() {
     searchBarController.dispose();
     super.dispose();
@@ -40,7 +39,6 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    print("çalıştı");
 
     return SafeArea(
       child: Scaffold(
@@ -72,12 +70,12 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                 Expanded(
                   flex: 1,
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.only(right: 4),
                     child: TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text(
+                        child: const Text(
                           "Vazgeç",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )),
@@ -96,7 +94,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                 Expanded(
                   flex: 1,
                   child: Padding(
-                    padding: EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.only(right: 4),
                     child: TextButton(
                         onPressed: () {
                           setState(() {
@@ -104,7 +102,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                             searchBarController.clear();
                           });
                         },
-                        child: Text(
+                        child: const Text(
                           "Vazgeç",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         )),
@@ -118,8 +116,8 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                         ? searchBarController.text
                         : widget.searchValue)
                 : pageStatus == PageStatus.trending
-                    ? TrendingBooksView(date: "monthly")
-                    : CategoriesView()
+                    ? const TrendingBooksView(date: "monthly")
+                    : const CategoriesView()
           ],
         ),
       )),
@@ -137,8 +135,6 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                 currentFocus.unfocus();
               }
               setState(() {
-                print("setstate girdi");
-
                 pageStatus = PageStatus.search;
               });
             },
@@ -146,10 +142,10 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
             keyboardType: TextInputType.text,
             autocorrect: true,
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.all(15),
+              contentPadding: const EdgeInsets.all(15),
               hintText: "Ara",
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                     color: Color(0xFF1B7695),
                   ),
                   borderRadius: BorderRadius.circular(15)),
@@ -159,7 +155,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                     pageStatus = PageStatus.search;
                   });
                 }),
-                icon: Icon(
+                icon: const Icon(
                   Icons.search,
                   size: 35,
                   color: Color(0xFF1B7695),

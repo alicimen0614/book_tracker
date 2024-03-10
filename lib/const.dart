@@ -125,7 +125,7 @@ String countryNameCreater(BookWorkEditionsModelEntries bookEdition) {
 String getImageAsByte(List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
     BookWorkEditionsModelEntries book) {
   return listOfBooksFromSql!
-      .elementAt(listOfBooksFromSql!.indexWhere(
+      .elementAt(listOfBooksFromSql.indexWhere(
           (element) => uniqueIdCreater(element) == uniqueIdCreater(book)))
       .imageAsByte!;
 }

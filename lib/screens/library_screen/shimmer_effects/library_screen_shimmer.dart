@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 GridView libraryScreenShimmerEffect() {
   return GridView.builder(
     itemCount: 15,
-    padding: EdgeInsets.all(20),
-    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    padding: const EdgeInsets.all(20),
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 0.6,
         crossAxisSpacing: 25,
@@ -15,7 +15,7 @@ GridView libraryScreenShimmerEffect() {
         ClipRRect(
             borderRadius: BorderRadius.circular(15),
             child: ShimmerWidget.rectangular(width: 85, height: 120)),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
         ShimmerWidget.rounded(
@@ -23,7 +23,7 @@ GridView libraryScreenShimmerEffect() {
             height: 10,
             shapeBorder: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15))),
-        SizedBox(
+        const SizedBox(
           height: 5,
         ),
         ShimmerWidget.rounded(

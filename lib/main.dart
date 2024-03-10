@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Book Tracker',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF1B7695),
+          seedColor: const Color(0xFF1B7695),
         ),
         scrollbarTheme: ScrollbarThemeData(
           thumbColor:
@@ -30,20 +30,20 @@ class MyApp extends StatelessWidget {
           minThumbLength: 100,
         ),
         primarySwatch: mainAppColor,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xFF1B7695),
             centerTitle: true,
             foregroundColor: Colors.white),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         progressIndicatorTheme:
-            ProgressIndicatorThemeData(color: Color(0xFF1B7695)),
+            const ProgressIndicatorThemeData(color: Color(0xFF1B7695)),
         scaffoldBackgroundColor: const Color(0xFFFFEFDB),
-        primaryColor: Color(0xFF1B7695),
+        primaryColor: const Color(0xFF1B7695),
         bottomNavigationBarTheme:
             const BottomNavigationBarThemeData(backgroundColor: Colors.white),
         fontFamily: 'Nunito Sans',
       ),
-      home: BottomNavigationBarController(),
+      home: const BottomNavigationBarController(),
     );
   }
 

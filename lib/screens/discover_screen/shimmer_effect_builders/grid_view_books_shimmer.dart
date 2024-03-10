@@ -6,20 +6,20 @@ SizedBox gridViewBooksShimmerEffectBuilder() {
     height: 500,
     width: 500,
     child: GridView.builder(
-      physics: ClampingScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       itemCount: 12,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           crossAxisSpacing: 25,
           childAspectRatio: 0.5,
           mainAxisSpacing: 25),
       itemBuilder: (context, index) => Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Column(children: [
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
               child: ShimmerWidget.rectangular(width: 180, height: 150)),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           ShimmerWidget.rounded(
@@ -28,7 +28,7 @@ SizedBox gridViewBooksShimmerEffectBuilder() {
             shapeBorder:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           Align(

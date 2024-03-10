@@ -9,18 +9,20 @@ class ShimmerWidget extends StatelessWidget {
   final Color highlightColor;
 
   ShimmerWidget.rectangular({
+    super.key,
     required this.width,
     required this.height,
-  })  : this.shapeBorder = const RoundedRectangleBorder(),
-        this.baseColor = const Color(0xFFEBEBF4),
-        this.highlightColor = Colors.grey.shade300;
+  })  : shapeBorder = const RoundedRectangleBorder(),
+        baseColor = const Color(0xFFEBEBF4),
+        highlightColor = Colors.grey.shade300;
 
   ShimmerWidget.rounded({
+    super.key,
     required this.width,
     required this.height,
     required this.shapeBorder,
-  })  : this.highlightColor = Colors.grey.shade300,
-        this.baseColor = const Color(0xFFEBEBF4);
+  })  : highlightColor = Colors.grey.shade300,
+        baseColor = const Color(0xFFEBEBF4);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class ShimmerWidget extends StatelessWidget {
     );
   }
 
-  final _shimmerGradient = LinearGradient(
+  final _shimmerGradient = const LinearGradient(
     colors: [
       Color(0xFFEBEBF4),
       Color(0xFFF4F4F4),

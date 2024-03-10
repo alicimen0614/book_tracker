@@ -27,7 +27,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
         "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
       );
     } else {
-      return AssetImage("lib/assets/images/nocover.jpg");
+      return const AssetImage("lib/assets/images/nocover.jpg");
     }
   }
 
@@ -43,7 +43,6 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
   }
 
   void fetchData(int pageKey) async {
-    print("fetchdata");
     isConnected = await checkForInternetConnection();
 
     try {
@@ -59,7 +58,6 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
       }
     } catch (e) {
       pagingController.error = e;
-      print("$e-1");
     }
   }
 
@@ -69,7 +67,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
       appBar: AppBar(
         centerTitle: true,
         leadingWidth: 50,
-        title: Text(
+        title: const Text(
           "Aylık Trend Kitaplar",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -83,7 +81,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
         elevation: 5,
       ),
       body: PagedGridView<int, TrendingBooksWorks?>(
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           showNewPageProgressIndicatorAsGridChild: false,
           showNoMoreItemsIndicatorAsGridChild: false,
           pagingController: pagingController,
@@ -121,27 +119,29 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                     Expanded(
                         flex: 15,
                         child: Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(5),
                           child: Ink(
                             decoration: BoxDecoration(
                                 image: DecorationImage(
                                     onError: (exception, stackTrace) =>
-                                        AssetImage(
+                                        const AssetImage(
                                             "lib/assets/images/error.png"),
                                     image: getBookCover(item),
                                     fit: BoxFit.fill),
                                 borderRadius: BorderRadius.circular(15)),
                           ),
                         )),
-                    Spacer(flex: 1),
+                    const Spacer(flex: 1),
                     Expanded(
                       flex: 7,
                       child: Text(
                         textAlign: TextAlign.center,
-                        maxLines: 2,
+                        maxLines: 3,
                         item!.title!,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.height / 60),
                       ),
                     )
                   ]),
@@ -149,11 +149,13 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
               );
             },
           ),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 1,
-              mainAxisExtent: 230,
-              crossAxisSpacing: 25,
+              mainAxisExtent:
+                  MediaQuery.of(context).size.width > 500 ? 400 : 230,
+              crossAxisSpacing:
+                  MediaQuery.of(context).size.width > 500 ? 75 : 25,
               mainAxisSpacing: 25)),
     );
   }

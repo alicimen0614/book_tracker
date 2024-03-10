@@ -8,7 +8,7 @@ import '../screens/library_screen/library_screen_view.dart';
 import '../screens/user_screen/user_screen_view.dart';
 
 class BottomNavigationBarController extends ConsumerStatefulWidget {
-  BottomNavigationBarController({super.key, this.searchValue = ""});
+  const BottomNavigationBarController({super.key, this.searchValue = ""});
 
   final String searchValue;
 
@@ -19,13 +19,13 @@ class BottomNavigationBarController extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarControllerState
     extends ConsumerState<BottomNavigationBarController> {
-  List<Widget> _widgetOptions = <Widget>[
-    HomeScreenView(),
-    DiscoverScreenView(),
-    LibraryScreenView(),
-    UserScreenView()
+  final List<Widget> _widgetOptions = <Widget>[
+    const HomeScreenView(),
+    const DiscoverScreenView(),
+    const LibraryScreenView(),
+    const UserScreenView()
   ];
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
 
   late String value = widget.searchValue;
   int indexBottomNavbar = 0;
@@ -60,7 +60,7 @@ class _BottomNavigationBarControllerState
         builder: (context, snapshot) {
           return Scaffold(
             body: PageView(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               controller: _pageController,
               onPageChanged: onTap,
               children: _widgetOptions,

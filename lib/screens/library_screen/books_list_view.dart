@@ -35,7 +35,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Not eklemek istediğin kitabı seç",
+        title: const Text("Not eklemek istediğin kitabı seç",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         leadingWidth: 50,
         leading: IconButton(
@@ -48,12 +48,12 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
         automaticallyImplyLeading: false,
       ),
       body: isLoading == false
-          ? bookListToShow!.length != 0
+          ? bookListToShow!.isNotEmpty
               ? GridView.builder(
-                  padding: EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.all(5.0),
                   itemCount: bookListToShow!.length,
-                  physics: ClampingScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  physics: const ClampingScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       childAspectRatio: 1,
                       crossAxisSpacing: 25,
@@ -129,7 +129,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                         image: DecorationImage(
                                           fit: BoxFit.fill,
                                           onError: (exception, stackTrace) =>
-                                              AssetImage(
+                                              const AssetImage(
                                                   "lib/assets/images/error.png"),
                                           image: listOfBookIdsFromSql!.contains(
                                                           uniqueIdCreater(
@@ -176,7 +176,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                   ),
                                 )),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Expanded(
                             flex: 7,
                             child: SizedBox(
@@ -207,13 +207,13 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                       SizedBox(
                         height: MediaQuery.of(context).size.width / 10,
                       ),
-                      Text(
+                      const Text(
                         "Şu anda kitaplığınız boş.",
                         style: TextStyle(
                           fontSize: 20,
                         ),
                       ),
-                      Text(
+                      const Text(
                         "Not eklemek için önce kitap eklemelisiniz.",
                         style: TextStyle(
                           fontSize: 20,

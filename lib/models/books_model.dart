@@ -119,7 +119,6 @@ class BooksModelDocs {
 
     firstPublishYear = json['first_publish_year']?.toInt();
 
-    ;
     coverI = json['cover_i']?.toInt();
 
     if (json['language'] != null) {

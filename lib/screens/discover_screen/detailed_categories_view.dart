@@ -32,7 +32,7 @@ class _DetailedCategoriesViewState
         "https://covers.openlibrary.org/b/id/${doc.coverI}-M.jpg",
       );
     } else {
-      return NetworkImage("lib/assets/images/nocover.jpg");
+      return const NetworkImage("lib/assets/images/nocover.jpg");
     }
   }
 
@@ -48,7 +48,6 @@ class _DetailedCategoriesViewState
   }
 
   void fetchData(int pageKey) async {
-    print("fetchdata");
     isConnected = await checkForInternetConnection();
     try {
       Map<String, dynamic>? categoryBooksModelAsJson = await ref
@@ -69,17 +68,17 @@ class _DetailedCategoriesViewState
       }
     } catch (e) {
       pagingController.error = e;
-      print("$e-1");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).size.width);
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 50,
         title: Text(widget.categoryName,
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
@@ -91,7 +90,7 @@ class _DetailedCategoriesViewState
         elevation: 5,
       ),
       body: PagedGridView<int, BooksModelDocs?>(
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           showNewPageProgressIndicatorAsGridChild: false,
           showNoMoreItemsIndicatorAsGridChild: false,
           pagingController: pagingController,
@@ -133,26 +132,28 @@ class _DetailedCategoriesViewState
                     Expanded(
                         flex: 15,
                         child: Padding(
-                          padding: EdgeInsets.all(5),
+                          padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                           child: Ink(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
                                 image: DecorationImage(
                                     onError: (exception, stackTrace) =>
-                                        AssetImage(
+                                        const AssetImage(
                                             "lib/assets/images/error.png"),
                                     image: getBookCover(item),
                                     fit: BoxFit.fill)),
                             padding: EdgeInsets.zero,
                           ),
                         )),
-                    Spacer(
+                    const Spacer(
                       flex: 1,
                     ),
                     Expanded(
                       flex: 7,
                       child: Text(
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.height / 60),
                         item!.title!,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 3,
@@ -164,11 +165,13 @@ class _DetailedCategoriesViewState
               );
             },
           ),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio: 1,
-              mainAxisExtent: 230,
-              crossAxisSpacing: 25,
+              mainAxisExtent:
+                  MediaQuery.of(context).size.width > 500 ? 400 : 230,
+              crossAxisSpacing:
+                  MediaQuery.of(context).size.width > 500 ? 75 : 25,
               mainAxisSpacing: 25)),
     );
   }

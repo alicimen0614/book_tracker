@@ -14,7 +14,7 @@ import '../../widgets/text_field_widget.dart';
 enum FormStatus { signIn, register, reset }
 
 class AuthView extends ConsumerStatefulWidget {
-  AuthView({super.key, required this.formStatusData});
+  const AuthView({super.key, required this.formStatusData});
 
   final FormStatus formStatusData;
   @override
@@ -92,7 +92,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
             left: 10,
             child: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(
+                icon: const Icon(
                   Icons.arrow_back,
                   size: 30,
                 )),
@@ -100,7 +100,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
           Align(
               alignment: Alignment.center,
               child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -209,7 +209,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: AnimatedButton(
                   onTap: () async {
                     if (signInFormKey.currentState!.validate()) {
-                      if (mounted)
+                      if (mounted) {
                         await ref
                             .read(authProvider)
                             .signInWithEmailAndPassword(
@@ -218,19 +218,18 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                 context)
                             .then((value) {
                           if (value != null) {
-                            print("value not null");
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      BottomNavigationBarController(),
+                                      const BottomNavigationBarController(),
                                 ),
                                 (route) => false);
                           } else {
-                            print("value is null");
                             return;
                           }
                         });
+                      }
                     }
                   },
                   text: "Giriş Yap",
@@ -242,13 +241,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     endIndent: 5,
                   )),
                   googleSignIn(),
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     indent: 5,
@@ -372,13 +371,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     endIndent: 5,
                   )),
                   googleSignIn(),
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     indent: 5,
@@ -446,13 +445,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
               flex: 5,
               child: Row(
                 children: [
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     endIndent: 5,
                   )),
                   googleSignIn(),
-                  Expanded(
+                  const Expanded(
                       child: Divider(
                     color: Colors.black38,
                     indent: 5,
@@ -493,11 +492,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
             }
           });
         }
-
-        ;
       },
       child: Container(
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         height: 40,
         width: 40,
         decoration: BoxDecoration(

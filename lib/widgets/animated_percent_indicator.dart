@@ -9,10 +9,10 @@ class AnimatedPercentIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Center(
         child: CircularPercentIndicator(
-          progressColor: Color(0xFF1B7695),
+          progressColor: const Color(0xFF1B7695),
           radius: 40,
           animation: true,
           percent: percentage,

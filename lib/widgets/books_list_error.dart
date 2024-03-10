@@ -24,16 +24,16 @@ Center booksListError(
                   "lib/assets/images/no_internet_connection.png",
                   width: MediaQuery.of(context).size.width / 1.2,
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           isNetworkError == true
-              ? SizedBox(
+              ? const SizedBox(
                   height: 15,
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           if (message != null)
             const SizedBox(

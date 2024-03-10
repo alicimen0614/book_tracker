@@ -5,54 +5,54 @@ Expanded detailedEditionInfoShimmerBuilder(BuildContext context) {
   return Expanded(
     child: Scrollbar(
       thickness: 3,
-      radius: Radius.circular(20),
+      radius: const Radius.circular(20),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        physics: ClampingScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        physics: const ClampingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Başlık",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 2,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Yazarlar",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 4,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Açıklama",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             SizedBox(
               height: MediaQuery.sizeOf(context).height / 5.5,
               child: ListView.separated(
-                physics: NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) => SizedBox(
+                physics: const NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) => const SizedBox(
                   height: 5,
                 ),
                 itemCount: 5,
@@ -70,71 +70,71 @@ Expanded detailedEditionInfoShimmerBuilder(BuildContext context) {
                     height: 15,
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Yayıncı",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 4,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Kitap formatı",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 4,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Isbn 10",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 4,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Isbn 13",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 3,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Kitap durumu",
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 3,
                 height: 15,

@@ -30,7 +30,6 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
   }
 
   void fetchData(int pageKey) async {
-    print("fetchdata");
     try {
       AuthorsWorksModel worksModel = await ref
           .read(booksProvider)
@@ -46,7 +45,6 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
       }
     } catch (e) {
       pagingController.error = e;
-      print("$e-1");
     }
   }
 
@@ -58,7 +56,7 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
         centerTitle: true,
         title: Text(
           "${widget.authorName} Kitapları",
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -73,10 +71,10 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
         elevation: 0,
       ),
       body: PagedGridView<int, AuthorsWorksModelEntries?>(
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         pagingController: pagingController,
-        padding: EdgeInsets.all(10),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        padding: const EdgeInsets.all(10),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             childAspectRatio: 1,
             crossAxisSpacing: 25,
@@ -99,7 +97,7 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
               Expanded(
                   flex: 12,
                   child: Padding(
-                    padding: EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(5),
                     child: Ink(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
@@ -108,17 +106,19 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
                                   image: NetworkImage(
                                       "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
                                   onError: (exception, stackTrace) =>
-                                      AssetImage("lib/assets/images/error.png"),
+                                      const AssetImage(
+                                          "lib/assets/images/error.png"),
                                   fit: BoxFit.fill)
                               : DecorationImage(
-                                  image: AssetImage(
+                                  image: const AssetImage(
                                       "lib/assets/images/nocover.jpg"),
                                   onError: (exception, stackTrace) =>
-                                      AssetImage("lib/assets/images/error.png"),
+                                      const AssetImage(
+                                          "lib/assets/images/error.png"),
                                   fit: BoxFit.fill)),
                     ),
                   )),
-              Spacer(),
+              const Spacer(),
               Expanded(
                   flex: 3,
                   child: Text(

@@ -12,7 +12,7 @@ Center noItemsFoundIndicatorBuilder(double width) {
         SizedBox(
           height: width / 10,
         ),
-        Text(
+        const Text(
           "Sonuç bulunamadı.",
           style: TextStyle(
             fontSize: 20,

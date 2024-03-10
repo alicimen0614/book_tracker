@@ -27,12 +27,10 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
 
   final customCacheManager = CacheManager(
     Config("customCacheKey",
-        maxNrOfCacheObjects: 25, stalePeriod: Duration(days: 15)),
+        maxNrOfCacheObjects: 25, stalePeriod: const Duration(days: 15)),
   );
   @override
   void initState() {
-    print("initstate girdi");
-
     getTrendingBooks();
     super.initState();
   }
@@ -61,18 +59,14 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
       }
     } catch (e) {
       if (mounted) errorSnackBar(context, e.toString());
-      print("categories view hata $e");
     }
-
-    print(items);
   }
 
   @override
   Widget build(BuildContext context) {
-    print(items);
     return Expanded(
       child: CustomScrollView(
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         slivers: <Widget>[
           scrollableTrendingBuilder(context),
           categoriesGridViewBuilder(),
@@ -119,14 +113,15 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                               image: AssetImage(
                                   "lib/assets/images/${mainCategoriesImages[index]}"),
                               onError: (exception, stackTrace) =>
-                                  AssetImage("lib/assets/images/error.png"),
+                                  const AssetImage(
+                                      "lib/assets/images/error.png"),
                             )),
                       )),
                   const SizedBox(
                     width: double.infinity,
                     height: 10,
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Expanded(
                     flex: 4,
                     child: Text(
@@ -202,8 +197,8 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   Center trendingErrorWidget(BuildContext context) {
     return Center(
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        Text("Bir hata meydana geldi."),
-        Text("Lütfen yenilemek için tıklayın."),
+        const Text("Bir hata meydana geldi."),
+        const Text("Lütfen yenilemek için tıklayın."),
         IconButton(
             color: Theme.of(context).primaryColor,
             iconSize: 30,
@@ -214,24 +209,24 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
               });
               getTrendingBooks();
             },
-            icon: Icon(Icons.refresh_sharp))
+            icon: const Icon(Icons.refresh_sharp))
       ]),
     );
   }
 
-  Container trendingBooksWidget() {
-    return Container(
-        height: 120,
+  SizedBox trendingBooksWidget() {
+    return SizedBox(
+        height: 150,
         width: double.infinity,
         child: ListView.builder(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: items?.length,
             itemBuilder: (context, index) {
               return Padding(
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                  width: 85,
+                  width: 100,
                   child: InkWell(
                       borderRadius: BorderRadius.circular(15),
                       onTap: () {
@@ -241,41 +236,50 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                           },
                         ));
                       },
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: CachedNetworkImage(
-                                fit: BoxFit.fill,
-                                width: 60,
-                                imageUrl:
-                                    "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
-                                placeholder: (context, url) => ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Transform.scale(
-                                    scale: 0.3,
-                                    child: Center(
-                                        child: CircularProgressIndicator()),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.fill,
+                                  width: 80,
+                                  imageUrl:
+                                      "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
+                                  placeholder: (context, url) => ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Transform.scale(
+                                      scale: 0.3,
+                                      child: const Center(
+                                          child: CircularProgressIndicator()),
+                                    ),
                                   ),
+                                  cacheManager: customCacheManager,
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                          "lib/assets/images/error.png"),
                                 ),
-                                cacheManager: customCacheManager,
-                                errorWidget: (context, url, error) =>
-                                    Image.asset("lib/assets/images/error.png"),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: items != null
-                                ? Text(
-                                    items![index]!.title!,
-                                    overflow: TextOverflow.ellipsis,
-                                  )
-                                : SizedBox.shrink(),
-                          )
-                        ],
+                            Expanded(
+                              flex: 1,
+                              child: items != null
+                                  ? Text(
+                                      items![index]!.title!,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              60),
+                                    )
+                                  : const SizedBox.shrink(),
+                            )
+                          ],
+                        ),
                       )),
                 ),
               );

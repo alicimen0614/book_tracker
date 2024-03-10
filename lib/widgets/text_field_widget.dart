@@ -44,7 +44,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       autocorrect: widget.autoCorrect,
       decoration: InputDecoration(
         prefixIconColor: const Color.fromRGBO(204, 149, 68, 1),
-        contentPadding: EdgeInsets.all(10),
+        contentPadding: const EdgeInsets.all(10),
         hintText: widget.hintText,
         prefixIcon: Icon(
           widget.prefixIconData,
@@ -53,11 +53,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         suffixIcon: widget.useSuffixIcon == true
             ? GestureDetector(
                 onTap: () {
-                  print("basıldı");
                   setState(() {
-                    print(_obscureText);
                     _obscureText = !_obscureText;
-                    print(_obscureText);
                   });
                 },
                 child: Icon(

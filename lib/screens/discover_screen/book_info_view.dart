@@ -41,11 +41,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
   @override
   void initState() {
-    mainBook = widget.searchBook != null
-        ? widget.searchBook
-        : widget.trendingBook != null
-            ? widget.trendingBook
-            : widget.authorBook;
+    mainBook = widget.searchBook ?? widget.trendingBook ?? widget.authorBook;
     getPageData();
     super.initState();
   }
@@ -59,7 +55,9 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           leadingWidth: 50,
           title: Text(
             "Kitap Detayı",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40),
           ),
           centerTitle: true,
           leading: IconButton(
@@ -83,16 +81,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
   Expanded bookInfoBodyBuilder() {
     bool isThereMoreEditionsThanFive = editionsList!.length > 5;
-    print(isThereMoreEditionsThanFive);
     int itemCount = editionsList!.length;
-    print("$itemCount-1");
     return Expanded(
       child: Scrollbar(
         thickness: 3,
-        radius: Radius.circular(20),
+        radius: const Radius.circular(20),
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-          physics: ClampingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             (bookWorkModel?.description != null &&
@@ -125,19 +121,19 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
       children: [
         Row(
           children: [
-            const Align(
+            Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Mevcut Diller",
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: 18),
+                      fontSize: MediaQuery.of(context).size.height / 50),
                 )),
-            SizedBox(
+            const SizedBox(
               width: 5,
             ),
-            Tooltip(
+            const Tooltip(
               showDuration: Duration(seconds: 3),
               triggerMode: TooltipTriggerMode.tap,
               message: "Buradaki diller mevcut tüm dilleri göstermeyebilir.",
@@ -148,12 +144,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         const SizedBox(
           height: 10,
         ),
-        Container(
+        SizedBox(
           height: 20,
           width: double.infinity,
           child: ListView.separated(
-            physics: ClampingScrollPhysics(),
-            separatorBuilder: (context, index) => SizedBox(
+            physics: const ClampingScrollPhysics(),
+            separatorBuilder: (context, index) => const SizedBox(
               width: 10,
             ),
             scrollDirection: Axis.horizontal,
@@ -173,12 +169,23 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   mainBook!.language![index]!.toUpperCase() as String,
                 )!
                     .name;
-                return Text(country);
+                return Text(
+                  country,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                );
               } else if (indexOfBibliographicCode != -1) {
                 return Text(
-                    NaturalLanguage.list[indexOfBibliographicCode].name);
+                  NaturalLanguage.list[indexOfBibliographicCode].name,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                );
               } else {
-                return Text(mainBook!.language![index]!);
+                return Text(
+                  mainBook!.language![index]!,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                );
               }
             },
           ),
@@ -193,24 +200,24 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   Column editionsBuilder(int itemCount) {
     return Column(
       children: [
-        const Align(
+        Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "Baskılar",
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18),
+                  fontSize: MediaQuery.of(context).size.height / 50),
             )),
         const SizedBox(
           height: 10,
         ),
-        Container(
+        SizedBox(
           width: double.infinity,
-          height: 150,
+          height: MediaQuery.of(context).size.width > 500 ? 300 : 150,
           child: ListView.separated(
-            physics: ClampingScrollPhysics(),
-            separatorBuilder: (context, index) => SizedBox(
+            physics: const ClampingScrollPhysics(),
+            separatorBuilder: (context, index) => const SizedBox(
               width: 10,
             ),
             scrollDirection: Axis.horizontal,
@@ -245,7 +252,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                       child: Material(
                         color: Colors.transparent,
                         child: Ink(
-                          width: 70,
+                          width: MediaQuery.of(context).size.width > 500
+                              ? 150
+                              : 70,
+                          height: MediaQuery.of(context).size.width > 500
+                              ? 500
+                              : 150,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               image: editionsList![index]!.covers != null
@@ -253,25 +265,27 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                       image: NetworkImage(
                                           "https://covers.openlibrary.org/b/id/${editionsList![index]!.covers!.first}-M.jpg"),
                                       onError: (exception, stackTrace) =>
-                                          AssetImage(
+                                          const AssetImage(
                                               "lib/assets/images/error.png"),
                                       fit: BoxFit.fill)
                                   : DecorationImage(
-                                      image: AssetImage(
+                                      image: const AssetImage(
                                           "lib/assets/images/nocover.jpg"),
                                       onError: (exception, stackTrace) =>
-                                          AssetImage(
+                                          const AssetImage(
                                               "lib/assets/images/error.png"),
                                     )),
                         ),
                       )),
-                  Spacer(),
+                  const Spacer(),
                   Expanded(
                     flex: 4,
                     child: SizedBox(
-                      width: 75,
+                      width: 80,
                       child: Text(
                         editionsList![index]!.title!,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height / 60),
                         maxLines: 2,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
@@ -297,8 +311,10 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   ));
                 },
                 child: Text(
-                  "${bookEditionsSize} Baskının Tümünü Görüntüle",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  "$bookEditionsSize Baskının Tümünü Görüntüle",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.height / 60),
                 )))
       ],
     );
@@ -307,14 +323,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   Column firstSentenceBuilder(String firstSentence) {
     return Column(
       children: [
-        const Align(
+        Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "İlk Cümle",
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18),
+                  fontSize: MediaQuery.of(context).size.height / 50),
             )),
         const SizedBox(
           height: 10,
@@ -326,9 +342,15 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   firstSentence,
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
                 ),
               )
-            : Text(firstSentence),
+            : Text(
+                firstSentence,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 60),
+              ),
         Align(
           alignment: Alignment.topRight,
           child: TextButton(
@@ -338,13 +360,17 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 });
               },
               child: textShowMoreForFirstSentence == false
-                  ? const Text(
+                  ? Text(
                       "Daha fazla",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )
-                  : const Text(
+                  : Text(
                       "Daha az",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
         ),
       ],
@@ -356,14 +382,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
     return Column(
       children: [
-        const Align(
+        Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "Açıklama",
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18),
+                  fontSize: MediaQuery.of(context).size.height / 50),
             )),
         const SizedBox(
           height: 10,
@@ -385,12 +411,16 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                         : bookWorkModel!.description!,
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60),
                   )
                 : Text(
                     bookWorkModel!.description!.startsWith("{")
                         ? textAsString.replaceRange(
                             textAsString.length - 1, textAsString.length, "")
                         : bookWorkModel!.description!,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60),
                   )),
         Align(
           alignment: Alignment.topRight,
@@ -401,13 +431,17 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 });
               },
               child: textShowMoreForDescription == false
-                  ? const Text(
+                  ? Text(
                       "Daha fazla",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )
-                  : const Text(
+                  : Text(
                       "Daha az",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
         ),
       ],
@@ -416,10 +450,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
   Container bookInfoBarBuilder() {
     return Container(
-      height: MediaQuery.of(context).size.height / 4,
+      height: MediaQuery.of(context).size.width > 500
+          ? MediaQuery.of(context).size.height / 2.5
+          : MediaQuery.of(context).size.height / 3.5,
       decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(50),
               bottomRight: Radius.circular(50))),
       child: Padding(
@@ -432,7 +468,9 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                 Expanded(
                   flex: 8,
                   child: Container(
-                    height: MediaQuery.of(context).size.height / 5,
+                    height: MediaQuery.of(context).size.width > 500
+                        ? MediaQuery.of(context).size.height / 3
+                        : MediaQuery.of(context).size.height / 4.2,
                     color: Colors.transparent,
                     child: bookWorkModel?.covers != null
                         ? ClipRRect(
@@ -452,7 +490,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                 Image.asset("lib/assets/images/nocover.jpg")),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Expanded(
                   flex: 16,
                   child: Column(
@@ -461,15 +499,15 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(10),
-                        child: SizedBox(
+                        child: FittedBox(
                           child: Text(
                             mainBook!.title!,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 3,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: MediaQuery.of(context).size.height / 40,
                             ),
                           ),
                         ),
@@ -481,7 +519,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Spacer(),
+                            const Spacer(),
                             Expanded(
                               flex: 5,
                               child: TextButton(
@@ -495,15 +533,19 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                                       .authorKey.first),
                                         ));
                                   },
-                                  child: SizedBox(
+                                  child: FittedBox(
                                     child: Text(
                                       mainBook!.authorName!.first!,
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 16),
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              40),
                                     ),
                                   )),
                             ),
-                            Expanded(
+                            const Expanded(
                               flex: 1,
                               child: Tooltip(
                                   showDuration: Duration(seconds: 3),
@@ -512,28 +554,28 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                       "Yazar hakkında bilgi almak için ismine tıklayın",
                                   child: Icon(Icons.info_outline)),
                             ),
-                            Spacer()
+                            const Spacer()
                           ],
                         ),
                       const SizedBox(height: 10),
-                      Container(
+                      SizedBox(
                         height: 30,
                         child: bookWorkModel?.subjects != null
                             ? Scrollbar(
                                 thickness: 3,
-                                radius: Radius.circular(20),
+                                radius: const Radius.circular(20),
                                 child: ListView.separated(
                                     separatorBuilder: (context, index) =>
-                                        VerticalDivider(
+                                        const VerticalDivider(
                                             color: Colors.transparent,
                                             thickness: 0),
-                                    physics: ClampingScrollPhysics(),
+                                    physics: const ClampingScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     itemCount: bookWorkModel!.subjects!.length,
                                     itemBuilder: (context, index) {
                                       return TextButton(
                                           style: TextButton.styleFrom(
-                                            padding: EdgeInsets.all(5),
+                                            padding: const EdgeInsets.all(5),
                                             backgroundColor:
                                                 Colors.grey.shade300,
                                           ),
@@ -555,8 +597,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                                           },
                                           child: Text(
                                             "#${bookWorkModel?.subjects![index]!}",
-                                            style:
-                                                TextStyle(color: Colors.black),
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    60),
                                           ));
                                     }),
                               )

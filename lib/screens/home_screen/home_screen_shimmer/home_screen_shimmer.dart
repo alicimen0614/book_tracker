@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 ListView homeScreenShimmer(BuildContext context) {
   return ListView.separated(
     scrollDirection: Axis.horizontal,
-    physics: ClampingScrollPhysics(),
+    physics: const ClampingScrollPhysics(),
     separatorBuilder: (context, index) =>
-        VerticalDivider(color: Colors.transparent, thickness: 0),
+        const VerticalDivider(color: Colors.transparent, thickness: 0),
     itemCount: 4,
-    itemBuilder: (context, index) => Container(
+    itemBuilder: (context, index) => SizedBox(
       height: 220,
       width: 100,
       child: Column(
@@ -22,7 +22,7 @@ ListView homeScreenShimmer(BuildContext context) {
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
           ),
-          Spacer(),
+          const Spacer(),
           Expanded(
               flex: 3,
               child: ShimmerWidget.rounded(
@@ -30,7 +30,7 @@ ListView homeScreenShimmer(BuildContext context) {
                   height: 1,
                   shapeBorder: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)))),
-          Spacer(),
+          const Spacer(),
           Expanded(
               flex: 3,
               child: ShimmerWidget.rounded(

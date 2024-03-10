@@ -46,23 +46,22 @@ class _ProgressDialogState extends State<ProgressDialog> {
 
   @override
   Widget build(BuildContext context) {
-    print(percentage);
     return AlertDialog(
       actions: [
         TextButton(
           onPressed: () {
             if (mounted) Navigator.pop(context, didChangeMade);
           },
-          child: Text("Kapat"),
+          child: const Text("Kapat"),
         )
       ],
-      title: Text('Kitaplar senkronize ediliyor.',
+      title: const Text('Kitaplar senkronize ediliyor.',
           textAlign: TextAlign.center,
           style: TextStyle(fontWeight: FontWeight.bold)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 50,
             ),
             Image.asset(
@@ -75,21 +74,21 @@ class _ProgressDialogState extends State<ProgressDialog> {
         AnimatedPercentIndicator(
           percentage: percentage,
         ),
-        Text("Lütfen bekleyiniz."),
-        Divider(
+        const Text("Lütfen bekleyiniz."),
+        const Divider(
           color: Colors.transparent,
           thickness: 0,
         ),
         Text("$currentCount/$currentProcessLength",
-            style: TextStyle(color: Colors.grey)),
-        Divider(
+            style: const TextStyle(color: Colors.grey)),
+        const Divider(
           color: Colors.transparent,
           thickness: 0,
         ),
-        Text("$currentBookName",
+        Text(currentBookName,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold))
+            style: const TextStyle(fontWeight: FontWeight.bold))
       ]),
     );
   }
@@ -113,13 +112,15 @@ class _ProgressDialogState extends State<ProgressDialog> {
       for (var i = 0; i < listOfBookIdsFromSql.length; i++) {
         if (!listOfBookIdsFromFirebase.contains(listOfBookIdsFromSql[i])) {
           didChangeMade = true;
-          if (mounted)
+          if (mounted) {
             setState(() {
               percentage = ((i + 1) * (100 / listOfBooksFromSql.length) / 100);
               currentCount = i + 1;
             });
-          if (mounted)
+          }
+          if (mounted) {
             await insertBookToFirebase(listOfBooksFromSql[i], context);
+          }
         }
       }
       percentage = 0;
@@ -131,17 +132,17 @@ class _ProgressDialogState extends State<ProgressDialog> {
         if (!listOfBookIdsFromSql.contains(listOfBookIdsFromFirebase[i])) {
           didChangeMade = true;
 
-          print("kitap yazdırıldı => no: $i");
-          if (mounted)
+          if (mounted) {
             setState(() {
               percentage =
                   ((i + 1) * (100 / listOfBooksFromFirestore.length) / 100);
               currentBookName = listOfBooksFromFirestore[i].title!;
               currentCount = i + 1;
-              print(((i + 1) * (100 / listOfBookIdsFromFirebase.length) / 100));
             });
-          if (mounted)
+          }
+          if (mounted) {
             await insertBookToSql(listOfBooksFromFirestore[i], context);
+          }
         }
       }
     }
@@ -152,8 +153,6 @@ class _ProgressDialogState extends State<ProgressDialog> {
   Future<void> insertBookToSql(
       BookWorkEditionsModelEntries bookInfo, BuildContext context) async {
     if (bookInfo.imageAsByte != null) {
-      print("ilk if e girdi");
-
       await _sqlHelper.insertBook(bookInfo, bookInfo.bookStatus!,
           base64Decode(bookInfo.imageAsByte!), context);
       await insertAuthor(bookInfo, context);
@@ -170,9 +169,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
         await _sqlHelper.insertBook(
             bookInfo, bookInfo.bookStatus!, imageAsByte, context);
         await insertAuthor(bookInfo, context);
-      } catch (e) {
-        print("hata yakalandı");
-      }
+      } catch (e) {}
     } else {
       await _sqlHelper.insertBook(
           bookInfo, bookInfo.bookStatus!, null, context);
@@ -199,8 +196,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
         "isbn_13": bookInfo.isbn_13,
         "authorsNames": bookInfo.authorsNames,
         "description": bookInfo.description,
-        "languages":
-            bookInfo.languages != null ? bookInfo.languages!.first!.key : null
+        "languages": bookInfo.languages?.first?.key
       },
       userId: _authProvider.currentUser!.uid,
     );

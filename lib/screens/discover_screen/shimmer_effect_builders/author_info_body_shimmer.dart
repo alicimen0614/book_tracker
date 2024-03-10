@@ -5,34 +5,34 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
   return Expanded(
     child: Scrollbar(
       thickness: 2,
-      radius: Radius.circular(20),
+      radius: const Radius.circular(20),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        physics: ClampingScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        physics: const ClampingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               "Yazar Adı",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
                 width: MediaQuery.sizeOf(context).width / 2,
                 height: 15,
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Biyografi",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             SizedBox(
               height: MediaQuery.sizeOf(context).height / 5.5,
               child: ListView.separated(
-                physics: NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) => SizedBox(
+                physics: const NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) => const SizedBox(
                   height: 5,
                 ),
                 itemCount: 5,
@@ -50,16 +50,16 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                     height: 15,
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)))),
-            Divider(color: Colors.transparent, thickness: 0),
-            Text(
+            const Divider(color: Colors.transparent, thickness: 0),
+            const Text(
               "Yazara Ait Kitaplar",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
-            Container(
+            const Divider(color: Colors.transparent, thickness: 0),
+            SizedBox(
               height: 150,
               child: ListView.separated(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
                   itemBuilder: (context, index) => Column(
@@ -69,7 +69,7 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                               height: 100,
                               shapeBorder: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15))),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           ShimmerWidget.rounded(
@@ -77,7 +77,7 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                               height: 10,
                               shapeBorder: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15))),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           ShimmerWidget.rounded(
@@ -87,10 +87,11 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                                   borderRadius: BorderRadius.circular(15))),
                         ],
                       ),
-                  separatorBuilder: (context, index) => SizedBox(width: 20),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 20),
                   itemCount: 4),
             ),
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
             Align(
               alignment: Alignment.centerRight,
               child: ShimmerWidget.rounded(

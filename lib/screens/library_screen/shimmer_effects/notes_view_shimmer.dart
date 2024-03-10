@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 ListView notesViewShimmerEffect() {
   return ListView.separated(
-    padding: EdgeInsets.all(15),
-    separatorBuilder: (context, index) => SizedBox(
+    padding: const EdgeInsets.all(15),
+    separatorBuilder: (context, index) => const SizedBox(
       height: 15,
     ),
     itemCount: 5,

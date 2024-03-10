@@ -31,7 +31,6 @@ class BooksService {
       var result = TrendingBooks.fromJson(jsonDecode(response.body));
       return result.works;
     } catch (e) {
-      print("hata yakalandı gettrendingbooks $e");
       errorSnackBar(context, e.toString());
     }
   }
@@ -43,7 +42,6 @@ class BooksService {
 
       return result;
     } catch (e) {
-      print("hata yakalandı getworkdetail $e");
       errorSnackBar(context, e.toString());
     }
   }
@@ -53,13 +51,11 @@ class BooksService {
     try {
       var response = await http.get(
           Uri.parse("$baseUrl$key/editions.json?offset=$offset&limit=$limit"));
-      print("$baseUrl$key/editions.json?offset=$offset&limit=$limit");
 
       var result = BookWorkEditionsModel.fromJson(jsonDecode(response.body));
 
       return result;
     } catch (e) {
-      print("hata yakalandı getbookworkeditions $e");
       errorSnackBar(context, e.toString());
     }
   }
@@ -75,7 +71,6 @@ class BooksService {
 
       return result;
     } catch (e) {
-      print("hata yakalandı authorinfo $e");
       errorSnackBar(context, e.toString());
     }
   }
@@ -90,7 +85,6 @@ class BooksService {
 
       return result;
     } catch (e) {
-      print("hata yakalandı authors work $e");
       errorSnackBar(context, e.toString());
     }
   }

@@ -15,7 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
 class DetailedEditionInfo extends ConsumerStatefulWidget {
-  DetailedEditionInfo(
+  const DetailedEditionInfo(
       {super.key,
       required this.editionInfo,
       required this.isNavigatingFromLibrary,
@@ -48,8 +48,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   @override
   void initState() {
-    if (widget.isNavigatingFromLibrary)
+    if (widget.isNavigatingFromLibrary) {
       bookStatusAsString = widget.editionInfo.bookStatus!;
+    }
     getPageData();
 
     super.initState();
@@ -57,10 +58,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   @override
   Widget build(BuildContext context) {
-    print(
-        "${uniqueIdCreater(widget.editionInfo) + widget.indexOfEdition} - detailed edition info");
-    print(widget.editionInfo.title.hashCode);
-    print(bookStatus);
     return WillPopScope(
       onWillPop: () {
         Navigator.pop(context, hasChangeMade);
@@ -75,12 +72,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   ? IconButton(
                       onPressed: () {
                         launchUrl(Uri.parse(
-                            "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 != null ? widget.editionInfo.isbn_13 : widget.editionInfo.isbn_10}"));
+                            "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
                       },
                       icon: Image.asset("lib/assets/images/goodreads_icon.png",
                           height: 30),
                       splashRadius: 25)
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
               widget.isNavigatingFromLibrary == true
                   ? IconButton(
                       tooltip: "Not Ekle",
@@ -94,23 +91,22 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   bookInfo: widget.editionInfo,
                                   bookImage: widget.bookImage),
                             )).then((value) {
-                          print(value);
                           if (value == true) getPageData();
                         });
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.library_add_rounded,
                         size: 30,
                         color: Colors.white,
                       ))
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
               IconButton(
                   color: Colors.white,
                   splashRadius: 25,
                   onPressed: () {
                     modalBottomSheetBuilderForPopUpMenu(context);
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.more_vert_sharp,
                     size: 30,
                   ))
@@ -127,7 +123,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   Icons.arrow_back_sharp,
                   size: 30,
                 )),
-            backgroundColor: Color(0xFF1B7695),
+            backgroundColor: const Color(0xFF1B7695),
             elevation: 0,
           ),
           body: Column(
@@ -144,7 +140,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   Container bookCoverAndDetailsBuilder(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50)),
         color: Color(0xFF1B7695),
@@ -164,7 +160,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: Image(
-                                  height: 290,
+                                  height: 250,
                                   width: 180,
                                   fit: BoxFit.fill,
                                   image: widget.bookImage!.image,
@@ -208,7 +204,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         "lib/assets/images/nocover.jpg",
                       )),
                 )),
-        SizedBox(
+        const SizedBox(
           height: 25,
         ),
         Container(
@@ -216,7 +212,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(50)),
           width: MediaQuery.sizeOf(context).width - 30,
-          height: 50,
+          height: MediaQuery.of(context).size.height / 12,
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             SizedBox(
@@ -227,7 +223,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   Text(
                     "Yayın Tarihi",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.height / 50),
                   ),
                   FittedBox(
                     child: Text(
@@ -240,24 +238,28 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 ],
               ),
             ),
-            VerticalDivider(),
+            const VerticalDivider(),
             SizedBox(
-              width: 110,
+              width: 100,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Sayfa Sayısı",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(
-                      widget.editionInfo.number_of_pages != null
-                          ? "${widget.editionInfo.number_of_pages}"
-                          : "-",
-                      textAlign: TextAlign.center)
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 50)),
+                  FittedBox(
+                    child: Text(
+                        widget.editionInfo.number_of_pages != null
+                            ? "${widget.editionInfo.number_of_pages}"
+                            : "-",
+                        textAlign: TextAlign.center),
+                  )
                 ],
               ),
             ),
-            VerticalDivider(),
+            const VerticalDivider(),
             SizedBox(
               width: 100,
               child: Column(
@@ -265,20 +267,24 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 children: [
                   Text("Dil",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(
-                    widget.editionInfo.languages != null
-                        ? countryNameCreater(widget.editionInfo)
-                        : "-",
-                    style: const TextStyle(),
-                    textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 50)),
+                  FittedBox(
+                    child: Text(
+                      widget.editionInfo.languages != null
+                          ? countryNameCreater(widget.editionInfo)
+                          : "-",
+                      style: const TextStyle(),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ],
               ),
             )
           ]),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
       ]),
@@ -288,7 +294,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.grey.shade300,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30), topRight: Radius.circular(30))),
       context: context,
@@ -296,8 +302,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         return Column(mainAxisSize: MainAxisSize.min, children: [
           widget.isNavigatingFromLibrary == false
               ? ListTile(
-                  visualDensity: VisualDensity(vertical: 3),
-                  shape: RoundedRectangleBorder(
+                  visualDensity: const VisualDensity(vertical: 3),
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
@@ -305,25 +311,26 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Navigator.pop(context);
                     await bookStatusDialog(context);
                   },
-                  leading: Icon(
+                  leading: const Icon(
                     Icons.shelves,
                     size: 30,
                   ),
-                  title: Text("Rafa ekle", style: TextStyle(fontSize: 20)),
+                  title:
+                      const Text("Rafa ekle", style: TextStyle(fontSize: 20)),
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == false
-              ? Divider(height: 0)
-              : SizedBox.shrink(),
+              ? const Divider(height: 0)
+              : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
               ? ListTile(
-                  title: Text("Kitap durumunu değiştir",
+                  title: const Text("Kitap durumunu değiştir",
                       style: TextStyle(fontSize: 20)),
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
-                  leading: Icon(
+                  leading: const Icon(
                     Icons.menu_book_rounded,
                     size: 30,
                   ),
@@ -354,14 +361,14 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       });
                     });
                   },
-                  visualDensity: VisualDensity(vertical: 3),
+                  visualDensity: const VisualDensity(vertical: 3),
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
-              ? Divider(
+              ? const Divider(
                   height: 0,
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
               ? ListTile(
                   onTap: () {
@@ -371,10 +378,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             builder: (context) => AddBookView(
                                   bookImage: widget.bookImage,
                                   physical_format:
-                                      widget.editionInfo.physical_format ??
-                                          null,
-                                  covers: widget.editionInfo.covers ?? null,
-                                  title: widget.editionInfo.title ?? null,
+                                      widget.editionInfo.physical_format,
+                                  covers: widget.editionInfo.covers,
+                                  title: widget.editionInfo.title,
                                   authorName:
                                       widget.editionInfo.authorsNames != null
                                           ? widget.editionInfo.authorsNames!
@@ -387,52 +393,45 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   bookStatus: bookStatusAsString,
                                   isbn10: widget.editionInfo.isbn_10 != null
                                       ? widget.editionInfo.isbn_10!.first!
-                                      : widget.editionInfo.isbn_13 != null
-                                          ? widget.editionInfo.isbn_13!.first!
-                                          : null,
+                                      : widget.editionInfo.isbn_13?.first,
                                   pageNumber:
-                                      widget.editionInfo.number_of_pages ??
-                                          null,
+                                      widget.editionInfo.number_of_pages,
                                   publisher:
-                                      widget.editionInfo.publishers != null
-                                          ? widget.editionInfo.publishers!.first
-                                          : null,
-                                  publishDate:
-                                      widget.editionInfo.publish_date != null
-                                          ? widget.editionInfo.publish_date
-                                          : null,
+                                      widget.editionInfo.publishers?.first,
+                                  publishDate: widget.editionInfo.publish_date,
                                   bookId: uniqueIdCreater(widget.editionInfo),
                                 )));
                   },
-                  visualDensity: VisualDensity(vertical: 3),
-                  leading: Icon(
+                  visualDensity: const VisualDensity(vertical: 3),
+                  leading: const Icon(
                     Icons.edit_document,
                     size: 30,
                   ),
-                  title: Text("Kitabı düzenle", style: TextStyle(fontSize: 20)),
+                  title: const Text("Kitabı düzenle",
+                      style: TextStyle(fontSize: 20)),
                 )
-              : SizedBox.shrink(),
-          Divider(
+              : const SizedBox.shrink(),
+          const Divider(
             height: 0,
           ),
           ListTile(
-            visualDensity: VisualDensity(vertical: 3),
+            visualDensity: const VisualDensity(vertical: 3),
             onTap: () async {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AlertForDataSource()));
+                      builder: (context) => const AlertForDataSource()));
             },
-            leading: Icon(
+            leading: const Icon(
               Icons.info_outline,
               size: 30,
             ),
-            title: Text("Bilgi", style: TextStyle(fontSize: 20)),
+            title: const Text("Bilgi", style: TextStyle(fontSize: 20)),
           ),
-          Divider(height: 0),
+          const Divider(height: 0),
           widget.isNavigatingFromLibrary != false
               ? ListTile(
-                  visualDensity: VisualDensity(vertical: 3),
+                  visualDensity: const VisualDensity(vertical: 3),
                   onTap: () async {
                     hasChangeMade = true;
                     await deleteAuthorsFromSql(widget.editionInfo);
@@ -443,24 +442,24 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Navigator.pop(context, hasChangeMade);
 
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                       content: const Text('Kitap başarıyla silindi.'),
                       action: SnackBarAction(label: 'Tamam', onPressed: () {}),
                       behavior: SnackBarBehavior.floating,
                     ));
                   },
-                  leading: Icon(
+                  leading: const Icon(
                     Icons.delete,
                     size: 30,
                   ),
-                  title: Text("Sil", style: TextStyle(fontSize: 20)),
+                  title: const Text("Sil", style: TextStyle(fontSize: 20)),
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary != false
-              ? Divider(
+              ? const Divider(
                   height: 0,
                 )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
         ]);
       },
     );
@@ -510,7 +509,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       borderRadius: BorderRadius.circular(20.0)),
                   child: onProgress != true
                       ? Padding(
-                          padding: EdgeInsets.all(15),
+                          padding: const EdgeInsets.all(15),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -519,12 +518,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 15,
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: Text("Okumak istediklerim"),
+                                  child: const Text("Okumak istediklerim"),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.wantToRead;
                                   }),
@@ -541,7 +540,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: Text("Şu an okuduklarım"),
+                                  child: const Text("Şu an okuduklarım"),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.currentlyReading;
                                   }),
@@ -558,7 +557,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: Text("Okuduklarım"),
+                                  child: const Text("Okuduklarım"),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.alreadyRead;
                                   }),
@@ -631,7 +630,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               bookStatus);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                            duration: Duration(seconds: 1),
+                                            duration:
+                                                const Duration(seconds: 1),
                                             content: const Text(
                                                 'Kitap durumu başarıyla güncellendi.'),
                                             action: SnackBarAction(
@@ -642,7 +642,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                            duration: Duration(seconds: 1),
+                                            duration:
+                                                const Duration(seconds: 1),
                                             content: const Text(
                                                 'Bu kitap zaten kitaplığınızda mevcut.'),
                                             action: SnackBarAction(
@@ -664,7 +665,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             ],
                           ),
                         )
-                      : Container(
+                      : const SizedBox(
                           width: 200,
                           height: 200,
                           child: Column(
@@ -711,9 +712,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             "isbn_13": editionInfo.isbn_13,
             "authorsNames": authorsNames,
             "description": editionInfo.description,
-            "languages": editionInfo.languages != null
-                ? editionInfo.languages!.first!.key
-                : null
+            "languages": editionInfo.languages?.first?.key
           },
           userId: ref.read(authProvider).currentUser!.uid,
         );
@@ -739,7 +738,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             imageAsByte,
             context)
         .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
               content: const Text('Kitap başarıyla kitaplığına eklendi.'),
               action: SnackBarAction(label: 'Tamam', onPressed: () {}),
               behavior: SnackBarBehavior.floating,
@@ -787,25 +786,24 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           ? widget.editionInfo.description!.replaceRange(0, 26, "")
           : widget.editionInfo.description!;
     }
-    print(widget.editionInfo.isbn_10);
     return Expanded(
       child: Scrollbar(
         thickness: 3,
-        radius: Radius.circular(20),
+        radius: const Radius.circular(20),
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
-          physics: ClampingScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          physics: const ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Başlık",
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
               ),
-              Divider(color: Colors.transparent, thickness: 0),
+              const Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
                 width: MediaQuery.sizeOf(context).width - 40,
                 child: Text(
@@ -816,11 +814,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               if ((widget.editionInfo.authorsNames != null &&
                       widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if ((widget.editionInfo.authorsNames != null &&
                       widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
-                Text(
+                const Text(
                   "Yazarlar",
                   style: TextStyle(
                       color: Colors.black,
@@ -830,39 +828,42 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               if ((widget.editionInfo.authorsNames != null &&
                       widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.authorsNames == null &&
                   authorsNames.isNotEmpty)
                 SizedBox(
                     height: widget.editionInfo.authors!.length * 25,
                     child: ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(
+                      separatorBuilder: (context, index) => const SizedBox(
                         height: 5,
                       ),
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: widget.editionInfo.authors!.length,
                       itemBuilder: (context, index) => Text(
                         authorsNames[index],
-                        style: TextStyle(fontSize: 15),
+                        style: const TextStyle(fontSize: 15),
                       ),
                     )),
               if (widget.editionInfo.authorsNames != null &&
                   authorsNames.isEmpty)
                 SizedBox(
-                    height: widget.editionInfo.authorsNames!.length * 20,
+                    height: widget.editionInfo.authorsNames!.length *
+                        20 *
+                        MediaQuery.of(context).size.height /
+                        700,
                     child: ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(
+                      separatorBuilder: (context, index) => const SizedBox(
                         height: 5,
                       ),
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: widget.editionInfo.authorsNames!.length,
                       itemBuilder: (context, index) =>
                           Text(widget.editionInfo.authorsNames![index]!),
                     )),
               if (widget.editionInfo.description != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.description != null)
-                Text(
+                const Text(
                   "Açıklama",
                   style: TextStyle(
                       color: Colors.black,
@@ -870,7 +871,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.description != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.description != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
@@ -906,13 +907,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         });
                       },
                       child: descriptionShowMore == false
-                          ? Text("Daha fazla göster")
-                          : Text("Daha az göster")),
+                          ? const Text("Daha fazla göster")
+                          : const Text("Daha az göster")),
                 ),
               if (widget.editionInfo.publishers != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
-                Text(
+                const Text(
                   "Yayıncı",
                   style: TextStyle(
                       color: Colors.black,
@@ -920,7 +921,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.publishers != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -929,9 +930,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.physical_format != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physical_format != null)
-                Text(
+                const Text(
                   "Kitap formatı",
                   style: TextStyle(
                       color: Colors.black,
@@ -939,37 +940,37 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.physical_format != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physical_format != null)
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: widget.editionInfo.physical_format == "paperback" ||
                           widget.editionInfo.physical_format == "Paperback"
-                      ? Text(
+                      ? const Text(
                           "Ciltsiz",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
                           ),
                         )
                       : widget.editionInfo.physical_format == "hardcover" ||
                               widget.editionInfo.physical_format == "Hardcover"
-                          ? Text(
+                          ? const Text(
                               "Ciltli",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 15,
                               ),
                             )
                           : widget.editionInfo.physical_format == "E-book" ||
                                   widget.editionInfo.physical_format == "Ebook"
-                              ? Text("E-kitap")
+                              ? const Text("E-kitap")
                               : Text(widget.editionInfo.physical_format!),
                 ),
               if (widget.editionInfo.isbn_10 != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_10 != null)
-                Text(
+                const Text(
                   "Isbn 10",
                   style: TextStyle(
                       color: Colors.black,
@@ -977,7 +978,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_10 != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_10 != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -986,9 +987,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.isbn_13 != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_13 != null)
-                Text(
+                const Text(
                   "Isbn 13",
                   style: TextStyle(
                       color: Colors.black,
@@ -996,7 +997,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_13 != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_13 != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -1005,9 +1006,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (widget.editionInfo.bookStatus != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
-                Text(
+                const Text(
                   "Kitap durumu",
                   style: TextStyle(
                       color: Colors.black,
@@ -1015,7 +1016,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.bookStatus != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
@@ -1024,9 +1025,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: const TextStyle(color: Colors.black, fontSize: 15),
                     )),
               if (notesList != null)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (notesList!.isEmpty != true)
-                Text(
+                const Text(
                   "Notlar",
                   style: TextStyle(
                       color: Colors.black,
@@ -1034,7 +1035,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontWeight: FontWeight.bold),
                 ),
               if (notesList!.isEmpty != true)
-                Divider(color: Colors.transparent, thickness: 0),
+                const Divider(color: Colors.transparent, thickness: 0),
               if (notesList!.isEmpty != true) notesBuilder()
             ],
           ),
@@ -1062,28 +1063,27 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Widget notesBuilder() {
-    return Container(
+    return SizedBox(
       height:
           (200 * notesList!.length).toDouble() + (15 * notesList!.length - 1),
       child: ListView.separated(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         separatorBuilder: (context, index) =>
-            Divider(color: Colors.transparent, thickness: 0),
+            const Divider(color: Colors.transparent, thickness: 0),
         itemCount: notesList!.length,
         itemBuilder: (context, index) => InkWell(
             customBorder:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
             onTap: () {
-              Image? getImage = widget.bookImage ?? null;
+              Image? getImage = widget.bookImage;
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => AddNoteView(
                             noteId: notesList![index]['id'],
                             initialNoteValue: notesList![index]['note'],
-                            bookImage: getImage != null
-                                ? getImage
-                                : widget.editionInfo.covers != null
+                            bookImage: getImage ??
+                                (widget.editionInfo.covers != null
                                     ? Image(
                                         image: NetworkImage(
                                             "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first!}-M.jpg"),
@@ -1092,7 +1092,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                             Image.asset(
                                                 "lib/assets/images/error.png"),
                                       )
-                                    : null,
+                                    : null),
                             showDeleteIcon: true,
                             bookInfo: widget.editionInfo,
                             noteDate: notesList![index]['noteDate'],
@@ -1169,12 +1169,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       return true;
     } else {
       return false;
-    }
-  }
-
-  Future<void> _launchUrl(Uri url) async {
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
     }
   }
 
