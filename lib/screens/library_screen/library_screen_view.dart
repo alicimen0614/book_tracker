@@ -84,9 +84,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 ))
           ],
           centerTitle: true,
-          title: const Text(
+          title: Text(
             "Kitaplığım",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40),
           ),
           bottom: TabBar(
               tabAlignment: TabAlignment.start,
@@ -197,6 +199,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                                     index])) ==
                                         true &&
                                     listOfTheCurrentBookStatus[index].covers !=
+                                        null &&
+                                    listOfTheCurrentBookStatus[index]
+                                            .imageAsByte !=
                                         null
                                 ? Image.memory(
                                     width: 80,
@@ -264,6 +269,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                           listOfTheCurrentBookStatus[index])) ==
                                       true &&
                                   listOfTheCurrentBookStatus[index].covers !=
+                                      null &&
+                                  listOfTheCurrentBookStatus[index]
+                                          .imageAsByte !=
                                       null
                               ? Hero(
                                   tag: uniqueIdCreater(

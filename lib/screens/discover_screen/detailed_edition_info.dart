@@ -58,6 +58,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).size.width);
     return WillPopScope(
       onWillPop: () {
         Navigator.pop(context, hasChangeMade);
@@ -216,7 +217,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             SizedBox(
-              width: 100,
+              width: MediaQuery.of(context).size.width / 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -227,20 +228,22 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         fontWeight: FontWeight.bold,
                         fontSize: MediaQuery.of(context).size.height / 50),
                   ),
-                  FittedBox(
-                    child: Text(
-                      widget.editionInfo.publish_date != null
-                          ? "${widget.editionInfo.publish_date}"
-                          : "-",
-                      textAlign: TextAlign.center,
-                    ),
+                  Text(
+                    widget.editionInfo.publish_date != null
+                        ? "${widget.editionInfo.publish_date}"
+                        : "-",
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             const VerticalDivider(),
             SizedBox(
-              width: 100,
+              width: MediaQuery.of(context).size.width / 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -249,19 +252,22 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 50)),
-                  FittedBox(
-                    child: Text(
-                        widget.editionInfo.number_of_pages != null
-                            ? "${widget.editionInfo.number_of_pages}"
-                            : "-",
-                        textAlign: TextAlign.center),
+                  Text(
+                    widget.editionInfo.number_of_pages != null
+                        ? "${widget.editionInfo.number_of_pages}"
+                        : "-",
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   )
                 ],
               ),
             ),
             const VerticalDivider(),
             SizedBox(
-              width: 100,
+              width: MediaQuery.of(context).size.width / 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -270,14 +276,15 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 50)),
-                  FittedBox(
-                    child: Text(
-                      widget.editionInfo.languages != null
-                          ? countryNameCreater(widget.editionInfo)
-                          : "-",
-                      style: const TextStyle(),
-                      textAlign: TextAlign.center,
-                    ),
+                  Text(
+                    widget.editionInfo.languages != null
+                        ? countryNameCreater(widget.editionInfo)
+                        : "-",
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -315,8 +322,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.shelves,
                     size: 30,
                   ),
-                  title:
-                      const Text("Rafa ekle", style: TextStyle(fontSize: 20)),
+                  title: Text("Rafa ekle",
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height / 40)),
                 )
               : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == false
@@ -324,8 +332,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
               ? ListTile(
-                  title: const Text("Kitap durumunu değiştir",
-                      style: TextStyle(fontSize: 20)),
+                  title: Text("Kitap durumunu değiştir",
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height / 40)),
                   shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
@@ -407,8 +416,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.edit_document,
                     size: 30,
                   ),
-                  title: const Text("Kitabı düzenle",
-                      style: TextStyle(fontSize: 20)),
+                  title: Text("Kitabı düzenle",
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height / 40)),
                 )
               : const SizedBox.shrink(),
           const Divider(
@@ -426,7 +436,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               Icons.info_outline,
               size: 30,
             ),
-            title: const Text("Bilgi", style: TextStyle(fontSize: 20)),
+            title: Text("Bilgi",
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 40)),
           ),
           const Divider(height: 0),
           widget.isNavigatingFromLibrary != false
@@ -452,7 +464,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.delete,
                     size: 30,
                   ),
-                  title: const Text("Sil", style: TextStyle(fontSize: 20)),
+                  title: Text("Sil",
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height / 40)),
                 )
               : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary != false
@@ -796,11 +810,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Başlık",
                 style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold),
               ),
               const Divider(color: Colors.transparent, thickness: 0),
@@ -808,7 +822,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 width: MediaQuery.sizeOf(context).width - 40,
                 child: Text(
                   widget.editionInfo.title!,
-                  style: const TextStyle(fontSize: 15),
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
                 ),
               ),
               if ((widget.editionInfo.authorsNames != null &&
@@ -818,11 +833,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               if ((widget.editionInfo.authorsNames != null &&
                       widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
-                const Text(
+                Text(
                   "Yazarlar",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if ((widget.editionInfo.authorsNames != null &&
@@ -841,33 +856,34 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       itemCount: widget.editionInfo.authors!.length,
                       itemBuilder: (context, index) => Text(
                         authorsNames[index],
-                        style: const TextStyle(fontSize: 15),
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height / 60),
                       ),
                     )),
               if (widget.editionInfo.authorsNames != null &&
                   authorsNames.isEmpty)
                 SizedBox(
-                    height: widget.editionInfo.authorsNames!.length *
-                        20 *
-                        MediaQuery.of(context).size.height /
-                        700,
+                    height: widget.editionInfo.authorsNames!.length * 25,
                     child: ListView.separated(
                       separatorBuilder: (context, index) => const SizedBox(
                         height: 5,
                       ),
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: widget.editionInfo.authorsNames!.length,
-                      itemBuilder: (context, index) =>
-                          Text(widget.editionInfo.authorsNames![index]!),
+                      itemBuilder: (context, index) => Text(
+                        widget.editionInfo.authorsNames![index]!,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height / 60),
+                      ),
                     )),
               if (widget.editionInfo.description != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.description != null)
-                const Text(
+                Text(
                   "Açıklama",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.description != null)
@@ -883,7 +899,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   descriptionText.length,
                                   "")
                               : descriptionText,
-                          style: const TextStyle(fontSize: 15),
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.height / 60),
                           maxLines: 5,
                           overflow: TextOverflow.ellipsis,
                         )
@@ -894,7 +912,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                   descriptionText.length,
                                   "")
                               : descriptionText,
-                          style: const TextStyle(fontSize: 15),
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.height / 60),
                         ),
                 ),
               if (widget.editionInfo.description != null)
@@ -907,17 +927,23 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         });
                       },
                       child: descriptionShowMore == false
-                          ? const Text("Daha fazla göster")
-                          : const Text("Daha az göster")),
+                          ? Text("Daha fazla göster",
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 60))
+                          : Text("Daha az göster",
+                              style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.height /
+                                      60))),
                 ),
               if (widget.editionInfo.publishers != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
-                const Text(
+                Text(
                   "Yayıncı",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.publishers != null)
@@ -927,16 +953,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
                       widget.editionInfo.publishers!.first!,
-                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
               if (widget.editionInfo.physical_format != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physical_format != null)
-                const Text(
+                Text(
                   "Kitap formatı",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.physical_format != null)
@@ -946,35 +974,50 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: widget.editionInfo.physical_format == "paperback" ||
                           widget.editionInfo.physical_format == "Paperback"
-                      ? const Text(
+                      ? Text(
                           "Ciltsiz",
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: MediaQuery.of(context).size.height / 60,
                           ),
                         )
                       : widget.editionInfo.physical_format == "hardcover" ||
                               widget.editionInfo.physical_format == "Hardcover"
-                          ? const Text(
+                          ? Text(
                               "Ciltli",
                               style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 15,
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 60,
                               ),
                             )
                           : widget.editionInfo.physical_format == "E-book" ||
                                   widget.editionInfo.physical_format == "Ebook"
-                              ? const Text("E-kitap")
-                              : Text(widget.editionInfo.physical_format!),
+                              ? Text(
+                                  "E-kitap",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize:
+                                        MediaQuery.of(context).size.height / 60,
+                                  ),
+                                )
+                              : Text(
+                                  widget.editionInfo.physical_format!,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize:
+                                        MediaQuery.of(context).size.height / 60,
+                                  ),
+                                ),
                 ),
               if (widget.editionInfo.isbn_10 != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_10 != null)
-                const Text(
+                Text(
                   "Isbn 10",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_10 != null)
@@ -984,16 +1027,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
                       widget.editionInfo.isbn_10!.first!,
-                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
               if (widget.editionInfo.isbn_13 != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.isbn_13 != null)
-                const Text(
+                Text(
                   "Isbn 13",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.isbn_13 != null)
@@ -1003,16 +1048,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
                       widget.editionInfo.isbn_13!.first!,
-                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
               if (widget.editionInfo.bookStatus != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
-                const Text(
+                Text(
                   "Kitap durumu",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (widget.editionInfo.bookStatus != null)
@@ -1022,16 +1069,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
                       bookStatusAsString,
-                      style: const TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.height / 60),
                     )),
               if (notesList != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (notesList!.isEmpty != true)
-                const Text(
+                Text(
                   "Notlar",
                   style: TextStyle(
                       color: Colors.black,
-                      fontSize: 20,
+                      fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
               if (notesList!.isEmpty != true)
@@ -1104,10 +1153,15 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               height: 200,
               width: MediaQuery.sizeOf(context).width - 40,
               child: ListTile(
-                title:
-                    Text((index + 1).toString(), textAlign: TextAlign.center),
+                title: Text((index + 1).toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60)),
                 subtitle: Text(notesList![index]['note'],
-                    maxLines: 5, overflow: TextOverflow.ellipsis),
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60)),
               ),
             )),
       ),

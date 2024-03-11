@@ -10,7 +10,12 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
             bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50))),
     child: Column(
       children: [
-        ShimmerWidget.rectangular(width: 150, height: 200),
+        Align(
+            alignment: Alignment.center,
+            child: ShimmerWidget.rectangular(
+              height: MediaQuery.of(context).size.height / 3.5,
+              width: MediaQuery.of(context).size.height / 4.5,
+            )),
         const SizedBox(
           height: 10,
         ),
@@ -19,7 +24,7 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(50)),
           width: MediaQuery.sizeOf(context).width - 30,
-          height: 50,
+          height: MediaQuery.of(context).size.height / 12,
           child:
               Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
             SizedBox(
@@ -27,9 +32,11 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Doğum Tarihi",
+                  Text("Doğum Tarihi",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 50)),
                   ShimmerWidget.rectangular(
                       width: MediaQuery.sizeOf(context).width / 3, height: 15)
                 ],
@@ -41,9 +48,11 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Ölüm Tarihi",
+                  Text("Ölüm Tarihi",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 50)),
                   ShimmerWidget.rectangular(
                       width: MediaQuery.sizeOf(context).width / 3, height: 10)
                 ],

@@ -67,9 +67,11 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
       appBar: AppBar(
         centerTitle: true,
         leadingWidth: 50,
-        title: const Text(
+        title: Text(
           "Aylık Trend Kitaplar",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 40),
         ),
         leading: IconButton(
             onPressed: () => Navigator.pop(context),

@@ -71,18 +71,27 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       child: Scaffold(
         appBar: AppBar(
             title: Text("Kitaba bir not ekle: ${widget.bookInfo.title}",
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold)),
             centerTitle: true,
             leadingWidth: 50,
             leading: IconButton(
                 splashRadius: 25,
-                onPressed: () => Future.delayed(
-                      const Duration(milliseconds: 100),
+                onPressed: () async {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus();
+                    Future.delayed(
+                      const Duration(milliseconds: 150),
                       () {
                         Navigator.pop(context, hasNoteSaved);
                       },
-                    ),
+                    );
+                  } else {
+                    Navigator.pop(context, hasNoteSaved);
+                  }
+                },
                 icon: const Icon(
                   Icons.arrow_back_sharp,
                   size: 30,
@@ -219,66 +228,57 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                 icon: const Icon(Icons.check_sharp, size: 30),
               )
             ]),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           child: Column(children: [
+            SizedBox(height: MediaQuery.of(context).size.height / 40),
             widget.bookImage != null
-                ? Expanded(
-                    flex: 5,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Hero(
-                            tag: uniqueIdCreater(widget.bookInfo),
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image(
-                                  fit: BoxFit.fitHeight,
-                                  image: widget.bookImage!.image,
-                                ))),
-                      ),
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Hero(
+                          tag: uniqueIdCreater(widget.bookInfo),
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image(
+                                fit: BoxFit.fitHeight,
+                                image: widget.bookImage!.image,
+                              ))),
                     ),
                   )
-                : Expanded(
-                    flex: 5,
-                    child: Align(
-                        alignment: Alignment.center,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child:
-                                Image.asset("lib/assets/images/nocover.jpg"))),
-                  ),
-            Expanded(
-                flex: widget.bookInfo.title!.characters.length > 20 ? 2 : 1,
-                child: Align(
+                : Align(
                     alignment: Alignment.center,
-                    child: Text(
-                      widget.bookInfo.title!,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 17),
-                      textAlign: TextAlign.center,
-                    ))),
-            Expanded(
-              flex: 1,
-              child: Text(
-                  widget.noteDate != ""
-                      ? widget.noteDate
-                      : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
-                  style: const TextStyle(
-                      color: Color(0xFF1B7695), fontWeight: FontWeight.bold)),
-            ),
-            Expanded(
-              flex: 5,
-              child: TextFormField(
-                controller: noteFieldController,
-                decoration: const InputDecoration(
-                  hintText: "Notunuzu girin.",
-                ),
-                maxLines: null,
-                minLines: null,
-                expands: true,
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.asset("lib/assets/images/nocover.jpg"))),
+            SizedBox(height: MediaQuery.of(context).size.height / 40),
+            Align(
+                alignment: Alignment.center,
+                child: Text(
+                  widget.bookInfo.title!,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                  textAlign: TextAlign.center,
+                )),
+            SizedBox(height: MediaQuery.of(context).size.height / 40),
+            Text(
+                widget.noteDate != ""
+                    ? widget.noteDate
+                    : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
+                style: TextStyle(
+                    color: const Color(0xFF1B7695),
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.height / 60)),
+            SizedBox(height: MediaQuery.of(context).size.height / 40),
+            TextFormField(
+              controller: noteFieldController,
+              decoration: const InputDecoration(
+                hintText: "Notunuzu girin.",
               ),
+              maxLines: null,
+              minLines: null,
             )
           ]),
         ),

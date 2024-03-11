@@ -108,8 +108,12 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               firstSentenceBuilder(bookWorkModel!.firstSentence!.value!),
             if (isConnected == true)
               isThereMoreEditionsThanFive == true
-                  ? editionsBuilder(5)
-                  : editionsBuilder(itemCount)
+                  ? itemCount != 0
+                      ? editionsBuilder(5)
+                      : const SizedBox.shrink()
+                  : itemCount != 0
+                      ? editionsBuilder(itemCount)
+                      : const SizedBox.shrink()
           ]),
         ),
       ),
@@ -466,7 +470,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  flex: 8,
+                  flex: 10,
                   child: Container(
                     height: MediaQuery.of(context).size.width > 500
                         ? MediaQuery.of(context).size.height / 3
@@ -486,8 +490,10 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                           )
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(15),
-                            child:
-                                Image.asset("lib/assets/images/nocover.jpg")),
+                            child: Image.asset(
+                              "lib/assets/images/nocover.jpg",
+                              fit: BoxFit.fill,
+                            )),
                   ),
                 ),
                 const Spacer(),
@@ -506,6 +512,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                             maxLines: 3,
                             textAlign: TextAlign.center,
                             style: TextStyle(
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: MediaQuery.of(context).size.height / 40,
                             ),
@@ -516,47 +523,29 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                               mainBook.authorName != null) ||
                           (mainBook.runtimeType == BooksModelDocs &&
                               mainBook.authorName != null))
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Spacer(),
-                            Expanded(
-                              flex: 5,
-                              child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              AuthorInfoScreen(
-                                                  authorKey: mainBook!
-                                                      .authorKey.first),
-                                        ));
-                                  },
-                                  child: FittedBox(
-                                    child: Text(
-                                      mainBook!.authorName!.first!,
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              40),
-                                    ),
-                                  )),
-                            ),
-                            const Expanded(
-                              flex: 1,
-                              child: Tooltip(
-                                  showDuration: Duration(seconds: 3),
-                                  triggerMode: TooltipTriggerMode.tap,
-                                  message:
-                                      "Yazar hakkında bilgi almak için ismine tıklayın",
-                                  child: Icon(Icons.info_outline)),
-                            ),
-                            const Spacer()
-                          ],
-                        ),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                                backgroundColor: Colors.grey.shade300),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AuthorInfoScreen(
+                                        authorKey: mainBook!.authorKey.first),
+                                  ));
+                            },
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.center,
+                              child: Text(
+                                mainBook!.authorName!.first!,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize:
+                                        MediaQuery.of(context).size.height /
+                                            50),
+                              ),
+                            )),
                       const SizedBox(height: 10),
                       SizedBox(
                         height: 30,

@@ -66,7 +66,9 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           leadingWidth: 50,
           title: Text(
             "${widget.title} Baskıları",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40),
           ),
           leading: IconButton(
               splashRadius: 25,

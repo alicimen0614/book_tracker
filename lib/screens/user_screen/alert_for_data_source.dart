@@ -7,13 +7,23 @@ class AlertForDataSource extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            centerTitle: true,
-            title: const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                "Uygulama Veri Kaynağı Hakkında",
-              ),
-            )),
+          leadingWidth: 50,
+          title: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "Uygulama Veri Kaynağı Hakkında",
+            ),
+          ),
+          centerTitle: true,
+          leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back_sharp,
+                size: 30,
+              )),
+          automaticallyImplyLeading: false,
+          elevation: 5,
+        ),
         body: const SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.all(15),

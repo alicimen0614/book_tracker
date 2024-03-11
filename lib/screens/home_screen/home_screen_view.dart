@@ -172,12 +172,14 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                       isNavigatingFromLibrary:
                                                           true,
                                                       bookImage: listOfBookIdsFromSql!.contains(
-                                                                      uniqueIdCreater(
-                                                                          books[
-                                                                              index])) ==
+                                                                      uniqueIdCreater(books[
+                                                                          index])) ==
                                                                   true &&
                                                               books[index]
                                                                       .covers !=
+                                                                  null &&
+                                                              books[index]
+                                                                      .imageAsByte !=
                                                                   null
                                                           ? Image.memory(
                                                               base64Decode(
@@ -248,7 +250,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                           fit: BoxFit.fill,
                                                           "lib/assets/images/nocover.jpg"),
                                                     )
-                                                  : books[index].imageAsByte !=
+                                                  : books[index]
+                                                              .imageAsByte !=
                                                           null
                                                       ? Hero(
                                                           tag: uniqueIdCreater(
@@ -268,12 +271,14 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                           ),
                                                         )
                                                       : listOfBookIdsFromSql!.contains(
-                                                                      uniqueIdCreater(
-                                                                          books[
-                                                                              index])) ==
+                                                                      uniqueIdCreater(books[
+                                                                          index])) ==
                                                                   true &&
                                                               books[index]
                                                                       .covers !=
+                                                                  null &&
+                                                              books[index]
+                                                                      .imageAsByte !=
                                                                   null
                                                           ? Hero(
                                                               tag: uniqueIdCreater(
@@ -386,11 +391,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
 
   SizedBox appBarBuilder() {
     return SizedBox(
-      height: 380,
+      height: MediaQuery.of(context).size.height / 1.9,
       child: Stack(
         children: [
           Container(
-            height: 330,
+            height: MediaQuery.of(context).size.height / 2.2,
             decoration: const BoxDecoration(
                 color: Color(0xFF1B7695),
                 borderRadius: BorderRadius.only(
@@ -403,9 +408,9 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               child: FittedBox(
                 child: Text(
                   "Merhaba $userName",
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: MediaQuery.of(context).size.height / 40,
                       color: Colors.white),
                 ),
               )),
@@ -416,13 +421,13 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
             child: searchBarBuilder(),
           ),
           Positioned(
-            bottom: MediaQuery.of(context).size.height / 4.8,
+            top: 170,
             left: 15,
             right: 15,
-            child: const Text("Bir kitap mı okuyorsun? \nKitap ekle",
+            child: Text("Bir kitap mı okuyorsun? \nKitap ekle",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 17,
+                    fontSize: MediaQuery.of(context).size.height / 40,
                     color: Colors.white)),
           ),
           Positioned(
@@ -430,7 +435,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
             left: 120,
             right: 100,
             child: Container(
-                height: 150,
+                height: MediaQuery.of(context).size.height / 5.2,
                 decoration: BoxDecoration(
                     image: DecorationImage(
                   image: const AssetImage("lib/assets/images/add_book.png"),

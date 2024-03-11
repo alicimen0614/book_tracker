@@ -19,14 +19,14 @@ Future<dynamic> internetConnectionErrorDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
           content: SizedBox(
-            height: MediaQuery.of(context).size.height / 2.5,
+            height: MediaQuery.of(context).size.height / 2,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(15, 0, 0, 15),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text(
                       "İnternete bağlanılamadı.",
                       style:
@@ -34,15 +34,15 @@ Future<dynamic> internetConnectionErrorDialog(
                     ),
                   ),
                   Expanded(
-                      flex: 6,
+                      flex: 10,
                       child: Image.asset(
                           "lib/assets/images/no_internet_connection.png")),
-                  const Expanded(
-                    flex: 1,
+                  Expanded(
+                    flex: 2,
                     child: Text(
                       "Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.",
                       style: TextStyle(
-                          fontSize: 15,
+                          fontSize: MediaQuery.of(context).size.height / 50,
                           color: Color.fromRGBO(216, 63, 49, 1),
                           fontWeight: FontWeight.bold),
                     ),

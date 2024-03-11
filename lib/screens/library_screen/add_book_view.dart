@@ -113,11 +113,13 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Kitap ekle",
             textAlign: TextAlign.left,
             style: TextStyle(
-                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                fontSize: MediaQuery.of(context).size.height / 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
           ),
           centerTitle: true,
           leadingWidth: 50,

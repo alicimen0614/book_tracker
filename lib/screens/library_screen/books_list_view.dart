@@ -35,8 +35,10 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Not eklemek istediğin kitabı seç",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text("Not eklemek istediğin kitabı seç",
+            style: TextStyle(
+                fontSize: MediaQuery.of(context).size.height / 40,
+                fontWeight: FontWeight.bold)),
         leadingWidth: 50,
         leading: IconButton(
             splashRadius: 25,
@@ -77,6 +79,9 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                                             index])) ==
                                                 true &&
                                             bookListToShow![index].covers !=
+                                                null &&
+                                            bookListToShow![index]
+                                                    .imageAsByte !=
                                                 null
                                         ? Image.memory(
                                             base64Decode(getImageAsByte(
@@ -138,6 +143,9 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                                       true &&
                                                   bookListToShow![index]
                                                           .covers !=
+                                                      null &&
+                                                  bookListToShow![index]
+                                                          .imageAsByte !=
                                                       null
                                               ? Image.memory(
                                                   base64Decode(getImageAsByte(
@@ -207,17 +215,21 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                       SizedBox(
                         height: MediaQuery.of(context).size.width / 10,
                       ),
-                      const Text(
+                      Text(
                         "Şu anda kitaplığınız boş.",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: MediaQuery.of(context).size.height / 40,
                         ),
                       ),
-                      const Text(
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 60,
+                      ),
+                      Text(
                         "Not eklemek için önce kitap eklemelisiniz.",
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 20,
-                        ),
+                            fontSize: MediaQuery.of(context).size.height / 40,
+                            color: Colors.grey),
                       )
                     ],
                   ),

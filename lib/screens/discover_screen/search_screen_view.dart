@@ -173,8 +173,9 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                   flex: 6,
                   child: Text(
                     "${item?.title!} ",
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height / 60,
+                        fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -186,8 +187,11 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                     child: SizedBox(
                       child: Text(
                         "${item.authorName!.first}",
-                        style: const TextStyle(
-                            color: Colors.grey, fontStyle: FontStyle.italic),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic,
+                          fontSize: MediaQuery.of(context).size.height / 60,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,

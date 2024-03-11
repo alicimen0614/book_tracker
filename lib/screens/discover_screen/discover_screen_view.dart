@@ -75,9 +75,11 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text(
-                          "Vazgeç",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        child: const FittedBox(
+                          child: Text(
+                            "Vazgeç",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         )),
                   ),
                 )
@@ -102,9 +104,11 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                             searchBarController.clear();
                           });
                         },
-                        child: const Text(
-                          "Vazgeç",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        child: const FittedBox(
+                          child: Text(
+                            "Vazgeç",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         )),
                   ),
                 )

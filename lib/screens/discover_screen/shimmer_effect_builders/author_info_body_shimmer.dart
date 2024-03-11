@@ -12,9 +12,11 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Yazar Adı",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
             ),
             const Divider(color: Colors.transparent, thickness: 0),
             ShimmerWidget.rounded(
@@ -23,9 +25,11 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                 shapeBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))),
             const Divider(color: Colors.transparent, thickness: 0),
-            const Text(
+            Text(
               "Biyografi",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
             ),
             const Divider(color: Colors.transparent, thickness: 0),
             SizedBox(
@@ -51,9 +55,11 @@ Expanded authorInfoBodyShimmerBuilder(BuildContext context) {
                     shapeBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)))),
             const Divider(color: Colors.transparent, thickness: 0),
-            const Text(
+            Text(
               "Yazara Ait Kitaplar",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
             ),
             const Divider(color: Colors.transparent, thickness: 0),
             SizedBox(

@@ -67,27 +67,35 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
 
   Widget getUserName(WidgetRef ref) {
     if (getCurrentUser(ref) == null) {
-      return const FittedBox(
+      return FittedBox(
+        fit: BoxFit.scaleDown,
         child: Text(
           "Ziyaretçi",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
         ),
       );
     } else {
       if (getCurrentUser(ref)!.displayName == null) {
-        return const FittedBox(
+        return FittedBox(
+          fit: BoxFit.scaleDown,
           child: Text(
             "Ziyaretçi",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 30),
           ),
         );
       } else {
-        return FittedBox(
-          child: Text(
-            getCurrentUser(ref)!.displayName!,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
-          ),
+        return Text(
+          getCurrentUser(ref)!.displayName!,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
         );
       }
     }

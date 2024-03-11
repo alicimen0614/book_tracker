@@ -45,9 +45,11 @@ class _NotesViewState extends ConsumerState<NotesView> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Notlarım",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40),
           ),
           centerTitle: true,
           leadingWidth: 50,
@@ -118,7 +120,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                                                 uniqueIdCreater(
                                                                     book)) ==
                                                         true &&
-                                                    book!.covers != null
+                                                    book!.covers != null &&
+                                                    book.imageAsByte != null
                                                 ? Image.memory(
                                                     base64Decode(
                                                       getImageAsByte(
@@ -167,15 +170,15 @@ class _NotesViewState extends ConsumerState<NotesView> {
                               decoration: BoxDecoration(
                                   color: Colors.white60,
                                   borderRadius: BorderRadius.circular(25)),
-                              height: 125,
                               child: ListTile(
-                                title: Text(book.title!),
+                                title: Text(book.title!, maxLines: 1),
                                 leading: ClipRRect(
                                   borderRadius: BorderRadius.circular(5),
                                   child: BookIdsListFromSql.contains(
                                                   uniqueIdCreater(book)) ==
                                               true &&
-                                          book.covers != null
+                                          book.covers != null &&
+                                          book.imageAsByte != null
                                       ? Image.memory(
                                           width: 40,
                                           height: 100,
@@ -216,7 +219,12 @@ class _NotesViewState extends ConsumerState<NotesView> {
                                 subtitle: SizedBox(
                                   child: Text(notesToShow[index]['note'],
                                       maxLines: 5,
-                                      overflow: TextOverflow.ellipsis),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              60)),
                                 ),
                               ),
                             ));

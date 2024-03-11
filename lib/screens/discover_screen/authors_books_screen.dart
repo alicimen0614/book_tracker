@@ -56,9 +56,9 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
         centerTitle: true,
         title: Text(
           "${widget.authorName} Kitapları",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 40),
         ),
         leading: IconButton(
             splashRadius: 25,
@@ -126,6 +126,9 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
                     item.title!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.height / 60),
                   )),
             ]),
           ),

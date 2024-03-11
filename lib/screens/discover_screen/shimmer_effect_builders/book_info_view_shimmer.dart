@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
   return SingleChildScrollView(
-    physics: const NeverScrollableScrollPhysics(),
     child: Column(
       children: [
         Container(
           padding: const EdgeInsets.all(15),
-          height: MediaQuery.of(context).size.height / 4,
+          height: MediaQuery.of(context).size.width > 500
+              ? MediaQuery.of(context).size.height / 2.5
+              : MediaQuery.of(context).size.height / 3.5,
           decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: const BorderRadius.only(
@@ -18,12 +19,14 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                flex: 8,
+                flex: 10,
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: ShimmerWidget.rounded(
-                        width: 125,
-                        height: MediaQuery.of(context).size.height / 5,
+                        width: 0,
+                        height: MediaQuery.of(context).size.width > 500
+                            ? MediaQuery.of(context).size.height / 3
+                            : MediaQuery.of(context).size.height / 4.2,
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)))),
               ),
@@ -44,7 +47,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                     ),
                     ShimmerWidget.rounded(
                         width: 100,
-                        height: 15,
+                        height: 35,
                         shapeBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15))),
                     const SizedBox(
@@ -191,7 +194,7 @@ SingleChildScrollView shimmerEffectForBookInfoView(BuildContext context) {
                 height: 10,
               ),
               SizedBox(
-                height: 100,
+                height: MediaQuery.of(context).size.width > 500 ? 300 : 150,
                 child: ListView.separated(
                     physics: const NeverScrollableScrollPhysics(),
                     scrollDirection: Axis.horizontal,

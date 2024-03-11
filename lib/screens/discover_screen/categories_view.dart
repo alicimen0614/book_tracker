@@ -126,10 +126,10 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     flex: 4,
                     child: Text(
                       mainCategoriesNames[index],
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                          fontSize: MediaQuery.of(context).size.height / 50,
                           overflow: TextOverflow.fade),
                       textAlign: TextAlign.center,
                     ),
@@ -155,14 +155,20 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Trendler",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.height / 40,
+                    ),
                   ),
                   TextButton(
-                      child: const Text(
+                      child: Text(
                         "Daha fazla",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.height / 60,
+                        ),
                       ),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
@@ -181,9 +187,12 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
             if (isConnected == false) trendingErrorWidget(context),
             if (isLoading == false && isConnected == true)
               trendingBooksWidget(),
-            const Text(
+            Text(
               "Kategoriler",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40,
+              ),
             ),
             const SizedBox(
               height: 10,
@@ -197,8 +206,18 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   Center trendingErrorWidget(BuildContext context) {
     return Center(
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        const Text("Bir hata meydana geldi."),
-        const Text("Lütfen yenilemek için tıklayın."),
+        Text(
+          "Bir hata meydana geldi.",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.height / 50,
+          ),
+        ),
+        Text(
+          "Lütfen yenilemek için tıklayın.",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.height / 50,
+          ),
+        ),
         IconButton(
             color: Theme.of(context).primaryColor,
             iconSize: 30,
@@ -216,72 +235,69 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
 
   SizedBox trendingBooksWidget() {
     return SizedBox(
-        height: 150,
+        height: MediaQuery.of(context).size.height / 4.7,
         width: double.infinity,
         child: ListView.builder(
             physics: const ClampingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             itemCount: items?.length,
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(10),
-                child: SizedBox(
-                  width: 100,
-                  child: InkWell(
-                      borderRadius: BorderRadius.circular(15),
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return BookInfoView(trendingBook: items?[index]);
-                          },
-                        ));
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: CachedNetworkImage(
-                                  fit: BoxFit.fill,
-                                  width: 80,
-                                  imageUrl:
-                                      "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
-                                  placeholder: (context, url) => ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: Transform.scale(
-                                      scale: 0.3,
-                                      child: const Center(
-                                          child: CircularProgressIndicator()),
-                                    ),
+              return SizedBox(
+                width: 120,
+                child: InkWell(
+                    borderRadius: BorderRadius.circular(15),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return BookInfoView(trendingBook: items?[index]);
+                        },
+                      ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            flex: 10,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: CachedNetworkImage(
+                                fit: BoxFit.fill,
+                                width: 80,
+                                imageUrl:
+                                    "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
+                                placeholder: (context, url) => ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Transform.scale(
+                                    scale: 0.3,
+                                    child: const Center(
+                                        child: CircularProgressIndicator()),
                                   ),
-                                  cacheManager: customCacheManager,
-                                  errorWidget: (context, url, error) =>
-                                      Image.asset(
-                                          "lib/assets/images/error.png"),
                                 ),
+                                cacheManager: customCacheManager,
+                                errorWidget: (context, url, error) =>
+                                    Image.asset("lib/assets/images/error.png"),
                               ),
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: items != null
-                                  ? Text(
-                                      items![index]!.title!,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              60),
-                                    )
-                                  : const SizedBox.shrink(),
-                            )
-                          ],
-                        ),
-                      )),
-                ),
+                          ),
+                          const Spacer(),
+                          Expanded(
+                            flex: 4,
+                            child: items != null
+                                ? Text(
+                                    items![index]!.title!,
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.height /
+                                                60),
+                                  )
+                                : const SizedBox.shrink(),
+                          )
+                        ],
+                      ),
+                    )),
               );
             }));
   }

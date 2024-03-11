@@ -78,7 +78,9 @@ class _DetailedCategoriesViewState
       appBar: AppBar(
         leadingWidth: 50,
         title: Text(widget.categoryName,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.height / 40)),
         centerTitle: true,
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
