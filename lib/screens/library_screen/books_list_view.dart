@@ -4,21 +4,20 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BooksListView extends ConsumerStatefulWidget {
-  const BooksListView({super.key});
+  const BooksListView({super.key, required this.isNotes});
 
+  final bool isNotes;
   @override
   ConsumerState<BooksListView> createState() => _BooksListViewState();
 }
 
 class _BooksListViewState extends ConsumerState<BooksListView> {
-  bool isConnected = false;
-  bool isLoading = false;
   List<BookWorkEditionsModelEntries>? bookListFromFirebase = [];
   List<BookWorkEditionsModelEntries>? bookListFromSql = [];
   List<BookWorkEditionsModelEntries>? bookListToShow = [];
@@ -26,16 +25,23 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
 
   @override
   void initState() {
-    getPageData();
+    getBookIds();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    bookListFromFirebase =
+        ref.watch(bookStateProvider).listOfBooksFromFirestore;
+
+    bookListFromSql = ref.watch(bookStateProvider).listOfBooksFromSql;
+
+    bookListToShow = ref.watch(bookStateProvider).listOfBooksToShow;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Not eklemek istediğin kitabı seç",
+        title: Text(
+            "${widget.isNotes == true ? "Not eklemek" : "Alıntı eklemek"} istediğin kitabı seç",
             style: TextStyle(
                 fontSize: MediaQuery.of(context).size.height / 40,
                 fontWeight: FontWeight.bold)),
@@ -49,7 +55,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
             )),
         automaticallyImplyLeading: false,
       ),
-      body: isLoading == false
+      body: ref.watch(bookStateProvider).isLoading == false
           ? bookListToShow!.isNotEmpty
               ? GridView.builder(
                   padding: const EdgeInsets.all(5.0),
@@ -68,58 +74,119 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                         customBorder: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddNoteView(
-                                    isNavigatingFromNotesView: true,
-                                    bookImage: listOfBookIdsFromSql!.contains(
-                                                    uniqueIdCreater(
-                                                        bookListToShow![
-                                                            index])) ==
-                                                true &&
-                                            bookListToShow![index].covers !=
-                                                null &&
-                                            bookListToShow![index]
-                                                    .imageAsByte !=
-                                                null
-                                        ? Image.memory(
-                                            base64Decode(getImageAsByte(
-                                                bookListFromSql,
-                                                bookListToShow![index])),
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    Image.asset(
-                                              "lib/assets/images/error.png",
-                                            ),
-                                          )
-                                        : bookListToShow![index].covers !=
+                          widget.isNotes == true
+                              ? Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddNoteView(
+                                        isNavigatingFromNotesView: true,
+                                        bookImage: listOfBookIdsFromSql!
+                                                        .contains(
+                                                            uniqueIdCreater(
+                                                                bookListToShow![
+                                                                    index])) ==
+                                                    true &&
+                                                bookListToShow![index].covers !=
                                                     null &&
                                                 bookListToShow![index]
-                                                        .imageAsByte ==
+                                                        .imageAsByte !=
                                                     null
-                                            ? Image.network(
-                                                "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
+                                            ? Image.memory(
+                                                base64Decode(getImageAsByte(
+                                                    bookListFromSql,
+                                                    bookListToShow![index])),
                                                 errorBuilder: (context, error,
                                                         stackTrace) =>
                                                     Image.asset(
                                                   "lib/assets/images/error.png",
                                                 ),
                                               )
-                                            : bookListToShow![index]
-                                                        .imageAsByte !=
-                                                    null
-                                                ? Image.memory(
-                                                    base64Decode(
-                                                        bookListToShow![index]
-                                                            .imageAsByte!),
-                                                    width: 90,
-                                                    fit: BoxFit.fill,
+                                            : bookListToShow![index].covers !=
+                                                        null &&
+                                                    bookListToShow![index]
+                                                            .imageAsByte ==
+                                                        null
+                                                ? Image.network(
+                                                    "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
+                                                      "lib/assets/images/error.png",
+                                                    ),
                                                   )
-                                                : null,
-                                    showDeleteIcon: false,
-                                    bookInfo: bookListToShow![index]),
-                              ));
+                                                : bookListToShow![index]
+                                                            .imageAsByte !=
+                                                        null
+                                                    ? Image.memory(
+                                                        base64Decode(
+                                                            bookListToShow![
+                                                                    index]
+                                                                .imageAsByte!),
+                                                        width: 90,
+                                                        fit: BoxFit.fill,
+                                                      )
+                                                    : null,
+                                        showDeleteIcon: false,
+                                        bookInfo: bookListToShow![index]),
+                                  ))
+                              : Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AddQuoteScreen(
+                                            showDeleteIcon: false,
+                                            bookInfo: bookListToShow![index],
+                                            bookImage: listOfBookIdsFromSql!.contains(
+                                                            uniqueIdCreater(
+                                                                bookListToShow![
+                                                                    index])) ==
+                                                        true &&
+                                                    bookListToShow![index]
+                                                            .covers !=
+                                                        null &&
+                                                    bookListToShow![index]
+                                                            .imageAsByte !=
+                                                        null
+                                                ? Image.memory(
+                                                    base64Decode(getImageAsByte(
+                                                        bookListFromSql,
+                                                        bookListToShow![
+                                                            index])),
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
+                                                      "lib/assets/images/error.png",
+                                                    ),
+                                                  )
+                                                : bookListToShow![index]
+                                                                .covers !=
+                                                            null &&
+                                                        bookListToShow![index]
+                                                                .imageAsByte ==
+                                                            null
+                                                    ? Image.network(
+                                                        "https://covers.openlibrary.org/b/id/${bookListToShow![index].covers!.first!}-M.jpg",
+                                                        errorBuilder: (context,
+                                                                error,
+                                                                stackTrace) =>
+                                                            Image.asset(
+                                                          "lib/assets/images/error.png",
+                                                        ),
+                                                      )
+                                                    : bookListToShow![index]
+                                                                .imageAsByte !=
+                                                            null
+                                                        ? Image.memory(
+                                                            base64Decode(
+                                                                bookListToShow![
+                                                                        index]
+                                                                    .imageAsByte!),
+                                                            width: 90,
+                                                            fit: BoxFit.fill,
+                                                          )
+                                                        : null,
+                                          )));
                         },
                         child: Column(children: [
                           Expanded(
@@ -238,43 +305,10 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
     );
   }
 
-  void getPageData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    await getBooks();
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Future<void> getBooks() async {
-    isConnected = await checkForInternetConnection();
-    if (isConnected == true && ref.read(authProvider).currentUser != null) {
-      var data = await ref.read(firestoreProvider).getBooks(
-          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
-      if (data != null) {
-        bookListFromFirebase = data.docs
-            .map(
-              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-            )
-            .toList();
-
-        bookListToShow = bookListFromFirebase;
-      }
-    }
-    bookListFromSql = await ref.read(sqlProvider).getBookShelf(context);
+  Future<void> getBookIds() async {
     if (bookListFromSql != null) {
       listOfBookIdsFromSql =
           bookListFromSql!.map((e) => uniqueIdCreater(e)).toList();
-    }
-
-    if (bookListFromSql != null) {
-      if (bookListFromSql!.length > bookListFromFirebase!.length) {
-        bookListToShow = bookListFromSql;
-      }
     }
   }
 }

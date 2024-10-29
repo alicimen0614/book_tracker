@@ -40,6 +40,15 @@ class _BottomNavigationBarControllerState
   }
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(bookStateProvider.notifier).getPageData();
+    });
+
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();

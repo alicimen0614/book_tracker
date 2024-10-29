@@ -59,7 +59,9 @@ class _NotesViewState extends ConsumerState<NotesView> {
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const BooksListView(),
+                      builder: (context) => const BooksListView(
+                        isNotes: true,
+                      ),
                     )).then((value) => value == true ? getPageData() : null),
                 icon: const Icon(
                   Icons.add_to_photos_rounded,
@@ -238,16 +240,14 @@ class _NotesViewState extends ConsumerState<NotesView> {
                       children: [
                         Image.asset(
                           "lib/assets/images/nonotesfound.png",
-                          width: MediaQuery.of(context).size.width / 1.2,
+                          width: MediaQuery.of(context).size.height / 1.5,
                         ),
                         SizedBox(
                           height: MediaQuery.of(context).size.width / 10,
                         ),
                         const Text(
                           "Not bulunamadı.",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
+                          style: TextStyle(fontSize: 20),
                         )
                       ],
                     ),
@@ -268,9 +268,10 @@ class _NotesViewState extends ConsumerState<NotesView> {
     isConnected = await checkForInternetConnection();
     if (isConnected != false && ref.read(authProvider).currentUser != null) {
       bookListToShow = widget.bookListFromFirebase;
-      await getNotesFromFirestore();
       BookIdsListToShow =
           bookListToShow!.map((e) => uniqueIdCreater(e)).toList();
+      await getNotesFromFirestore();
+
       await insertingProcesses();
     } else {
       bookListToShow = widget.bookListFromSql;
@@ -288,8 +289,14 @@ class _NotesViewState extends ConsumerState<NotesView> {
 
   Future<void> getNotesFromSql() async {
     notesFromSql = await ref.read(sqlProvider).getNotes(context);
+
     if (notesFromSql != null) {
-      notesToShow = notesFromSql!;
+      notesToShow = List.from(notesFromSql!);
+
+      for (var i = 0; i < notesFromSql!.length; i++) {
+        notesToShow
+            .removeWhere((item) => !BookIdsListToShow.contains(item['bookId']));
+      }
     }
   }
 
@@ -304,7 +311,11 @@ class _NotesViewState extends ConsumerState<NotesView> {
           )
           .toList();
       if (notesFromFirestore != null) {
-        notesToShow = notesFromFirestore!;
+        notesToShow = List.from(notesFromFirestore!);
+        for (var i = 0; i < notesFromFirestore!.length; i++) {
+          notesToShow.removeWhere(
+              (item) => !BookIdsListToShow.contains(item['bookId']));
+        }
       }
     }
   }

@@ -1,59 +1,53 @@
-import 'dart:convert';
 import 'dart:developer';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/models/quote_model.dart';
+import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-class AddNoteView extends ConsumerStatefulWidget {
-  const AddNoteView(
+class AddQuoteScreen extends ConsumerStatefulWidget {
+  const AddQuoteScreen(
       {super.key,
       required this.showDeleteIcon,
       this.bookImage,
       required this.bookInfo,
-      this.initialNoteValue = "",
-      this.noteId,
-      this.isNavigatingFromNotesView = false,
+      this.initialQuoteValue = "",
       this.noteDate = ""});
 
   final bool showDeleteIcon;
   final Image? bookImage;
   final BookWorkEditionsModelEntries bookInfo;
-  final String initialNoteValue;
-  final int? noteId;
-  final bool isNavigatingFromNotesView;
+  final String initialQuoteValue;
+
   final String noteDate;
 
   @override
-  ConsumerState<AddNoteView> createState() => _AddNoteViewState();
+  ConsumerState<AddQuoteScreen> createState() => _AddNoteViewState();
 }
 
-class _AddNoteViewState extends ConsumerState<AddNoteView> {
-  final noteFieldController = TextEditingController();
-  int oldNoteId = 0;
+class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
+  final quoteFieldController = TextEditingController();
   String date = "";
-  bool hasNoteSaved = false;
 
   @override
   void initState() {
     initializeDateFormatting('tr');
-    if (widget.noteId != null) {
-      oldNoteId = widget.noteId!;
-    }
+
     date = DateFormat("dd MMMM yyy H.m").format(DateTime.now());
 
-    noteFieldController.text = widget.initialNoteValue;
+    quoteFieldController.text = widget.initialQuoteValue;
 
     super.initState();
   }
 
   @override
   void dispose() {
-    noteFieldController.dispose();
+    quoteFieldController.dispose();
     super.dispose();
   }
 
@@ -70,7 +64,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       },
       child: Scaffold(
         appBar: AppBar(
-            title: Text("Kitaba bir not ekle: ${widget.bookInfo.title}",
+            title: Text("Bir alıntı ekle: ${widget.bookInfo.title}",
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold)),
@@ -85,11 +79,11 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     Future.delayed(
                       const Duration(milliseconds: 150),
                       () {
-                        Navigator.pop(context, hasNoteSaved);
+                        Navigator.pop(context);
                       },
                     );
                   } else {
-                    Navigator.pop(context, hasNoteSaved);
+                    Navigator.pop(context);
                   }
                 },
                 icon: const Icon(
@@ -101,7 +95,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             actions: [
               widget.showDeleteIcon == true
                   ? IconButton(
-                      tooltip: "Notu Sil",
+                      tooltip: "Alıntıyı Sil",
                       onPressed: () async {
                         alertDialogBuilder(context);
                       },
@@ -115,115 +109,28 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
               IconButton(
                 splashRadius: 25,
                 onPressed: () async {
-                  // note update condition
-                  if (widget.initialNoteValue != noteFieldController.text &&
-                      widget.initialNoteValue != "" &&
-                      noteFieldController.text != "") {
-                    FocusScope.of(context).unfocus();
-                    //deleting the old note from sql if there is any
-                    if (widget.noteId != null) {
-                      await ref
-                          .read(sqlProvider)
-                          .deleteNote(oldNoteId, context);
-                    }
-                    //inserting the note to sql
-                    await ref.read(sqlProvider).insertNoteToBook(
-                        noteFieldController.text,
-                        uniqueIdCreater(widget.bookInfo),
-                        context,
-                        date);
+                  print(widget.bookInfo.authorsNames);
+                  Quote quote = Quote(
+                      quoteText: quoteFieldController.text,
+                      bookName: widget.bookInfo.title,
+                      userId: ref.read(authProvider).currentUser!.uid,
+                      bookCover: widget.bookInfo.covers?.first.toString(),
+                      date: DateTime.now().toString(),
+                      likes: [],
+                      userName: FirebaseAuth.instance.currentUser?.displayName,
+                      userPicture: FirebaseAuth.instance.currentUser?.photoURL,
+                      likeCount: 0);
+                  ref
+                      .read(firestoreProvider)
+                      .setQuoteData(context, quote: quote.toJson());
 
-                    if (ref.read(authProvider).currentUser != null) {
-                      if (widget.noteId != null) {
-                        //deleting the old note from firebase if there is any
-                        ref.read(firestoreProvider).deleteNote(context,
-                            referencePath: 'usersBooks',
-                            userId: ref.read(authProvider).currentUser!.uid,
-                            noteId: oldNoteId.toString());
-                      }
-                      //inserting the note to firebase
-                      ref.read(firestoreProvider).setNoteData(context,
-                          collectionPath: 'usersBooks',
-                          note: noteFieldController.text,
-                          userId: ref.read(authProvider).currentUser!.uid,
-                          uniqueBookId: uniqueIdCreater(widget.bookInfo),
-                          noteDate: date);
-                    }
+                  ref.read(quotesProvider.notifier).fetchRecentQuotes();
+                  ref.read(quotesProvider.notifier).fetchTrendingQuotes();
 
-                    showSnackBar(context, "Not Başarıyla Güncellendi");
-                    hasNoteSaved = true;
-                    Future.delayed(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.pop(context, hasNoteSaved);
-                      },
-                    );
-                  }
-                  //new note condition
-                  else if (widget.initialNoteValue == "" &&
-                      noteFieldController.text != "") {
-                    FocusScope.of(context).unfocus();
-                    //inserting the note to sql and inserting the book to sql if it isn't already
-                    await ref.read(sqlProvider).insertNoteToBook(
-                        noteFieldController.text,
-                        uniqueIdCreater(widget.bookInfo),
-                        context,
-                        date);
-
-                    await ref.read(sqlProvider).insertBook(
-                        widget.bookInfo,
-                        widget.bookInfo.bookStatus!,
-                        widget.bookInfo.imageAsByte != null
-                            ? base64Decode(widget.bookInfo.imageAsByte!)
-                            : null,
-                        context);
-
-                    if (ref.read(authProvider).currentUser != null) {
-                      ref.read(firestoreProvider).setNoteData(context,
-                          collectionPath: 'usersBooks',
-                          note: noteFieldController.text,
-                          userId: ref.read(authProvider).currentUser!.uid,
-                          uniqueBookId: uniqueIdCreater(widget.bookInfo),
-                          noteDate: date);
-                    }
-                    ref.read(bookStateProvider.notifier).getPageData();
-                    showSnackBar(context, "Not Başarıyla Eklendi");
-                    hasNoteSaved = true;
-                    Future.delayed(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.pop(context, hasNoteSaved);
-                      },
-                    );
-                    if (widget.isNavigatingFromNotesView == true) {
-                      Future.delayed(
-                        const Duration(milliseconds: 100),
-                        () {
-                          Navigator.pop(context, hasNoteSaved);
-                        },
-                      );
-                    }
-                  } //no note written and trying to save
-                  else if (widget.initialNoteValue == "" &&
-                      noteFieldController.text == "") {
-                    FocusScope.of(context).unfocus();
-                    showSnackBar(context, "Lütfen Önce Bir Not Ekleyin");
-                  }
-                  //there is initial note but trying to save when its empty
-                  else if (widget.initialNoteValue != "" &&
-                      noteFieldController.text == "") {
-                    FocusScope.of(context).unfocus();
-                    showSnackBar(
-                        context, "Lütfen Önce Bir Not Ekleyin Yada Notu Silin");
-                  } else {
-                    FocusScope.of(context).unfocus();
-                    Future.delayed(
-                      const Duration(milliseconds: 100),
-                      () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  }
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Alıntı başarıyla eklendi")));
                 },
                 icon: const Icon(Icons.check_sharp, size: 30),
               )
@@ -273,9 +180,9 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     fontSize: MediaQuery.of(context).size.height / 60)),
             SizedBox(height: MediaQuery.of(context).size.height / 40),
             TextFormField(
-              controller: noteFieldController,
+              controller: quoteFieldController,
               decoration: const InputDecoration(
-                hintText: "Notunuzu girin.",
+                hintText: "Alıntı girin.",
               ),
               maxLines: null,
               minLines: null,
@@ -312,7 +219,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                 child: const Text("Vazgeç")),
             TextButton(
                 onPressed: () async {
-                  await ref
+                  /*  await ref
                       .read(sqlProvider)
                       .deleteNote(widget.noteId!, context);
                   if (ref.read(authProvider).currentUser != null) {
@@ -322,7 +229,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         noteId: widget.noteId.toString());
                   }
                   Navigator.pop(context);
-                  Navigator.pop(context);
+                  Navigator.pop(context); */
                 },
                 child: const Text("Sil"))
           ],

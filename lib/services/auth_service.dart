@@ -1,10 +1,12 @@
 import 'package:book_tracker/widgets/error_snack_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   final _firebaseAuth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   User? get currentUser {
     return _firebaseAuth.currentUser;
@@ -55,18 +57,26 @@ class AuthService {
         return null;
       }
     } catch (e) {
+      print(e);
       errorSnackBar(context, e.toString());
       return null;
     }
     // Trigger the authentication flow
   }
 
-  Future createUserWithEmailAndPassword(
-      String email, String password, BuildContext context) async {
+  Future<User?> createUserWithEmailAndPassword(
+      String name, String email, String password, BuildContext context) async {
     try {
       // ignore: unused_local_variable
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
+
+      _firestore
+          .collection("usersBooks")
+          .doc(userCredential.user!.uid)
+          .set({"name": name});
+
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
         case 'weak-password':
@@ -77,7 +87,8 @@ class AuthService {
             behavior: SnackBarBehavior.floating,
           ));
 
-          break;
+          return null;
+
         case 'email-already-in-use':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -86,22 +97,23 @@ class AuthService {
             action: SnackBarAction(label: 'Tamam', onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));
-          break;
+          return null;
         case 'invalid-email':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('E-posta adresi geçersiz.')));
-          break;
+          return null;
         default:
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content:
                   Text('Bilinmeyen bir hata meydana geldi: ${e.message}')));
-          break;
+          return null;
       }
     } catch (e) {
       errorSnackBar(context, e.toString(),
           infoMessage: "Hesap oluşturulurken bir hata meydana geldi");
+      return null;
     }
   }
 

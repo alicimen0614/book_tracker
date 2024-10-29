@@ -80,7 +80,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
       child: GridView.builder(
         shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
-        itemCount: mainCategories.length,
+        itemCount: Const.mainCategories.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisSpacing: 25,
             mainAxisExtent: 230,
@@ -97,8 +97,8 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return DetailedCategoriesView(
-                        categoryKey: mainCategories[index],
-                        categoryName: mainCategoriesNames[index],
+                        categoryKey: Const.mainCategories[index],
+                        categoryName: Const.mainCategoriesNames[index],
                       );
                     },
                   ));
@@ -111,7 +111,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                             color: Colors.transparent,
                             image: DecorationImage(
                               image: AssetImage(
-                                  "lib/assets/images/${mainCategoriesImages[index]}"),
+                                  "lib/assets/images/${Const.mainCategoriesImages[index]}"),
                               onError: (exception, stackTrace) =>
                                   const AssetImage(
                                       "lib/assets/images/error.png"),
@@ -125,7 +125,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   Expanded(
                     flex: 4,
                     child: Text(
-                      mainCategoriesNames[index],
+                      Const.mainCategoriesNames[index],
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,

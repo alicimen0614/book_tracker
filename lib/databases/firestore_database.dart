@@ -1,7 +1,9 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class FirestoreDatabase extends ChangeNotifier {
@@ -17,7 +19,7 @@ class FirestoreDatabase extends ChangeNotifier {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>?> getBooks(
-      String collectionPath, String userId, BuildContext context) async {
+      String collectionPath, String userId) async {
     try {
       return await _firestore
           .collection(collectionPath)
@@ -25,8 +27,6 @@ class FirestoreDatabase extends ChangeNotifier {
           .collection("books")
           .get();
     } catch (e) {
-      errorSnackBar(context, e.toString(),
-          infoMessage: "Kitaplar getirilirken bir hata oluştu");
       return null;
     }
   }
@@ -42,6 +42,16 @@ class FirestoreDatabase extends ChangeNotifier {
     } catch (e) {
       errorSnackBar(context, e.toString(),
           infoMessage: "Notlar getirilirken bir hata oluştu");
+      return null;
+    }
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>?> getUserInfo(
+      String userId) async {
+    try {
+      return await _firestore.collection("usersBooks").doc(userId).get();
+    } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -128,6 +138,82 @@ class FirestoreDatabase extends ChangeNotifier {
       errorSnackBar(context, e.toString(),
           infoMessage: "Kitap yazdırılırken bir hata oluştu");
     }
+  }
+
+  Future<void> setQuoteData(
+    BuildContext context, {
+    required Map<String, dynamic> quote,
+  }) async {
+    try {
+      await _firestore.collection("quotes").doc().set(quote);
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+    }
+  }
+
+  Future<List<Quote>?> getQuotes() async {
+    try {
+      var quotesSnapshots = await _firestore.collection("quotes").get();
+
+      var quotesList = quotesSnapshots.docs
+          .map((quotesSnapshot) => Quote.fromJson(quotesSnapshot.data()))
+          .toList();
+
+      return quotesList;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<void> commitLikeToFirebase(
+      String quoteId, bool? isLikedOnLocal) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      print("User is not logged in");
+      return;
+    }
+
+    final currentUserId = currentUser.uid;
+
+    // Firestore'daki quote belgesinin referansı
+    DocumentReference quoteDocRef =
+        FirebaseFirestore.instance.collection('quotes').doc(quoteId);
+
+    // Transaction başlat
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Belgeyi transaction ile alıyoruz
+      DocumentSnapshot snapshot = await transaction.get(quoteDocRef);
+
+      if (!snapshot.exists) {
+        throw Exception("Quote does not exist!");
+      }
+
+      // Firestore'dan aldığımız veriyi map formatında elde ediyoruz
+      List<dynamic> likes = snapshot.get('likes') as List<dynamic>;
+      int likeCount = snapshot.get('likeCount');
+
+      // Kullanıcı beğenmiş mi kontrol et
+      bool isLiked = likes.contains(currentUserId);
+
+      if (isLiked && isLikedOnLocal == false) {
+        likes.remove(currentUserId);
+        likeCount = likeCount - 1;
+      }
+      if (isLiked == false && isLikedOnLocal == true) {
+        likes.add(currentUserId);
+        likeCount = likeCount + 1;
+      }
+
+      // Güncellenen beğeni listesini Firebase'e yazalım
+      transaction.update(quoteDocRef, {'likes': likes, 'likeCount': likeCount});
+    }).then((_) {
+      print("Transaction success!");
+    }).catchError((error) {
+      print("Transaction failed: $error");
+    });
   }
 
   Future<void> updateBookStatus(BuildContext context,

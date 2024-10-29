@@ -138,7 +138,7 @@ class SqlHelper {
     }
   }
 
-  Future<List<String>?>? getAuthors(int bookId, BuildContext context) async {
+  Future<List<String>?>? getAuthors(int bookId) async {
     // Get a reference to the database.
     final db = await _openDatabase();
 
@@ -152,8 +152,7 @@ class SqlHelper {
     return matchedAuthors.map((e) => e['authorName'] as String).toList();
   }
 
-  Future<List<BookWorkEditionsModelEntries>?> getBookShelf(
-      BuildContext context) async {
+  Future<List<BookWorkEditionsModelEntries>?> getBookShelf() async {
     try {
       // Get a reference to the database.
       final db = await _openDatabase();
@@ -228,14 +227,12 @@ class SqlHelper {
             isbn_10: element.isbn_10,
             isbn_13: element.isbn_13,
             description: element.description,
-            authorsNames: await getAuthors(uniqueIdCreater(element), context),
+            authorsNames: await getAuthors(uniqueIdCreater(element)),
             languages: element.languages));
       }
 
       return booksListReal;
     } catch (e) {
-      errorSnackBar(context, e.toString(),
-          infoMessage: "Kitaplar getirilirken bir hata oluştu");
       return null;
     }
   }
@@ -252,7 +249,7 @@ class SqlHelper {
       return newStatus.first.values.first;
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitaplar getirilirken bir hata oluştu");
+          infoMessage: "Kitaplar getirilirken bir hata oluştu.");
       return null;
     }
   }
@@ -280,7 +277,7 @@ class SqlHelper {
     }
   }
 
-  Future<void> deleteBook(int id, BuildContext context) async {
+  Future<void> deleteBook(int id) async {
     try {
       // Get a reference to the database.
       final db = await _openDatabase();
@@ -293,10 +290,7 @@ class SqlHelper {
         // Pass the Book's id as a whereArg to prevent SQL injection.
         whereArgs: [id],
       );
-    } catch (e) {
-      errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap silinirken bir hata oluştu");
-    }
+    } catch (e) {}
   }
 
   Future<void> deleteNote(int id, BuildContext context) async {

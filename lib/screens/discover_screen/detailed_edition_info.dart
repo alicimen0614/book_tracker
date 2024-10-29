@@ -10,6 +10,7 @@ import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
@@ -38,11 +39,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   bool isLoading = false;
   bool onProgress = false;
   bool isConnected = false;
-  bool doesBookAlreadyExist = false;
+  Map doesBookAlreadyExist = {};
+  bool doesBookAlreadyExistOnSql = false;
+  bool doesBookAlreadyExistOnFirestore = false;
+
   List<Map<String, dynamic>>? notesList = [];
   bool doesBookHasSameStatus = false;
   String bookStatusAsString = "";
   bool hasChangeMade = false;
+  BannerAd? _banner;
+  InterstitialAd? _interstitialAd;
 
   BookStatus bookStatus = BookStatus.wantToRead;
 
@@ -52,8 +58,17 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       bookStatusAsString = widget.editionInfo.bookStatus!;
     }
     getPageData();
+    _createBannerAd();
+    _createInterstitialAd();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _banner?.dispose();
+    _interstitialAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,6 +80,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         return Future(() => true);
       },
       child: Scaffold(
+          bottomNavigationBar: _banner == null
+              ? Container()
+              : Container(
+                  height: 52,
+                  child: AdWidget(ad: _banner!),
+                ),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
             actions: [
@@ -353,7 +374,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                         "Şu an okuduklarım"
                                     ? BookStatus.currentlyReading
                                     : BookStatus.alreadyRead)
-                        .then((value) {
+                        .then((didChanged) {
                       getNewStatus(uniqueIdCreater(widget.editionInfo))
                           .then((value) {
                         if (value != null) {
@@ -364,7 +385,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                     ? BookStatus.currentlyReading
                                     : BookStatus.alreadyRead;
                             bookStatusAsString = value;
-                            hasChangeMade = true;
                           });
                         }
                       });
@@ -380,8 +400,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
               ? ListTile(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    var isChanged = await Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddBookView(
@@ -409,7 +429,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                       widget.editionInfo.publishers?.first,
                                   publishDate: widget.editionInfo.publish_date,
                                   bookId: uniqueIdCreater(widget.editionInfo),
+                                  toUpdate: true,
                                 )));
+                    if (isChanged == true) {
+                      Navigator.pop(context, true);
+                    }
                   },
                   visualDensity: const VisualDensity(vertical: 3),
                   leading: const Icon(
@@ -480,7 +504,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Future<void> deleteBook(BookWorkEditionsModelEntries bookInfo) async {
-    await ref.read(sqlProvider).deleteBook(uniqueIdCreater(bookInfo), context);
+    await ref.read(sqlProvider).deleteBook(
+          uniqueIdCreater(bookInfo),
+        );
     if (ref.read(authProvider).currentUser != null) {
       await ref.read(firestoreProvider).deleteBook(context,
           referencePath: "usersBooks",
@@ -597,6 +623,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                       child: const Text("Vazgeç")),
                                   TextButton(
                                       onPressed: () async {
+                                        _showInterstitialAd();
+
                                         setState(() {
                                           onProgress = true;
                                         });
@@ -604,13 +632,22 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                             await checkIfAlreadyExist(
                                                 uniqueIdCreater(
                                                     widget.editionInfo));
+                                        doesBookAlreadyExistOnFirestore =
+                                            doesBookAlreadyExist[
+                                                "doesBookExistOnFirestore"];
+                                        doesBookAlreadyExistOnSql =
+                                            doesBookAlreadyExist[
+                                                "doesBookExistOnSql"];
 
                                         doesBookHasSameStatus =
                                             checkIfBookHasSameStatus(
                                                 bookStatus, initialBookStatus);
 
                                         if (widget.editionInfo.covers != null &&
-                                            doesBookAlreadyExist != true &&
+                                            (doesBookAlreadyExistOnFirestore !=
+                                                    true ||
+                                                doesBookAlreadyExistOnSql !=
+                                                    true) &&
                                             doesBookHasSameStatus != true) {
                                           Uint8List? base64AsString =
                                               await readNetworkImage(
@@ -625,7 +662,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                           }
                                         } else if (widget.editionInfo.covers ==
                                                 null &&
-                                            doesBookAlreadyExist != true &&
+                                            (doesBookAlreadyExistOnFirestore !=
+                                                    true ||
+                                                doesBookAlreadyExistOnSql !=
+                                                    true) &&
                                             doesBookHasSameStatus != true) {
                                           await insertToSqlDatabase(
                                               null, context);
@@ -635,17 +675,22 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               null) {
                                             await insertToFirestore();
                                           }
-                                        } else if (doesBookAlreadyExist ==
-                                                true &&
+                                        } else if ((doesBookAlreadyExistOnFirestore ==
+                                                    true ||
+                                                doesBookAlreadyExistOnSql ==
+                                                    true) &&
                                             doesBookHasSameStatus == false) {
+                                          hasChangeMade = true;
                                           updateBookStatus(
                                               uniqueIdCreater(
                                                   widget.editionInfo),
-                                              bookStatus);
+                                              bookStatus,
+                                              doesBookAlreadyExistOnFirestore,
+                                              doesBookAlreadyExistOnSql);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             duration:
-                                                const Duration(seconds: 1),
+                                                const Duration(seconds: 3),
                                             content: const Text(
                                                 'Kitap durumu başarıyla güncellendi.'),
                                             action: SnackBarAction(
@@ -654,6 +699,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                             behavior: SnackBarBehavior.floating,
                                           ));
                                         } else {
+                                          hasChangeMade = false;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             duration:
@@ -759,17 +805,25 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             )));
   }
 
-  Future<void> updateBookStatus(int bookId, BookStatus newBookStatus) async {
-    await ref.read(sqlProvider).updateBook(
-        bookId,
-        newBookStatus == BookStatus.alreadyRead
-            ? "Okuduklarım"
-            : newBookStatus == BookStatus.currentlyReading
-                ? "Şu an okuduklarım"
-                : "Okumak istediklerim",
-        context);
+  Future<void> updateBookStatus(
+      int bookId,
+      BookStatus newBookStatus,
+      bool doesBookAlreadyExistOnFirestore,
+      bool doesBookAlreadyExistOnSql) async {
+    if (doesBookAlreadyExistOnSql == true) {
+      await ref.read(sqlProvider).updateBook(
+          bookId,
+          newBookStatus == BookStatus.alreadyRead
+              ? "Okuduklarım"
+              : newBookStatus == BookStatus.currentlyReading
+                  ? "Şu an okuduklarım"
+                  : "Okumak istediklerim",
+          context);
+    }
 
-    if (ref.read(authProvider).currentUser != null && isConnected != false) {
+    if (ref.read(authProvider).currentUser != null &&
+        isConnected != false &&
+        doesBookAlreadyExistOnFirestore == true) {
       ref.read(firestoreProvider).updateBookStatus(context,
           collectionPath: 'usersBooks',
           newBookStatus: newBookStatus == BookStatus.alreadyRead
@@ -1188,17 +1242,19 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     return authorsNames = authorsNamesList;
   }
 
-  Future<bool> checkIfAlreadyExist(int bookId) async {
+  Future<Map> checkIfAlreadyExist(int bookId) async {
+    bool doesBookExistOnSql = false;
+    bool doesBookExistOnFirestore = false;
     List<int>? bookIdsFromSql = [];
     List<BookWorkEditionsModelEntries>? booksListFromSql =
-        await ref.read(sqlProvider).getBookShelf(context);
+        await ref.read(sqlProvider).getBookShelf();
     List<BookWorkEditionsModelEntries>? booksListFromFirestore = [];
     List<int>? bookIdsFromFirestore = [];
-    List<int>? allBookIdList = [];
 
     if (isConnected == true && ref.read(authProvider).currentUser != null) {
-      var data = await ref.read(firestoreProvider).getBooks(
-          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+      var data = await ref
+          .read(firestoreProvider)
+          .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
       if (data != null) {
         booksListFromFirestore = data.docs
             .map(
@@ -1213,8 +1269,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     if (booksListFromSql != null) {
       bookIdsFromSql = booksListFromSql.map((e) => uniqueIdCreater(e)).toList();
     }
-    allBookIdList = bookIdsFromFirestore + bookIdsFromSql;
-    return allBookIdList.contains(bookId);
+
+    if (bookIdsFromFirestore.contains(bookId)) {
+      doesBookExistOnFirestore = true;
+    }
+    if (bookIdsFromSql.contains(bookId)) {
+      doesBookExistOnSql = true;
+    }
+
+    return {
+      "doesBookExistOnSql": doesBookExistOnSql,
+      "doesBookExistOnFirestore": doesBookExistOnFirestore
+    };
   }
 
   bool checkIfBookHasSameStatus(
@@ -1233,4 +1299,50 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Future<String?> getNewStatus(int bookId) async {
     return await ref.read(sqlProvider).getNewStatus(context, bookId);
   }
+
+  void _createBannerAd() {
+    _banner = BannerAd(
+        size: AdSize.getInlineAdaptiveBannerAdSize(
+            Const.screenSize.width.floor(), 50),
+        adUnitId: 'ca-app-pub-1939809254312142/9271243251',
+        listener: bannerAdListener,
+        request: const AdRequest())
+      ..load();
+  }
+
+  void _createInterstitialAd() {
+    InterstitialAd.load(
+        adUnitId: "ca-app-pub-1939809254312142/8112374131",
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) => _interstitialAd = ad,
+          onAdFailedToLoad: (error) => _interstitialAd = null,
+        ));
+  }
+
+  void _showInterstitialAd() {
+    if (_interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          _createInterstitialAd();
+        },
+      );
+      _interstitialAd!.show();
+      _interstitialAd = null;
+    }
+  }
+
+  final BannerAdListener bannerAdListener = BannerAdListener(
+    onAdLoaded: (ad) => debugPrint("adloaded"),
+    onAdFailedToLoad: (ad, error) {
+      ad.dispose();
+      debugPrint("adfailed to load");
+    },
+    onAdOpened: (ad) => debugPrint("ad opened"),
+  );
 }

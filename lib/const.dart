@@ -2,75 +2,135 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:flutter/material.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
-final List mainCategories = [
-  "Classics",
-  "Fantasy",
-  "Adventure",
-  "Contemporary",
-  "Romance",
-  "Dystopian",
-  "Horror",
-  "Paranormal",
-  "Historical Fiction",
-  "Science Fiction",
-  "Children's",
-  "Academic",
-  "Mystery",
-  "Thrillers",
-  "Memoir",
-  "Self-help",
-  "Cookbook",
-  "Art & Photography",
-  "Young Adult",
-  "Personal Development",
-  "Motivational",
-  "Health",
-  "History",
-  "Travel",
-  "Guide",
-  "Families & Relationships",
-  "Humor",
-  "Graphic Novel",
-  "Short Story",
-  "Biography and Autobiography",
-  "Poetry",
-  "Religion & Spirituality"
-];
+class Const {
+  static late Size screenSize;
+  static late double minSize;
 
-final List mainCategoriesNames = [
-  "Klasikler",
-  "Fantastik",
-  "Macera",
-  "Modern",
-  "Romantik",
-  "Distopik",
-  "Korku",
-  "Paranormal",
-  "Tarihsel kurgu",
-  "Bilim kurgu",
-  "Çocuk",
-  "Akademik",
-  "Gizem",
-  "Gerilim",
-  "Anı",
-  "Kendine yardım",
-  "Yemek kitabı",
-  "Sanat ve Fotoğrafçılık",
-  "Genç Yetişkin",
-  "Kişisel Gelişim",
-  "Motivasyonel",
-  "Sağlık",
-  "Tarih",
-  "Seyahat",
-  "Rehber",
-  "Aileler ve İlişkiler",
-  "Mizah",
-  "Çizgi roman",
-  "Kısa hikaye",
-  "Biyografi ve Otobiyografi",
-  "Şiir",
-  "Din ve Maneviyat"
-];
+  static void init(BuildContext context) {
+    screenSize = MediaQuery.of(context).size;
+    minSize = screenSize.width * 0.03;
+  }
+
+  static const List mainCategories = [
+    "Classics",
+    "Fantasy",
+    "Adventure",
+    "Contemporary",
+    "Romance",
+    "Dystopian",
+    "Horror",
+    "Paranormal",
+    "Historical Fiction",
+    "Science Fiction",
+    "Children's",
+    "Academic",
+    "Mystery",
+    "Thrillers",
+    "Memoir",
+    "Self-help",
+    "Cookbook",
+    "Art & Photography",
+    "Young Adult",
+    "Personal Development",
+    "Motivational",
+    "Health",
+    "History",
+    "Travel",
+    "Guide",
+    "Families & Relationships",
+    "Humor",
+    "Graphic Novel",
+    "Short Story",
+    "Biography and Autobiography",
+    "Poetry",
+    "Religion & Spirituality"
+  ];
+
+  static const List mainCategoriesNames = [
+    "Klasikler",
+    "Fantastik",
+    "Macera",
+    "Modern",
+    "Romantik",
+    "Distopik",
+    "Korku",
+    "Paranormal",
+    "Tarihsel kurgu",
+    "Bilim kurgu",
+    "Çocuk",
+    "Akademik",
+    "Gizem",
+    "Gerilim",
+    "Anı",
+    "Kendine yardım",
+    "Yemek kitabı",
+    "Sanat ve Fotoğrafçılık",
+    "Genç Yetişkin",
+    "Kişisel Gelişim",
+    "Motivasyonel",
+    "Sağlık",
+    "Tarih",
+    "Seyahat",
+    "Rehber",
+    "Aileler ve İlişkiler",
+    "Mizah",
+    "Çizgi roman",
+    "Kısa hikaye",
+    "Biyografi ve Otobiyografi",
+    "Şiir",
+    "Din ve Maneviyat"
+  ];
+
+  static const List mainCategoriesImages = [
+    "classical.png",
+    "fantasy.png",
+    "adventure.png",
+    "contemporary.png",
+    "romance.png",
+    "dystopia.png",
+    "horror.png",
+    "paranormal.png",
+    "historicalfiction.png",
+    "science-fiction.png",
+    "children.png",
+    "academic.png",
+    "mystery.png",
+    "thriller.png",
+    "memoirs.png",
+    "self-help.png",
+    "cooking.png",
+    "art.png",
+    "youngadult.png",
+    "personaldevelopment.png",
+    "praying.png",
+    "health.png",
+    "history.png",
+    "travel.png",
+    "guide.png",
+    "family.png",
+    "humor.png",
+    "graphicnovel.png",
+    "shortstory.png",
+    "biography.png",
+    "poetry.png",
+    "religion.png"
+  ];
+
+  static const Map<int, String> monthsInYearInTurkish = {
+    1: "Ocak",
+    2: "Şubat",
+    3: "Mart",
+    4: "Nisan",
+    5: "Mayıs",
+    6: "Haziran",
+    7: "Temmuz",
+    8: "Ağustos",
+    9: "Eylül",
+    10: "Ekim",
+    11: "Kasım",
+    12: "Aralık"
+  };
+}
 
 int uniqueIdCreater(BookWorkEditionsModelEntries? bookEditionInfo) {
   int uniqueId;
@@ -130,52 +190,15 @@ String getImageAsByte(List<BookWorkEditionsModelEntries>? listOfBooksFromSql,
       .imageAsByte!;
 }
 
-final List mainCategoriesImages = [
-  "classical.png",
-  "fantasy.png",
-  "adventure.png",
-  "contemporary.png",
-  "romance.png",
-  "dystopia.png",
-  "horror.png",
-  "paranormal.png",
-  "historicalfiction.png",
-  "science-fiction.png",
-  "children.png",
-  "academic.png",
-  "mystery.png",
-  "thriller.png",
-  "memoirs.png",
-  "self-help.png",
-  "cooking.png",
-  "art.png",
-  "youngadult.png",
-  "personaldevelopment.png",
-  "praying.png",
-  "health.png",
-  "history.png",
-  "travel.png",
-  "guide.png",
-  "family.png",
-  "humor.png",
-  "graphicnovel.png",
-  "shortstory.png",
-  "biography.png",
-  "poetry.png",
-  "religion.png"
-];
+double calculateTextHeight(String text, TextStyle style, double maxWidth) {
+  final TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: style,
+      ),
+      textDirection: TextDirection.ltr);
 
-const Map<int, String> monthsInYearInTurkish = {
-  1: "Ocak",
-  2: "Şubat",
-  3: "Mart",
-  4: "Nisan",
-  5: "Mayıs",
-  6: "Haziran",
-  7: "Temmuz",
-  8: "Ağustos",
-  9: "Eylül",
-  10: "Ekim",
-  11: "Kasım",
-  12: "Aralık"
-};
+  textPainter.layout(minWidth: 0, maxWidth: maxWidth);
+
+  return textPainter.size.height;
+}

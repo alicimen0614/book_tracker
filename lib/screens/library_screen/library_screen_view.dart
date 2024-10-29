@@ -1,18 +1,14 @@
 import 'dart:convert';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:transparent_image/transparent_image.dart';
-
 import 'shimmer_effects/library_screen_shimmer.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
@@ -25,17 +21,12 @@ class LibraryScreenView extends ConsumerStatefulWidget {
 }
 
 class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
-  bool isDataLoading = false;
-  ConnectivityResult connectivityResult = ConnectivityResult.none;
-  bool isConnected = false;
-  bool isUserAvailable = false;
-  List<BookWorkEditionsModelEntries>? listOfBooksFromFirestore = [];
-  List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
-  List<BookWorkEditionsModelEntries>? listOfBooksToShow = [];
-
   @override
   void initState() {
-    getPageData();
+    if (ref.read(bookStateProvider).listOfBooksToShow == []) {
+      ref.read(bookStateProvider.notifier).getPageData();
+    }
+
     super.initState();
   }
 
@@ -47,7 +38,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       child: Scaffold(
         appBar: AppBar(
           actions: [
-            isDataLoading == false
+            ref.watch(bookStateProvider).isLoading == false
                 ? IconButton(
                     tooltip: "Notlar",
                     splashRadius: 25,
@@ -56,8 +47,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => NotesView(
-                                bookListFromFirebase: listOfBooksFromFirestore,
-                                bookListFromSql: listOfBooksFromSql),
+                                bookListFromFirebase: ref
+                                    .watch(bookStateProvider)
+                                    .listOfBooksFromFirestore,
+                                bookListFromSql: ref
+                                    .watch(bookStateProvider)
+                                    .listOfBooksFromSql),
                           ));
                     },
                     icon: const Icon(
@@ -75,7 +70,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       MaterialPageRoute(
                         builder: (context) => const AddBookView(),
                       )).then((value) async {
-                    if (value == true) await getPageData();
+                    if (value == true) {
+                      await ref.watch(bookStateProvider.notifier).getPageData();
+                    }
                   });
                 },
                 icon: const Icon(
@@ -130,7 +127,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     )),
               ]),
         ),
-        body: isDataLoading == true
+        body: ref.watch(bookStateProvider).isLoading == true
             ? libraryScreenShimmerEffect()
             : TabBarView(
                 children: [
@@ -152,12 +149,13 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     //making a filter list for books(already read, want to read, currently reading)
     List<BookWorkEditionsModelEntries>? listOfTheCurrentBookStatus;
     bookStatus != ""
-        ? listOfTheCurrentBookStatus = listOfBooksToShow!
+        ? listOfTheCurrentBookStatus = ref
+            .watch(bookStateProvider)
+            .listOfBooksToShow
             .where((element) => element.bookStatus == bookStatus)
             .toList()
-        : listOfTheCurrentBookStatus = listOfBooksToShow;
-    // ignore: empty_statements
-    ;
+        : listOfTheCurrentBookStatus =
+            ref.watch(bookStateProvider).listOfBooksToShow;
 
     return bookContentBuilder(listOfTheCurrentBookStatus, bookStatus);
   }
@@ -167,9 +165,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       String bookStatus) {
     //we create a list of ids of the books coming from sql
     List<int> listOfBookIdsFromSql = [];
-    listOfBooksFromSql != null
-        ? listOfBookIdsFromSql =
-            listOfBooksFromSql!.map((e) => uniqueIdCreater(e)).toList()
+    ref.watch(bookStateProvider).listOfBooksFromSql != []
+        ? listOfBookIdsFromSql = ref
+            .watch(bookStateProvider)
+            .listOfBooksFromSql
+            .map((e) => uniqueIdCreater(e))
+            .toList()
         : null;
 
     return listOfTheCurrentBookStatus!.isNotEmpty
@@ -206,7 +207,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                 ? Image.memory(
                                     width: 80,
                                     base64Decode(getImageAsByte(
-                                        listOfBooksFromSql,
+                                        ref
+                                            .watch(bookStateProvider)
+                                            .listOfBooksFromSql,
                                         listOfTheCurrentBookStatus[index])),
                                     fit: BoxFit.fill,
                                     errorBuilder:
@@ -242,7 +245,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       ));
                   //if there has been a change in the page we have popped we will get all the info again with new values
                   if (result == true) {
-                    getPageData();
+                    await ref.watch(bookStateProvider.notifier).getPageData();
                   }
                 },
                 child: Column(children: [
@@ -281,7 +284,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                     child: Image.memory(
                                       width: 80,
                                       base64Decode(getImageAsByte(
-                                          listOfBooksFromSql,
+                                          ref
+                                              .watch(bookStateProvider)
+                                              .listOfBooksFromSql,
                                           listOfTheCurrentBookStatus[index])),
                                       fit: BoxFit.fill,
                                       errorBuilder: (context, error,
@@ -370,92 +375,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
   Future<void> deleteBook(
       List<BookWorkEditionsModelEntries> listOfTheCurrentBookStatus,
       int index) async {
-    await _sqlHelper.deleteBook(
-        uniqueIdCreater(listOfTheCurrentBookStatus[index]), context);
+    await _sqlHelper
+        .deleteBook(uniqueIdCreater(listOfTheCurrentBookStatus[index]));
 
     await ref.read(firestoreProvider).deleteBook(context,
         referencePath: "usersBooks",
         userId: ref.read(authProvider).currentUser!.uid,
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
-  }
-
-  Future<void> getPageData() async {
-    setState(() {
-      isDataLoading = true;
-    });
-
-    if (ref.read(authProvider).currentUser != null) {
-      isUserAvailable = true;
-    } else {
-      isUserAvailable = false;
-    }
-    if (mounted) await getSqlBookList();
-    isConnected = await checkForInternetConnection();
-
-    if (isUserAvailable == true && isConnected == true && mounted) {
-      await getFirestoreBookList();
-
-      if (mounted) {
-        setState(() {
-          isDataLoading = false;
-        });
-      }
-      // error handling yap
-    } else {
-      if (mounted) {
-        setState(() {
-          isDataLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> getFirestoreBookList() async {
-    var data = await ref.read(firestoreProvider).getBooks(
-        "usersBooks", ref.read(authProvider).currentUser!.uid, context);
-
-    if (data != null) {
-      listOfBooksFromFirestore = data.docs
-          .map(
-            (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-          )
-          .toList();
-
-      if (listOfBooksFromFirestore!.length > listOfBooksFromSql!.length) {
-        listOfBooksToShow = data.docs
-            .map(
-              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-            )
-            .toList();
-      }
-    }
-  }
-
-  Future<void> getSqlBookList() async {
-    var data = await _sqlHelper.getBookShelf(context);
-
-    listOfBooksFromSql = data;
-    List<BookWorkEditionsModelEntries>? dummyBooks = [];
-    //get authors from sql and insert into booksToShow list
-    for (var element in listOfBooksFromSql!) {
-      var authorData =
-          await _sqlHelper.getAuthors(uniqueIdCreater(element), context);
-      dummyBooks.add(BookWorkEditionsModelEntries(
-          authorsNames: authorData,
-          bookStatus: element.bookStatus,
-          covers: element.covers,
-          description: element.description,
-          imageAsByte: element.imageAsByte,
-          isbn_10: element.isbn_10,
-          isbn_13: element.isbn_13,
-          languages: element.languages,
-          number_of_pages: element.number_of_pages,
-          physical_format: element.physical_format,
-          publish_date: element.publish_date,
-          publishers: element.publishers,
-          title: element.title,
-          works: element.works));
-    }
-    listOfBooksToShow = dummyBooks;
   }
 }

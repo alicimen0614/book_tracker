@@ -1,12 +1,15 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  MobileAds.instance.initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -17,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Intl.defaultLocale = 'tr';
-
+    Const.init(context);
     return MaterialApp(
       title: 'Book Tracker',
       theme: ThemeData(
@@ -26,7 +29,7 @@ class MyApp extends StatelessWidget {
         ),
         scrollbarTheme: ScrollbarThemeData(
           thumbColor:
-              MaterialStateProperty.all(const Color.fromRGBO(195, 129, 84, 1)),
+              WidgetStateProperty.all(const Color.fromRGBO(195, 129, 84, 1)),
           minThumbLength: 100,
         ),
         primarySwatch: mainAppColor,
@@ -43,7 +46,14 @@ class MyApp extends StatelessWidget {
             const BottomNavigationBarThemeData(backgroundColor: Colors.white),
         fontFamily: 'Nunito Sans',
       ),
-      home: const BottomNavigationBarController(),
+      home: const ProviderScope(child: BottomNavigationBarController()),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: child!,
+        );
+      },
     );
   }
 

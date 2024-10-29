@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -28,7 +27,8 @@ class AddBookView extends ConsumerStatefulWidget {
       this.covers,
       this.physical_format,
       this.bookImage,
-      this.indexOfEdition = 0});
+      this.indexOfEdition = 0,
+      this.toUpdate = false});
 
   final String? title;
   final String? authorName;
@@ -42,6 +42,7 @@ class AddBookView extends ConsumerStatefulWidget {
   final String? physical_format;
   final Image? bookImage;
   final int indexOfEdition;
+  final bool toUpdate;
 
   @override
   ConsumerState<AddBookView> createState() => _AddBookViewState();
@@ -182,9 +183,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     //handle notes in sql while editing
                     if (widget.bookId != null) {
                       //delete book in sql
-                      await ref
-                          .read(sqlProvider)
-                          .deleteBook(widget.bookId!, context);
+                      await ref.read(sqlProvider).deleteBook(
+                            widget.bookId!,
+                          );
                       var notes = await ref
                           .read(sqlProvider)
                           .getNotes(context, bookId: widget.bookId);
@@ -309,12 +310,19 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     Navigator.pop(context, isSaved);
                     Navigator.pop(context);
                   } else {
-                    Navigator.pop(context, isSaved);
+                    if (widget.toUpdate) {
+                      Navigator.pop(context, isSaved);
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pop(context, isSaved);
+                    }
                   }
 
                   ScaffoldMessenger.of(context).clearSnackBars;
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: const Text('Kitap başarıyla eklendi!'),
+                    content: Text(!widget.toUpdate
+                        ? 'Kitap başarıyla eklendi!'
+                        : 'Kitap başarıyla güncellendi!'),
                     action: SnackBarAction(label: 'Tamam', onPressed: () {}),
                     behavior: SnackBarBehavior.floating,
                   ));

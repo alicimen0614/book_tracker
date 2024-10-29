@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../auth_screen/auth_view.dart';
 
@@ -24,6 +25,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
   bool isConnected = false;
+  InterstitialAd? _interstitialAd;
+  bool isInterstitialAdReady = false;
+  String userName = "";
+  String userProfilePicture = "";
+  bool isLoading = false;
 
   late bool isUserLoggedIn =
       ref.read(authProvider).currentUser != null ? true : false;
@@ -32,11 +38,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
     return ref.read(authProvider).currentUser;
   }
 
-  Stream<User?> authState(WidgetRef ref) {
-    return ref.watch(authProvider).authState;
-  }
-
-  Widget getUserProfileImage(WidgetRef ref, double size) {
+  Widget getUserProfileImage(
+    WidgetRef ref,
+    double size,
+  ) {
     if (ref.watch(authProvider).currentUser == null) {
       return Icon(
         Icons.account_circle_sharp,
@@ -44,16 +49,29 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
         color: Colors.white,
       );
     } else {
-      if (getCurrentUser(ref)!.photoURL != null) {
+      if (FirebaseAuth.instance.currentUser != null &&
+          FirebaseAuth.instance.currentUser!.photoURL != null) {
         return ClipOval(
           child: CachedNetworkImage(
             fit: BoxFit.cover,
-            imageUrl: getCurrentUser(ref)!.photoURL as String,
+            imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
             placeholder: (context, url) => const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [CircularProgressIndicator()]),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+            errorWidget: (context, url, error) => const Icon(Icons.circle),
+          ),
+        );
+      } else if (getCurrentUser(ref)!.photoURL != null) {
+        return ClipOval(
+          child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            imageUrl: getCurrentUser(ref)!.photoURL!,
+            placeholder: (context, url) => const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [CircularProgressIndicator()]),
+            errorWidget: (context, url, error) => const Icon(Icons.circle),
           ),
         );
       } else {
@@ -66,7 +84,33 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   }
 
   Widget getUserName(WidgetRef ref) {
-    if (getCurrentUser(ref) == null) {
+    if (isLoading = true && getCurrentUser(ref)!.displayName != null) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          getCurrentUser(ref)!.displayName!,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
+        ),
+      );
+    } else if (isLoading == true && getCurrentUser(ref)!.displayName == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (isLoading == false && userName != "") {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          userName,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
+        ),
+      );
+    } else {
       return FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
@@ -77,34 +121,17 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
               fontSize: MediaQuery.of(context).size.height / 30),
         ),
       );
-    } else {
-      if (getCurrentUser(ref)!.displayName == null) {
-        return FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            "Ziyaretçi",
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: MediaQuery.of(context).size.height / 30),
-          ),
-        );
-      } else {
-        return Text(
-          getCurrentUser(ref)!.displayName!,
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: MediaQuery.of(context).size.height / 30),
-        );
-      }
     }
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
         body: SingleChildScrollView(
       child: Center(
@@ -124,8 +151,31 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Spacer(),
-                    Expanded(flex: 2, child: getUserProfileImage(ref, 140)),
-                    Expanded(flex: 1, child: getUserName(ref)),
+                    Expanded(
+                        flex: 2,
+                        child: getUserProfileImage(
+                          ref,
+                          130,
+                        )),
+                    Expanded(
+                        flex: 1,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            FirebaseAuth.instance.currentUser != null &&
+                                    FirebaseAuth.instance.currentUser!
+                                            .displayName !=
+                                        null
+                                ? FirebaseAuth
+                                    .instance.currentUser!.displayName!
+                                : "Ziyaretçi",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 30),
+                          ),
+                        )),
                   ],
                 ),
               ),
@@ -178,6 +228,23 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                     }
                   },
                 ),
+                const Divider(
+                  endIndent: 10,
+                  indent: 10,
+                  height: 20,
+                ),
+                ListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    onTap: () async {
+                      await _createInterstitialAd();
+                    },
+                    title: const FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Text("Reklam izleyerek destekle",
+                            textAlign: TextAlign.start)),
+                    tileColor: Colors.white),
                 const Divider(
                   endIndent: 10,
                   indent: 10,
@@ -350,7 +417,9 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
     isConnected = await checkForInternetConnection();
     if (isConnected == true && ref.read(authProvider).currentUser != null) {
       var data = await ref.read(firestoreProvider).getBooks(
-          "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+            "usersBooks",
+            ref.read(authProvider).currentUser!.uid,
+          );
       if (data != null) {
         listOfBooksFromFirebase = data.docs
             .map(
@@ -359,6 +428,45 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
             .toList();
       }
     }
-    listOfBooksFromSql = await ref.read(sqlProvider).getBookShelf(context);
+    listOfBooksFromSql = await ref.read(sqlProvider).getBookShelf();
+  }
+
+  Future<void> _createInterstitialAd() async {
+    print("create çalıştı");
+
+    await InterstitialAd.load(
+        adUnitId: "ca-app-pub-1939809254312142/7806936586",
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            setState(() {
+              _interstitialAd = ad;
+              print(ad);
+
+              isInterstitialAdReady = true;
+            });
+            _showInterstitialAd();
+          },
+          onAdFailedToLoad: (error) {
+            isInterstitialAdReady = false;
+          },
+        ));
+    print(isInterstitialAdReady);
+  }
+
+  void _showInterstitialAd() {
+    print("show çalıştı");
+    print(isInterstitialAdReady);
+    if (isInterstitialAdReady) {
+      _interstitialAd!.show();
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) async {
+          ad.dispose();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) async {
+          ad.dispose();
+        },
+      );
+    }
   }
 }

@@ -256,7 +256,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               ),
               const Divider(color: Colors.transparent, thickness: 0),
               SizedBox(
-                  height: 150,
+                  height: MediaQuery.of(context).size.width > 500 ? 300 : 150,
                   width: double.infinity,
                   child: ListView.separated(
                       separatorBuilder: (context, index) => const SizedBox(
@@ -265,8 +265,12 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       physics: const ClampingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) => SizedBox(
-                            height: 100,
-                            width: 80,
+                            height: MediaQuery.of(context).size.width > 500
+                                ? 250
+                                : 100,
+                            width: MediaQuery.of(context).size.width > 500
+                                ? 150
+                                : 80,
                             child: InkWell(
                                 customBorder: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
@@ -285,6 +289,18 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                                           child: Material(
                                             color: Colors.transparent,
                                             child: Ink(
+                                              width: MediaQuery.of(context)
+                                                          .size
+                                                          .width >
+                                                      500
+                                                  ? 150
+                                                  : 70,
+                                              height: MediaQuery.of(context)
+                                                          .size
+                                                          .width >
+                                                      500
+                                                  ? 500
+                                                  : 150,
                                               decoration: BoxDecoration(
                                                   borderRadius:
                                                       BorderRadius.circular(15),

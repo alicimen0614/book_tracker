@@ -1,3 +1,4 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
 
@@ -5,6 +6,7 @@ import 'package:book_tracker/widgets/animated_button.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,7 +34,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
     // ignore: unused_local_variable
 
-    await ref.read(authProvider).signInWithGoogle(context);
+    await ref.read(authProvider).signInWithGoogle(context).then(
+      (value) {
+        if (value != null) {}
+      },
+    );
   }
 
   final signInFormKey = GlobalKey<FormState>();
@@ -41,6 +47,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
   TextEditingController signInEmailController = TextEditingController();
   TextEditingController signInPasswordController = TextEditingController();
   TextEditingController registerEmailController = TextEditingController();
+  TextEditingController registerNameController = TextEditingController();
+
   TextEditingController registerPasswordController = TextEditingController();
   TextEditingController registerPasswordConfirmController =
       TextEditingController();
@@ -126,10 +134,10 @@ class _AuthViewState extends ConsumerState<AuthView> {
                             color: const Color.fromRGBO(249, 224, 187, 1),
                           ),
                           height: formStatus == FormStatus.register
-                              ? 400
+                              ? Const.screenSize.height / 1.7
                               : formStatus == FormStatus.signIn
-                                  ? 400
-                                  : 300,
+                                  ? Const.screenSize.height / 2.1
+                                  : Const.screenSize.height / 2.9,
                           width: 300,
                           child: formStatus == FormStatus.register
                               ? registerForm()
@@ -167,7 +175,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 hintText: "E-mail",
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
-                prefixIconData: Icons.account_circle,
+                prefixIconData: Icons.mail,
               ),
             ),
             Expanded(
@@ -218,6 +226,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                 context)
                             .then((value) {
                           if (value != null) {
+                            ref
+                                .read(indexBottomNavbarProvider.notifier)
+                                .update((state) => 0);
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
@@ -290,6 +301,23 @@ class _AuthViewState extends ConsumerState<AuthView> {
               flex: 3,
               child: TextFieldWidget(
                 validator: (value) {
+                  if (value!.length >= 3) {
+                    return null;
+                  } else {
+                    return 'Lütfen daha uzun bir isim giriniz.';
+                  }
+                },
+                controller: registerNameController,
+                hintText: "Ad Soyad",
+                autoCorrect: true,
+                keyboardType: TextInputType.name,
+                prefixIconData: Icons.account_circle,
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: TextFieldWidget(
+                validator: (value) {
                   if (EmailValidator.validate(value!)) {
                     return null;
                   } else {
@@ -300,7 +328,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 hintText: "E-posta",
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
-                prefixIconData: Icons.account_circle,
+                prefixIconData: Icons.mail,
               ),
             ),
             Expanded(
@@ -357,9 +385,32 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       await ref
                           .read(authProvider)
                           .createUserWithEmailAndPassword(
+                              registerNameController.text,
                               registerEmailController.text,
                               registerPasswordController.text,
-                              context);
+                              context)
+                          .then(
+                        (value) async {
+                          if (value != null) {
+                            await FirebaseAuth.instance.currentUser!
+                                .updateDisplayName(registerNameController.text);
+                            await FirebaseAuth.instance.currentUser!.reload();
+
+                            ref
+                                .read(indexBottomNavbarProvider.notifier)
+                                .update((state) => 0);
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BottomNavigationBarController(),
+                                ),
+                                (route) => false);
+                          } else {
+                            return;
+                          }
+                        },
+                      );
                     }
                   },
                   text: "Kayıt Ol",
@@ -430,7 +481,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                 hintText: "E-mail",
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
-                prefixIconData: Icons.account_circle,
+                prefixIconData: Icons.mail,
               ),
             ),
             Expanded(

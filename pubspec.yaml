@@ -43,7 +43,7 @@ dependencies:
   google_sign_in: ^6.1.4
   http: ^0.13.5
   cached_network_image: ^3.2.3
-  infinite_scroll_pagination: ^3.2.0
+  infinite_scroll_pagination: ^4.0.0
   sealed_languages: ^0.2.2
   sqflite: ^2.3.0
   path: ^1.8.3
@@ -57,6 +57,8 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   url_launcher: ^6.1.14
   percent_indicator: ^4.2.3
+  google_mobile_ads: ^5.1.0
+  timeago: ^3.7.0
   
 
 dev_dependencies:
@@ -84,6 +86,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/assets/images/
+    - lib/assets/icons/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
