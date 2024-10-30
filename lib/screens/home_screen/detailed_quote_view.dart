@@ -15,13 +15,13 @@ import '../../models/quote_model.dart';
 class DetailedQuoteView extends ConsumerStatefulWidget {
   final Quote quote;
   final String quoteId;
-  final bool isTrendingQuotes;
+  final bool? isTrendingQuotes;
 
   const DetailedQuoteView(
       {super.key,
       required this.quote,
       required this.quoteId,
-      required this.isTrendingQuotes});
+      this.isTrendingQuotes});
 
   @override
   ConsumerState<DetailedQuoteView> createState() => _DetailedQuoteViewState();
@@ -58,8 +58,9 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
 
   @override
   Widget build(BuildContext context) {
-    hasUserLikedQuote = FirebaseAuth.instance.currentUser != null
-        ? widget.isTrendingQuotes
+    hasUserLikedQuote = FirebaseAuth.instance.currentUser != null &&
+            widget.isTrendingQuotes != null
+        ? widget.isTrendingQuotes!
             ? ref
                 .watch(quotesProvider)
                 .trendingQuotes[widget.quoteId]!
@@ -70,14 +71,14 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                 .recentQuotes[widget.quoteId]!
                 .likes!
                 .contains(FirebaseAuth.instance.currentUser!.uid)
-        : false;
-    likeCount = widget.isTrendingQuotes
-        ? ref
-            .watch(quotesProvider)
-            .trendingQuotes[widget.quoteId]!
-            .likes!
-            .length
-        : ref.watch(quotesProvider).recentQuotes[widget.quoteId]!.likes!.length;
+        : ref
+                .watch(quotesProvider)
+                .currentUsersQuotes[widget.quoteId]!
+                .likes!
+                .contains(FirebaseAuth.instance.currentUser!.uid)
+            ? true
+            : false;
+    likeCount = widget.quote.likes!.length;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Alıntı Detayı'),
@@ -232,15 +233,21 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     updateUILikeStatus(quoteId);
 
     // Son beğeni durumu kaydet
-    pendingLikeStatus[quoteId] = widget.isTrendingQuotes
-        ? ref
-            .read(quotesProvider)
-            .trendingQuotes[quoteId]!
-            .likes!
-            .contains(FirebaseAuth.instance.currentUser!.uid)
+    pendingLikeStatus[quoteId] = widget.isTrendingQuotes != null
+        ? widget.isTrendingQuotes == true
+            ? ref
+                .read(quotesProvider)
+                .trendingQuotes[quoteId]!
+                .likes!
+                .contains(FirebaseAuth.instance.currentUser!.uid)
+            : ref
+                .read(quotesProvider)
+                .recentQuotes[quoteId]!
+                .likes!
+                .contains(FirebaseAuth.instance.currentUser!.uid)
         : ref
             .read(quotesProvider)
-            .recentQuotes[quoteId]!
+            .currentUsersQuotes[quoteId]!
             .likes!
             .contains(FirebaseAuth.instance.currentUser!.uid);
 

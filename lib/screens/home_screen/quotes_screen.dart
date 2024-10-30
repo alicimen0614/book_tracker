@@ -6,12 +6,12 @@ import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
+import 'package:book_tracker/widgets/quote_widget.dart';
 import 'package:book_tracker/widgets/sign_up_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class QuotesScreen extends ConsumerStatefulWidget {
   const QuotesScreen({super.key});
@@ -23,13 +23,6 @@ class QuotesScreen extends ConsumerStatefulWidget {
 class _QuotesScreenState extends ConsumerState<QuotesScreen> {
   Map<String, Timer?> debounceTimers = {}; // Her post için bir zamanlayıcı
   Map<String, bool> pendingLikeStatus = {}; // Son beğeni durumu (beğeni/yok)
-  String timeAgo(String? dateString) {
-    timeago.setLocaleMessages('tr', timeago.TrMessages());
-    if (dateString == null) return '';
-    final dateTime = DateTime.parse(dateString);
-    final difference = DateTime.now().difference(dateTime);
-    return timeago.format(DateTime.now().subtract(difference), locale: 'tr');
-  }
 
   @override
   void initState() {
@@ -144,215 +137,18 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
             Const.screenSize.width - 100);
 
         return isLoading == false
-            ? GestureDetector(
+            ? QuoteWidget(
                 onDoubleTap: () {
+                  print("doubletap");
                   likePost(quoteId, index, isTrendingQuotes);
                 },
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailedQuoteView(
-                          quote: readQuotesList[quoteId]!,
-                          quoteId: quoteId,
-                          isTrendingQuotes: isTrendingQuotes,
-                        ),
-                      ));
-                },
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: Const.minSize,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      child: Row(
-                        children: [
-                          readQuotesList[quoteId]!.userPicture != null
-                              ? CircleAvatar(
-                                  backgroundColor: Colors.grey,
-                                  backgroundImage: NetworkImage(
-                                      readQuotesList[quoteId]!.userPicture!),
-                                )
-                              : const Icon(
-                                  Icons.account_circle_sharp,
-                                  size: 45,
-                                  color: Color(0xFF1B7695),
-                                ),
-                          SizedBox(
-                            width: Const.minSize,
-                          ),
-                          Text(readQuotesList[quoteId]!.userName!,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize:
-                                    MediaQuery.of(context).size.height / 50,
-                              )),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: Const.minSize,
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 10),
-                            child: Text(
-                              text,
-                              style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 55,
-                                  fontWeight: FontWeight.w700),
-                              maxLines: 7,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (textHeight > 85)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 15,
-                              ),
-                              child: Text(
-                                "Daha fazla",
-                                style: TextStyle(
-                                    color: Color(0xFF1B7695),
-                                    fontWeight: FontWeight.w700),
-                                textAlign: TextAlign.end,
-                              ),
-                            )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: Const.minSize,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 8,
-                            child: SizedBox(
-                              height: Const.screenSize.height * 0.15,
-                              child: Container(
-                                  child: readQuotesList[quoteId]!.bookCover !=
-                                          null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: CachedNetworkImage(
-                                            imageUrl:
-                                                "https://covers.openlibrary.org/b/id/${readQuotesList[quoteId]!.bookCover}-M.jpg",
-                                            fit: BoxFit.fill,
-                                            errorWidget:
-                                                (context, error, stackTrace) {
-                                              return Image.asset(
-                                                "lib/assets/images/error.png",
-                                                height: 80,
-                                                width: 50,
-                                              );
-                                            },
-                                            placeholder: (context, url) {
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey.shade400,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15)),
-                                                child: const Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 2,
-                                                    strokeAlign: -10,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        )
-                                      : ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          child: Image.asset(
-                                            "lib/assets/images/nocover.jpg",
-                                            fit: BoxFit.fill,
-                                          ),
-                                        )),
-                            ),
-                          ),
-                          const Spacer(),
-                          Expanded(
-                            flex: 10,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(readQuotesList[quoteId]!.bookName!),
-                                if (readQuotesList[quoteId]!.bookAuthorName !=
-                                    null)
-                                  Text(readQuotesList[quoteId]!.bookAuthorName!)
-                              ],
-                            ),
-                          ),
-                          const Spacer(
-                            flex: 20,
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: Const.minSize,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            splashColor: Colors.black,
-                            visualDensity: const VisualDensity(
-                                horizontal: -4, vertical: -4),
-                            icon: Icon(
-                                isUserLikedQuote
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: isUserLikedQuote
-                                    ? Colors.red
-                                    : const Color.fromARGB(196, 0, 0, 0),
-                                size: 30),
-                            onPressed: () {
-                              likePost(quoteId, index, isTrendingQuotes);
-                            },
-                          ),
-                          const SizedBox(width: 8.0),
-                          Text(isUserLikedQuote && likeCount != 1
-                              ? "Siz ve ${likeCount - 1} diğer kişi bunu beğendi."
-                              : isUserLikedQuote && likeCount == 1
-                                  ? "$likeCount kişi beğendi."
-                                  : isUserLikedQuote == false && likeCount == 0
-                                      ? "Henüz kimse beğenmedi."
-                                      : isUserLikedQuote == false &&
-                                              likeCount != 0
-                                          ? "$likeCount kişi bunu beğendi."
-                                          : ""),
-                          const Spacer(),
-                          Text(
-                            timeAgo(readQuotesList[quoteId]!.date),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                quote: readQuotesList[quoteId]!,
+                quoteId: quoteId,
+                isTrendingQuotes: isTrendingQuotes,
+                onPressedLikeButton: () {
+                  print("doubletap");
+                  likePost(quoteId, index, isTrendingQuotes);
+                })
             : const Align(
                 alignment: Alignment.center,
                 child: Center(

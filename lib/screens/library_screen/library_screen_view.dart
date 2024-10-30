@@ -3,6 +3,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
+import 'package:book_tracker/screens/home_screen/quotes_view.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
@@ -38,10 +39,28 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+              tooltip: "Alıntılarım",
+              splashRadius: 25,
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const QuotesView()));
+              },
+              icon: const CircleAvatar(
+                maxRadius: 15,
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.format_quote_rounded,
+                  size: 25,
+                  color: Color(0xFF1B7695),
+                ),
+              )),
           actions: [
             ref.watch(bookStateProvider).isLoading == false
                 ? IconButton(
-                    tooltip: "Notlar",
+                    tooltip: "Notlarım",
                     splashRadius: 25,
                     onPressed: () {
                       Navigator.push(
@@ -80,7 +99,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 },
                 icon: const Icon(
                   Icons.add_circle,
-                  size: 30,
+                  size: 35,
                 ))
           ],
           centerTitle: true,
