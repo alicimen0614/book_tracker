@@ -3,6 +3,7 @@ import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/detailed_edition_view_shimmer.dart';
+import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
@@ -102,6 +103,26 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   : const SizedBox.shrink(),
               widget.isNavigatingFromLibrary == true
                   ? IconButton(
+                      tooltip: "Alıntı Ekle",
+                      splashRadius: 25,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddQuoteScreen(
+                                  showDeleteIcon: false,
+                                  bookInfo: widget.editionInfo,
+                                  bookImage: widget.bookImage),
+                            ));
+                      },
+                      icon: const Icon(
+                        Icons.library_add_outlined,
+                        size: 30,
+                        color: Colors.white,
+                      ))
+                  : const SizedBox.shrink(),
+              widget.isNavigatingFromLibrary == true
+                  ? IconButton(
                       tooltip: "Not Ekle",
                       splashRadius: 25,
                       onPressed: () {
@@ -117,8 +138,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         });
                       },
                       icon: const Icon(
-                        Icons.library_add_rounded,
-                        size: 30,
+                        Icons.post_add_rounded,
+                        size: 34,
                         color: Colors.white,
                       ))
                   : const SizedBox.shrink(),

@@ -4,6 +4,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
+import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
@@ -62,10 +63,12 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     ))
                 : const SizedBox.shrink(),
             IconButton(
-                tooltip: "Kitap Ekle",
+                tooltip: "Ekle",
                 splashRadius: 25,
                 onPressed: () {
-                  Navigator.push(
+                  modalBottomSheetBuilderForAddIcon(context);
+
+                  /* Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AddBookView(),
@@ -73,7 +76,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     if (value == true) {
                       await ref.watch(bookStateProvider.notifier).getPageData();
                     }
-                  });
+                  }); */
                 },
                 icon: const Icon(
                   Icons.add_circle,
@@ -382,5 +385,80 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         referencePath: "usersBooks",
         userId: ref.read(authProvider).currentUser!.uid,
         bookId: uniqueIdCreater(listOfTheCurrentBookStatus[index]).toString());
+  }
+
+  void modalBottomSheetBuilderForAddIcon(BuildContext pageContext) {
+    showModalBottomSheet(
+      backgroundColor: Colors.grey.shade300,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), topRight: Radius.circular(30))),
+      context: context,
+      builder: (context) {
+        return Column(mainAxisSize: MainAxisSize.min, children: [
+          const ListTile(
+            title: Text("Ekle",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            titleAlignment: ListTileTitleAlignment.center,
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddBookView(),
+                  )).then((value) async {
+                if (value == true) {
+                  ref.read(bookStateProvider.notifier).getPageData();
+                }
+              });
+            },
+            leading: const Icon(
+              Icons.keyboard,
+              size: 30,
+            ),
+            title: const Text("Kendi kitabını ekle",
+                style: TextStyle(fontSize: 20)),
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BooksListView(isNotes: true),
+                  ));
+            },
+            leading: const Icon(
+              Icons.post_add,
+              size: 30,
+            ),
+            title:
+                const Text("Kitabına not ekle", style: TextStyle(fontSize: 20)),
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BooksListView(isNotes: false),
+                  ));
+            },
+            leading: const Icon(
+              Icons.library_add_outlined,
+              size: 30,
+            ),
+            title: const Text("Kitabına alıntı ekle",
+                style: TextStyle(fontSize: 20)),
+          )
+        ]);
+      },
+    );
   }
 }

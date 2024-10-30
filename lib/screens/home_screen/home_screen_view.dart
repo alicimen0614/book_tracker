@@ -186,8 +186,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                       height: Const.screenSize.height * 0.47,
                       child: PageView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount:
-                            ref.read(quotesProvider).trendingQuotes.length,
+                        itemCount: 5,
                         itemBuilder: (context, index) {
                           final quoteId = ref
                               .watch(quotesProvider)
