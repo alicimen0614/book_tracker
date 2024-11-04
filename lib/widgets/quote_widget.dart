@@ -1,6 +1,8 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -292,7 +294,30 @@ class QuoteWidget extends ConsumerWidget {
           const Divider(height: 0),
           ListTile(
             visualDensity: const VisualDensity(vertical: 3),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddQuoteScreen(
+                        isNavigatingFromDetailedEdition: false,
+                        quoteId: quoteId,
+                        quoteDate: quote.date ?? "",
+                        initialQuoteValue: quote.quoteText ?? "",
+                        bookImage: quote.bookCover != null
+                            ? Image.network(
+                                "https://covers.openlibrary.org/b/id/${quote.bookCover}-M.jpg")
+                            : null,
+                        showDeleteIcon: true,
+                        bookInfo: BookWorkEditionsModelEntries(
+                            title: quote.bookName,
+                            covers: quote.bookCover == null
+                                ? null
+                                : [int.tryParse(quote.bookCover!)],
+                            authorsNames: quote.bookAuthorName != null
+                                ? [quote.bookAuthorName]
+                                : null)),
+                  ));
+            },
             leading: const Icon(
               Icons.keyboard,
               size: 30,

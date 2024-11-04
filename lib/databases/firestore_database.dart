@@ -140,15 +140,17 @@ class FirestoreDatabase extends ChangeNotifier {
     }
   }
 
-  Future<void> setQuoteData(
-    BuildContext context, {
-    required Map<String, dynamic> quote,
-  }) async {
+  Future<void> setQuoteData(BuildContext context,
+      {required Map<String, dynamic> quote, String? docId}) async {
     try {
-      await _firestore.collection("quotes").doc().set(quote);
+      if (docId != null) {
+        _firestore.collection("quotes").doc(docId).update(quote);
+      } else {
+        await _firestore.collection("quotes").doc().set(quote);
+      }
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+          infoMessage: "Alıntı yazdırılırken bir hata oluştu");
     }
   }
 

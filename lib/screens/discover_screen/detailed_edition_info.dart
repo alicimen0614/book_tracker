@@ -110,6 +110,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => AddQuoteScreen(
+                                  isNavigatingFromDetailedEdition: true,
                                   showDeleteIcon: false,
                                   bookInfo: widget.editionInfo,
                                   bookImage: widget.bookImage),

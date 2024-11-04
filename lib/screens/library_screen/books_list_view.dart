@@ -134,6 +134,8 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => AddQuoteScreen(
+                                            isNavigatingFromDetailedEdition:
+                                                false,
                                             showDeleteIcon: false,
                                             bookInfo: bookListToShow![index],
                                             bookImage: listOfBookIdsFromSql!.contains(

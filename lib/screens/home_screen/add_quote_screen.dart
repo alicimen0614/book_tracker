@@ -17,14 +17,17 @@ class AddQuoteScreen extends ConsumerStatefulWidget {
       this.bookImage,
       required this.bookInfo,
       this.initialQuoteValue = "",
-      this.noteDate = ""});
+      this.quoteDate = "",
+      this.quoteId = "",
+      required this.isNavigatingFromDetailedEdition});
 
   final bool showDeleteIcon;
   final Image? bookImage;
   final BookWorkEditionsModelEntries bookInfo;
   final String initialQuoteValue;
-
-  final String noteDate;
+  final String quoteId;
+  final String quoteDate;
+  final bool isNavigatingFromDetailedEdition;
 
   @override
   ConsumerState<AddQuoteScreen> createState() => _AddNoteViewState();
@@ -64,33 +67,15 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-            title: Text("Bir alıntı ekle: ${widget.bookInfo.title}",
+            title: Text(
+                widget.initialQuoteValue == ""
+                    ? "Bir alıntı ekle: ${widget.bookInfo.title}"
+                    : "Alıntıyı Düzenle",
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold)),
             centerTitle: true,
             leadingWidth: 50,
-            leading: IconButton(
-                splashRadius: 25,
-                onPressed: () async {
-                  FocusScopeNode currentFocus = FocusScope.of(context);
-                  if (!currentFocus.hasPrimaryFocus) {
-                    currentFocus.unfocus();
-                    Future.delayed(
-                      const Duration(milliseconds: 150),
-                      () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-                icon: const Icon(
-                  Icons.arrow_back_sharp,
-                  size: 30,
-                )),
-            automaticallyImplyLeading: false,
             elevation: 0,
             actions: [
               widget.showDeleteIcon == true
@@ -100,7 +85,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                         alertDialogBuilder(context);
                       },
                       icon: const Icon(
-                        Icons.delete_forever,
+                        Icons.delete,
                         size: 30,
                       ),
                       splashRadius: 25,
@@ -109,28 +94,54 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
               IconButton(
                 splashRadius: 25,
                 onPressed: () async {
-                  print(widget.bookInfo.authorsNames);
-                  Quote quote = Quote(
-                      quoteText: quoteFieldController.text,
-                      bookName: widget.bookInfo.title,
-                      userId: ref.read(authProvider).currentUser!.uid,
-                      bookCover: widget.bookInfo.covers?.first.toString(),
-                      date: DateTime.now().toString(),
-                      likes: [],
-                      userName: FirebaseAuth.instance.currentUser?.displayName,
-                      userPicture: FirebaseAuth.instance.currentUser?.photoURL,
-                      likeCount: 0);
-                  ref
-                      .read(firestoreProvider)
-                      .setQuoteData(context, quote: quote.toJson());
+                  if (quoteFieldController.text == "") {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Lütfen bir alıntı giriniz.")));
+                  } else if (quoteFieldController.text ==
+                      widget.initialQuoteValue) {
+                    Navigator.pop(context);
+                  } else if (quoteFieldController.text !=
+                          widget.initialQuoteValue &&
+                      widget.initialQuoteValue != "") {
+                    //updating the quote section
+                    alertDialogForUpdateBuilder(context);
+                  } else {
+                    print(widget.bookInfo.authorsNames);
+                    //adding the new quote section
+                    Quote quote = Quote(
+                        bookAuthorName: widget.bookInfo.authorsNames != null &&
+                                widget.bookInfo.authorsNames!.isNotEmpty
+                            ? widget.bookInfo.authorsNames!.first
+                            : null,
+                        quoteText: quoteFieldController.text,
+                        bookName: widget.bookInfo.title,
+                        userId: ref.read(authProvider).currentUser!.uid,
+                        bookCover: widget.bookInfo.covers?.first.toString(),
+                        date: DateTime.now().toString(),
+                        likes: [],
+                        userName:
+                            FirebaseAuth.instance.currentUser?.displayName,
+                        userPicture:
+                            FirebaseAuth.instance.currentUser?.photoURL,
+                        likeCount: 0);
+                    ref
+                        .read(firestoreProvider)
+                        .setQuoteData(context, quote: quote.toJson());
 
-                  ref.read(quotesProvider.notifier).fetchRecentQuotes();
-                  ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+                    ref.read(quotesProvider.notifier).fetchRecentQuotes();
+                    ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+                    ref.read(quotesProvider.notifier).fetchCurrentUsersQuotes();
+                    if (widget.isNavigatingFromDetailedEdition) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    }
 
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Alıntı başarıyla eklendi")));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Alıntı başarıyla eklendi")));
+                  }
                 },
                 icon: const Icon(Icons.check_sharp, size: 30),
               )
@@ -171,9 +182,12 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                 )),
             SizedBox(height: MediaQuery.of(context).size.height / 40),
             Text(
-                widget.noteDate != ""
-                    ? widget.noteDate
-                    : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
+                widget.quoteDate != ""
+                    ? DateTime.tryParse(widget.quoteDate) != null
+                        ? DateFormat("dd MMMM yyy H.mm")
+                            .format(DateTime.tryParse(widget.quoteDate)!)
+                        : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} "
+                    : DateFormat("dd MMMM yyy H.mm").format(DateTime.now()),
                 style: TextStyle(
                     color: const Color(0xFF1B7695),
                     fontWeight: FontWeight.bold,
@@ -209,8 +223,9 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("BookTracker"),
-          content: const Text("Bu notu silmek istediğinizden emin misiniz?"),
+          title: const Text("VastReads"),
+          content:
+              const Text("Bu alıntıyı silmek istediğinizden emin misiniz?"),
           actions: [
             TextButton(
                 onPressed: () {
@@ -219,19 +234,59 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                 child: const Text("Vazgeç")),
             TextButton(
                 onPressed: () async {
-                  /*  await ref
-                      .read(sqlProvider)
-                      .deleteNote(widget.noteId!, context);
-                  if (ref.read(authProvider).currentUser != null) {
-                    await ref.read(firestoreProvider).deleteNote(context,
-                        referencePath: 'usersBooks',
-                        userId: ref.read(authProvider).currentUser!.uid,
-                        noteId: widget.noteId.toString());
+                  var result = await ref
+                      .read(quotesProvider.notifier)
+                      .deleteQuote(widget.quoteId);
+                  if (result == true) {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Alıntı başarıyla silindi.")));
+                  } else {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content:
+                            Text("Alıntı silinirken bir hata meydana geldi")));
                   }
-                  Navigator.pop(context);
-                  Navigator.pop(context); */
                 },
                 child: const Text("Sil"))
+          ],
+        );
+      },
+    );
+  }
+
+  Future<dynamic> alertDialogForUpdateBuilder(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text("VastReads"),
+          content:
+              const Text("Bu alıntıyı kaydetmek istediğinizden emin misiniz?"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Vazgeç")),
+            TextButton(
+                onPressed: () async {
+                  ref.read(firestoreProvider).setQuoteData(context,
+                      quote: {
+                        "quoteText": quoteFieldController.text,
+                        "date": DateTime.now().toString()
+                      },
+                      docId: widget.quoteId);
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text("Alıntı başarıyla güncellendi.")));
+                },
+                child: const Text("Kaydet"))
           ],
         );
       },
