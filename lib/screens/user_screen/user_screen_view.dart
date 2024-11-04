@@ -1,4 +1,5 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/services/internet_connection_service.dart';
@@ -399,6 +400,8 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                 child: const Text("Vazgeç")),
             TextButton(
                 onPressed: () {
+                  ref.read(quotesProvider.notifier).clearMyQuotes();
+                  ref.read(bookStateProvider.notifier).clearBooks();
                   ref.read(authProvider).signOut(context).whenComplete(() {
                     setState(() {
                       isUserLoggedIn = false;

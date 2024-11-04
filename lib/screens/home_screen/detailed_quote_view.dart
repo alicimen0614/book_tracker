@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
@@ -127,58 +128,84 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
               ),
             ),
             const SizedBox(height: 16.0),
-            if (widget.quote.bookCover != null)
-              Row(
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          "https://covers.openlibrary.org/b/id/${widget.quote.bookCover!}-M.jpg",
-                      height: 120,
-                      errorWidget: (context, error, stackTrace) {
-                        return Image.asset(
-                          "lib/assets/images/error.png",
-                          height: 120,
-                        );
-                      },
-                      placeholder: (context, url) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              color: Colors.grey.shade400,
-                              borderRadius: BorderRadius.circular(15)),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              strokeAlign: -5,
+            Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: widget.quote.imageAsByte != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.memory(
+                            fit: BoxFit.fill,
+                            base64Decode(widget.quote.imageAsByte!),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              "lib/assets/images/error.png",
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  const Spacer(),
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                      children: [
+                        )
+                      : widget.quote.bookCover != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    "https://covers.openlibrary.org/b/id/${widget.quote.bookCover!}-M.jpg",
+                                height: 120,
+                                errorWidget: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    "lib/assets/images/error.png",
+                                    height: 120,
+                                  );
+                                },
+                                placeholder: (context, url) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade400,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        strokeAlign: -5,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.asset(
+                                "lib/assets/images/nocover.jpg",
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                ),
+                const Spacer(),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      Text(
+                        widget.quote.bookName!,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      if (widget.quote.bookAuthorName != null)
                         Text(
-                          widget.quote.bookName!,
+                          widget.quote.bookAuthorName!,
                           style: const TextStyle(fontSize: 16),
-                        ),
-                        if (widget.quote.bookAuthorName != null)
-                          Text(
-                            widget.quote.bookAuthorName!,
-                            style: const TextStyle(fontSize: 16),
-                          )
-                      ],
-                    ),
+                        )
+                    ],
                   ),
-                  const Spacer(
-                    flex: 10,
-                  )
-                ],
-              ),
+                ),
+                const Spacer(
+                  flex: 10,
+                )
+              ],
+            ),
+            SizedBox(
+              height: Const.minSize,
+            ),
             Row(
               children: [
                 IconButton(

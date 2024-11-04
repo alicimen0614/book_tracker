@@ -149,22 +149,6 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                           fontSize: MediaQuery.of(context).size.height / 40,
                         )),
                     const Spacer(),
-                    /* IconButton(
-                        tooltip: "Alıntı Ekle",
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const BooksListView(isNotes: false)));
-                        },
-                        icon: const CircleAvatar(
-                          backgroundColor: Color(0xFF1B7695),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
-                        )), */
                     TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -359,60 +343,91 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                 quotesProvider)
                                                             .trendingQuotes[
                                                                 quoteId]!
-                                                            .bookCover !=
+                                                            .imageAsByte !=
                                                         null
                                                     ? ClipRRect(
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(15),
-                                                        child:
-                                                            CachedNetworkImage(
-                                                          imageUrl:
-                                                              "https://covers.openlibrary.org/b/id/${ref.read(quotesProvider).trendingQuotes[quoteId]!.bookCover}-M.jpg",
+                                                        child: Image.memory(
                                                           fit: BoxFit.fill,
-                                                          errorWidget: (context,
-                                                              error,
-                                                              stackTrace) {
-                                                            return Image.asset(
-                                                              "lib/assets/images/error.png",
-                                                              height: 80,
-                                                              width: 50,
-                                                            );
-                                                          },
-                                                          placeholder:
-                                                              (context, url) {
-                                                            return Container(
-                                                              decoration: BoxDecoration(
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade400,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              15)),
-                                                              child:
-                                                                  const Center(
-                                                                child:
-                                                                    CircularProgressIndicator(
-                                                                  strokeWidth:
-                                                                      2,
-                                                                  strokeAlign:
-                                                                      -10,
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
+                                                          base64Decode(ref
+                                                              .read(
+                                                                  quotesProvider)
+                                                              .trendingQuotes[
+                                                                  quoteId]!
+                                                              .imageAsByte!),
+                                                          errorBuilder: (context,
+                                                                  error,
+                                                                  stackTrace) =>
+                                                              Image.asset(
+                                                            "lib/assets/images/error.png",
+                                                          ),
                                                         ),
                                                       )
-                                                    : ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(15),
-                                                        child: Image.asset(
-                                                          "lib/assets/images/nocover.jpg",
-                                                          fit: BoxFit.fill,
-                                                        ),
-                                                      )),
+                                                    : ref
+                                                                .read(
+                                                                    quotesProvider)
+                                                                .trendingQuotes[
+                                                                    quoteId]!
+                                                                .bookCover !=
+                                                            null
+                                                        ? ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15),
+                                                            child:
+                                                                CachedNetworkImage(
+                                                              imageUrl:
+                                                                  "https://covers.openlibrary.org/b/id/${ref.read(quotesProvider).trendingQuotes[quoteId]!.bookCover}-M.jpg",
+                                                              fit: BoxFit.fill,
+                                                              errorWidget:
+                                                                  (context,
+                                                                      error,
+                                                                      stackTrace) {
+                                                                return Image
+                                                                    .asset(
+                                                                  "lib/assets/images/error.png",
+                                                                  height: 80,
+                                                                  width: 50,
+                                                                );
+                                                              },
+                                                              placeholder:
+                                                                  (context,
+                                                                      url) {
+                                                                return Container(
+                                                                  decoration: BoxDecoration(
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .shade400,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              15)),
+                                                                  child:
+                                                                      const Center(
+                                                                    child:
+                                                                        CircularProgressIndicator(
+                                                                      strokeWidth:
+                                                                          2,
+                                                                      strokeAlign:
+                                                                          -10,
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          )
+                                                        : ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        15),
+                                                            child: Image.asset(
+                                                              "lib/assets/images/nocover.jpg",
+                                                              fit: BoxFit.fill,
+                                                            ),
+                                                          )),
                                           ),
                                           const Spacer(),
                                           Expanded(

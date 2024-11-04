@@ -231,7 +231,6 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           child: Column(children: [
-            SizedBox(height: MediaQuery.of(context).size.height / 40),
             widget.bookImage != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(15),
@@ -242,6 +241,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Image(
+                                height: MediaQuery.of(context).size.height / 3,
                                 fit: BoxFit.fitHeight,
                                 image: widget.bookImage!.image,
                               ))),

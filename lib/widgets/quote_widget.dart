@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
@@ -164,43 +166,57 @@ class QuoteWidget extends ConsumerWidget {
                     child: SizedBox(
                       height: Const.screenSize.height * 0.15,
                       child: Container(
-                          child: quote.bookCover != null
+                          child: quote.imageAsByte != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        "https://covers.openlibrary.org/b/id/${quote.bookCover}-M.jpg",
+                                  child: Image.memory(
                                     fit: BoxFit.fill,
-                                    errorWidget: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        "lib/assets/images/error.png",
-                                        height: 80,
-                                        width: 50,
-                                      );
-                                    },
-                                    placeholder: (context, url) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade400,
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: const Center(
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            strokeAlign: -10,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                    base64Decode(quote.imageAsByte!),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                      "lib/assets/images/error.png",
+                                    ),
                                   ),
                                 )
-                              : ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.asset(
-                                    "lib/assets/images/nocover.jpg",
-                                    fit: BoxFit.fill,
-                                  ),
-                                )),
+                              : quote.bookCover != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            "https://covers.openlibrary.org/b/id/${quote.bookCover}-M.jpg",
+                                        fit: BoxFit.fill,
+                                        errorWidget:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            "lib/assets/images/error.png",
+                                            height: 80,
+                                            width: 50,
+                                          );
+                                        },
+                                        placeholder: (context, url) {
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey.shade400,
+                                                borderRadius:
+                                                    BorderRadius.circular(15)),
+                                            child: const Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                strokeAlign: -10,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: Image.asset(
+                                        "lib/assets/images/nocover.jpg",
+                                        fit: BoxFit.fill,
+                                      ),
+                                    )),
                     ),
                   ),
                   const Spacer(),

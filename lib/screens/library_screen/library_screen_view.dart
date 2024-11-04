@@ -329,7 +329,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                                           base64Decode(
                                               listOfTheCurrentBookStatus[index]
                                                   .imageAsByte!),
-                                          width: 90,
+                                          width: 80,
                                           fit: BoxFit.fill,
                                         ),
                                       ),

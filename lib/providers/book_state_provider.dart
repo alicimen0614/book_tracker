@@ -113,6 +113,10 @@ class BookNotifier extends StateNotifier<BookState> {
         listOfBooksWantToRead: wantToReadList);
   }
 
+  Future<void> clearBooks() async {
+    state = BookState();
+  }
+
   final bookStateProvider =
       StateNotifierProvider<BookNotifier, BookState>((ref) {
     return BookNotifier(ref);

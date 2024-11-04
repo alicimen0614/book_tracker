@@ -221,6 +221,15 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       }
     }
   }
+
+  Future<void> clearMyQuotes() async {
+    try {
+      state = state.copyWith(currentUsersQuotes: {});
+    } catch (e) {
+      // Hata durumunu yönet
+      print("Error fetching quotes: $e");
+    }
+  }
 }
 
 final quotesProvider = StateNotifierProvider<QuotesNotifier, QuoteState>((ref) {

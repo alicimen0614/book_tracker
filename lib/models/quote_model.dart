@@ -10,6 +10,7 @@ class Quote {
   String? date;
   List<String?>? comments;
   int? likeCount;
+  String? imageAsByte;
 
   Quote(
       {this.quoteText,
@@ -22,7 +23,8 @@ class Quote {
       this.comments,
       this.userId,
       this.date,
-      this.likeCount});
+      this.likeCount,
+      this.imageAsByte});
   Quote.fromJson(Map<String, dynamic> json) {
     quoteText = json['quoteText']?.toString();
     userName = json['userName']?.toString();
@@ -32,6 +34,8 @@ class Quote {
     bookAuthorName = json['bookAuthorName']?.toString();
     userId = json['userId']?.toString();
     date = json['date']?.toString();
+    imageAsByte = json['imageAsByte']?.toString();
+
     likeCount = int.tryParse(json['likeCount'].toString());
 
     if (json['comments'] != null) {
@@ -61,6 +65,7 @@ class Quote {
     data['bookAuthorName'] = bookAuthorName;
     data['userId'] = userId;
     data['date'] = date;
+    data['imageAsByte'] = imageAsByte;
     data['likeCount'] = likeCount;
 
     if (comments != null) {

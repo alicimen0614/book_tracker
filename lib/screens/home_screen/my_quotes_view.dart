@@ -22,7 +22,9 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      getPageData();
+      if (FirebaseAuth.instance.currentUser != null) {
+        getPageData();
+      }
     });
 
     super.initState();
@@ -36,43 +38,68 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
         title: const Text("Alıntılarım"),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await ref.read(quotesProvider.notifier).fetchCurrentUsersQuotes();
-          quotes = ref.watch(quotesProvider).currentUsersQuotes;
-        },
-        child: ref.watch(quotesProvider).isUsersQuotesLoading == false
-            ? ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                separatorBuilder: (context, index) => Divider(
-                  color: Colors.grey.shade400,
-                  endIndent: 10,
-                  indent: 10,
-                  height: 20,
-                ),
-                itemCount: quotes.length,
-                itemBuilder: (context, index) {
-                  final quoteId = quotes.keys.toList()[index];
-                  return QuoteWidget(
-                      isTrendingQuotes: null,
-                      quote: quotes[quoteId]!,
-                      onDoubleTap: () {
-                        print("doubletap");
-                        likePost(quoteId, index);
+          onRefresh: () async {
+            await ref.read(quotesProvider.notifier).fetchCurrentUsersQuotes();
+            quotes = ref.watch(quotesProvider).currentUsersQuotes;
+          },
+          child: ref.watch(quotesProvider).isUsersQuotesLoading == false ||
+                  FirebaseAuth.instance.currentUser == null
+              ? ref.watch(quotesProvider).currentUsersQuotes.isNotEmpty
+                  ? ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      separatorBuilder: (context, index) => Divider(
+                        color: Colors.grey.shade400,
+                        endIndent: 10,
+                        indent: 10,
+                        height: 20,
+                      ),
+                      itemCount: quotes.length,
+                      itemBuilder: (context, index) {
+                        final quoteId = quotes.keys.toList()[index];
+                        return QuoteWidget(
+                            isTrendingQuotes: null,
+                            quote: quotes[quoteId]!,
+                            onDoubleTap: () {
+                              print("doubletap");
+                              likePost(quoteId, index);
+                            },
+                            quoteId: quoteId,
+                            onPressedLikeButton: () {
+                              print("doubletap");
+                              likePost(quoteId, index);
+                            });
                       },
-                      quoteId: quoteId,
-                      onPressedLikeButton: () {
-                        print("doubletap");
-                        likePost(quoteId, index);
-                      });
-                },
-              )
-            : const Align(
-                alignment: Alignment.center,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-      ),
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "lib/assets/images/nonotesfound.png",
+                            width: MediaQuery.of(context).size.height / 1.5,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.width / 10,
+                          ),
+                          Center(
+                            child: Text(
+                              FirebaseAuth.instance.currentUser != null
+                                  ? "Henüz bir alıntı eklemediniz."
+                                  : "Alıntı ekleyebilmek için önce giriş yapmalısınız.",
+                              style: const TextStyle(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+              : const Align(
+                  alignment: Alignment.center,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )),
     );
   }
 

@@ -315,6 +315,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                       Navigator.pop(context);
                     } else {
                       Navigator.pop(context, isSaved);
+                      Navigator.pop(context, isSaved);
                     }
                   }
 

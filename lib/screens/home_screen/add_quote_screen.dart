@@ -108,12 +108,14 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                   } else {
                     print(widget.bookInfo.authorsNames);
                     //adding the new quote section
+                    print(widget.bookInfo.imageAsByte);
                     Quote quote = Quote(
                         bookAuthorName: widget.bookInfo.authorsNames != null &&
                                 widget.bookInfo.authorsNames!.isNotEmpty
                             ? widget.bookInfo.authorsNames!.first
                             : null,
                         quoteText: quoteFieldController.text,
+                        imageAsByte: widget.bookInfo.imageAsByte,
                         bookName: widget.bookInfo.title,
                         userId: ref.read(authProvider).currentUser!.uid,
                         bookCover: widget.bookInfo.covers?.first.toString(),
@@ -149,7 +151,6 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(15),
           child: Column(children: [
-            SizedBox(height: MediaQuery.of(context).size.height / 40),
             widget.bookImage != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(15),
@@ -162,6 +163,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                               child: Image(
                                 fit: BoxFit.fitHeight,
                                 image: widget.bookImage!.image,
+                                height: MediaQuery.of(context).size.height / 3,
                               ))),
                     ),
                   )

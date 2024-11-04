@@ -226,6 +226,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                 context)
                             .then((value) {
                           if (value != null) {
+                            ref.read(bookStateProvider.notifier).getPageData();
                             ref
                                 .read(indexBottomNavbarProvider.notifier)
                                 .update((state) => 0);
@@ -537,6 +538,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
         } else {
           await _signInWithGoogle(ref)!.whenComplete(() {
             if (ref.read(authProvider).currentUser != null) {
+              ref.read(bookStateProvider.notifier).getPageData();
               Navigator.pop(context);
               Navigator.pop(context);
               ref.read(indexBottomNavbarProvider.notifier).update((state) => 0);
