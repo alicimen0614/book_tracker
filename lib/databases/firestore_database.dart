@@ -167,6 +167,14 @@ class FirestoreDatabase extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteQuote(String quoteId) async {
+    try {
+      await _firestore.collection("quotes").doc(quoteId).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> commitLikeToFirebase(
       String quoteId, bool? isLikedOnLocal) async {
     final currentUser = FirebaseAuth.instance.currentUser;

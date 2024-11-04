@@ -1,3 +1,4 @@
+import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,10 +15,10 @@ class QuoteState {
   QuoteState(
       {required this.trendingQuotes,
       required this.recentQuotes,
-      this.isTrendingLoading = false,
-      this.isRecentLoading = false,
+      this.isTrendingLoading = true,
+      this.isRecentLoading = true,
       required this.currentUsersQuotes,
-      this.isUsersQuotesLoading = false});
+      this.isUsersQuotesLoading = true});
 
   QuoteState copyWith(
       {Map<String, Quote>? trendingQuotes,
@@ -43,19 +44,17 @@ class QuoteState {
 
 // StateNotifier ile Quote listesini yöneten sınıf
 class QuotesNotifier extends StateNotifier<QuoteState> {
-  bool isLoading = false;
   QuotesNotifier()
       : super(QuoteState(
             recentQuotes: {},
             trendingQuotes: {},
-            isTrendingLoading: false,
-            isRecentLoading: false,
+            isTrendingLoading: true,
+            isRecentLoading: true,
             currentUsersQuotes: {},
-            isUsersQuotesLoading: false));
+            isUsersQuotesLoading: true));
 
   // Firebase'den quote verilerini çekme fonksiyonu
   Future<void> fetchTrendingQuotes() async {
-    isLoading = true;
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('quotes')
@@ -71,23 +70,16 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       });
       print(trendingQuotes.length);
 
-      state = QuoteState(
+      state = state.copyWith(
           trendingQuotes: trendingQuotes,
-          recentQuotes: state.recentQuotes,
-          currentUsersQuotes: state.currentUsersQuotes,
-          isTrendingLoading: false,
-          isRecentLoading: state.isRecentLoading,
-          isUsersQuotesLoading: state.isUsersQuotesLoading); // State'i güncelle
+          isTrendingLoading: false); // State'i güncelle
     } catch (e) {
       // Hata durumunu yönet
       print("Error fetching quotes: $e");
-    } finally {
-      isLoading = false; // Yükleme tamamlandığında false yap
     }
   }
 
   Future<void> fetchRecentQuotes() async {
-    isLoading = true;
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('quotes')
@@ -103,23 +95,16 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       });
       print(quotes.length);
 
-      state = QuoteState(
-          recentQuotes: quotes,
-          trendingQuotes: state.trendingQuotes,
-          isTrendingLoading: false,
-          isRecentLoading: state.isRecentLoading,
-          isUsersQuotesLoading: state.isUsersQuotesLoading,
-          currentUsersQuotes: state.currentUsersQuotes); // State'i güncelle
+      state = state.copyWith(
+          recentQuotes: quotes, isRecentLoading: false); // State'i güncelle
     } catch (e) {
       // Hata durumunu yönet
       print("Error fetching quotes: $e");
-    } finally {
-      isLoading = false; // Yükleme tamamlandığında false yap
     }
   }
 
   Future<void> fetchCurrentUsersQuotes() async {
-    isLoading = true;
+    state = state.copyWith(isUsersQuotesLoading: true);
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('quotes')
@@ -136,18 +121,38 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       });
       print(currentUsersQuotes.length);
 
-      state = QuoteState(
-          trendingQuotes: state.trendingQuotes,
-          recentQuotes: state.recentQuotes,
-          isTrendingLoading: state.isTrendingLoading,
-          isRecentLoading: state.isRecentLoading,
-          isUsersQuotesLoading: false,
-          currentUsersQuotes: currentUsersQuotes); // State'i güncelle
+      state = state.copyWith(
+          currentUsersQuotes: currentUsersQuotes,
+          isUsersQuotesLoading: false); // State'i güncelle
     } catch (e) {
       // Hata durumunu yönet
       print("Error fetching quotes: $e");
-    } finally {
-      isLoading = false; // Yükleme tamamlandığında false yap
+    }
+  }
+
+  Future<bool> deleteQuote(String quoteId) async {
+    Map<String, Quote> currentUsersQuotes = state.currentUsersQuotes;
+    Map<String, Quote> trendingQuotes = state.trendingQuotes;
+    Map<String, Quote> recentQuotes = state.recentQuotes;
+    try {
+      if (state.recentQuotes[quoteId] != null) {
+        recentQuotes.remove(quoteId);
+        state = state.copyWith(recentQuotes: recentQuotes);
+      }
+      if (state.currentUsersQuotes[quoteId] != null) {
+        currentUsersQuotes.remove(quoteId);
+        state = state.copyWith(currentUsersQuotes: currentUsersQuotes);
+      }
+      if (state.trendingQuotes[quoteId] != null) {
+        trendingQuotes.remove(quoteId);
+        state = state.copyWith(trendingQuotes: trendingQuotes);
+      }
+      await FirestoreDatabase().deleteQuote(quoteId);
+      return true;
+    } catch (e) {
+      // Hata durumunu yönet
+      print("Error deleting quote $e");
+      return false;
     }
   }
 

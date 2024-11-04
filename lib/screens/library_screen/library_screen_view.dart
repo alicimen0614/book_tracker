@@ -3,7 +3,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
-import 'package:book_tracker/screens/home_screen/quotes_view.dart';
+import 'package:book_tracker/screens/home_screen/my_quotes_view.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
@@ -46,7 +46,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const QuotesView()));
+                        builder: (context) => const MyQuotesView()));
               },
               icon: const CircleAvatar(
                 maxRadius: 15,

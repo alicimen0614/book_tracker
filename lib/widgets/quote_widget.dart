@@ -101,6 +101,16 @@ class QuoteWidget extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: MediaQuery.of(context).size.height / 50,
                       )),
+                  const Spacer(),
+                  if (FirebaseAuth.instance.currentUser != null &&
+                      quote.userId == FirebaseAuth.instance.currentUser!.uid)
+                    IconButton(
+                        onPressed: () =>
+                            modalBottomSheetBuilderForPopUpMenu(context, ref),
+                        icon: const Icon(
+                          Icons.more_vert_sharp,
+                          color: Color(0xFF1B7695),
+                        ))
                 ],
               ),
             ),
@@ -261,5 +271,89 @@ class QuoteWidget extends ConsumerWidget {
     final dateTime = DateTime.parse(dateString);
     final difference = DateTime.now().difference(dateTime);
     return timeago.format(DateTime.now().subtract(difference), locale: 'tr');
+  }
+
+  void modalBottomSheetBuilderForPopUpMenu(
+      BuildContext pageContext, WidgetRef ref) {
+    showModalBottomSheet(
+      backgroundColor: Colors.grey.shade300,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), topRight: Radius.circular(30))),
+      context: pageContext,
+      builder: (context) {
+        return Column(mainAxisSize: MainAxisSize.min, children: [
+          const ListTile(
+            title: Text("Alıntıyı",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            titleAlignment: ListTileTitleAlignment.center,
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () {},
+            leading: const Icon(
+              Icons.keyboard,
+              size: 30,
+            ),
+            title: const Text("Düzenle", style: TextStyle(fontSize: 20)),
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () async {
+              alertDialogBuilder(context, ref);
+            },
+            leading: const Icon(
+              Icons.delete,
+              size: 30,
+            ),
+            title: const Text("Sil", style: TextStyle(fontSize: 20)),
+          )
+        ]);
+      },
+    );
+  }
+
+  Future<dynamic> alertDialogBuilder(BuildContext context, WidgetRef ref) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text("VastReads"),
+          content:
+              const Text("Bu alıntıyı silmek istediğinizden emin misiniz?"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Vazgeç")),
+            TextButton(
+                onPressed: () async {
+                  var result = await ref
+                      .read(quotesProvider.notifier)
+                      .deleteQuote(quoteId);
+                  if (result == true) {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("Alıntı başarıyla silindi.")));
+                  } else {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content:
+                            Text("Alıntı silinirken bir hata meydana geldi")));
+                  }
+                },
+                child: const Text("Sil"))
+          ],
+        );
+      },
+    );
   }
 }

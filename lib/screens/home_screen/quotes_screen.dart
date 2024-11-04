@@ -1,14 +1,10 @@
 import 'dart:async';
-
-import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
-import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
 import 'package:book_tracker/widgets/sign_up_dialog.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -122,20 +118,6 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
       itemCount: readQuotesList.length,
       itemBuilder: (context, index) {
         final quoteId = watchQuotesList.keys.toList()[index];
-        int likeCount = watchQuotesList[quoteId]!.likes!.length;
-        bool isUserLikedQuote = FirebaseAuth.instance.currentUser != null
-            ? watchQuotesList[quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
-            : false;
-        String text = readQuotesList[quoteId]!.quoteText!;
-        var textHeight = calculateTextHeight(
-            text,
-            TextStyle(
-              fontSize: MediaQuery.of(context).size.height / 55,
-            ),
-            Const.screenSize.width - 100);
-
         return isLoading == false
             ? QuoteWidget(
                 onDoubleTap: () {
