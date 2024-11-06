@@ -21,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import 'home_screen_shimmer/quote_widget_shimmer.dart';
+
 class HomeScreenView extends ConsumerStatefulWidget {
   const HomeScreenView({super.key});
 
@@ -525,12 +527,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                         },
                       ),
                     )
-                  : const Align(
-                      alignment: Alignment.center,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
+                  : quoteWidgetShimmer(context)
             ],
           )),
     );
@@ -1014,7 +1011,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
       debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () {
         FirestoreDatabase()
-            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId]);
+            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId], context);
 
         debounceTimers.remove(quoteId);
         pendingLikeStatus.remove(quoteId);

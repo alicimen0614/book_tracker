@@ -178,10 +178,12 @@ class FirestoreDatabase extends ChangeNotifier {
   }
 
   Future<void> commitLikeToFirebase(
-      String quoteId, bool? isLikedOnLocal) async {
+      String quoteId, bool? isLikedOnLocal, BuildContext context) async {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
       print("User is not logged in");
       return;
     }
@@ -198,7 +200,9 @@ class FirestoreDatabase extends ChangeNotifier {
       DocumentSnapshot snapshot = await transaction.get(quoteDocRef);
 
       if (!snapshot.exists) {
-        throw Exception("Quote does not exist!");
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
+        return;
       }
 
       // Firestore'dan aldığımız veriyi map formatında elde ediyoruz
@@ -222,6 +226,8 @@ class FirestoreDatabase extends ChangeNotifier {
     }).then((_) {
       print("Transaction success!");
     }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
       print("Transaction failed: $error");
     });
   }

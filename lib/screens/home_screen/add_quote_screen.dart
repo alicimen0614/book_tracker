@@ -196,6 +196,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                     fontSize: MediaQuery.of(context).size.height / 60)),
             SizedBox(height: MediaQuery.of(context).size.height / 40),
             TextFormField(
+              maxLength: 600,
               controller: quoteFieldController,
               decoration: const InputDecoration(
                 hintText: "Alıntı girin.",

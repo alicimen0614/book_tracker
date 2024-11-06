@@ -147,7 +147,7 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
         trendingQuotes.remove(quoteId);
         state = state.copyWith(trendingQuotes: trendingQuotes);
       }
-      await FirestoreDatabase().deleteQuote(quoteId);
+      FirestoreDatabase().deleteQuote(quoteId);
       return true;
     } catch (e) {
       // Hata durumunu yönet

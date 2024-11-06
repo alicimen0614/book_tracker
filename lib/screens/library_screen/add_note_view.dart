@@ -106,7 +106,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         alertDialogBuilder(context);
                       },
                       icon: const Icon(
-                        Icons.delete_forever,
+                        Icons.delete,
                         size: 30,
                       ),
                       splashRadius: 25,
@@ -273,6 +273,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                     fontSize: MediaQuery.of(context).size.height / 60)),
             SizedBox(height: MediaQuery.of(context).size.height / 40),
             TextFormField(
+              maxLength: 200,
               controller: noteFieldController,
               decoration: const InputDecoration(
                 hintText: "Notunuzu girin.",
@@ -322,7 +323,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                         noteId: widget.noteId.toString());
                   }
                   Navigator.pop(context);
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 },
                 child: const Text("Sil"))
           ],

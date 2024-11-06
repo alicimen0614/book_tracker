@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/screens/home_screen/home_screen_shimmer/quote_widget_shimmer.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
 import 'package:book_tracker/widgets/sign_up_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -94,11 +95,18 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
                         ],
                       ),
                     )
-              : const Align(
-                  alignment: Alignment.center,
-                  child: Center(
-                    child: CircularProgressIndicator(),
+              : ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  separatorBuilder: (context, index) => Divider(
+                    color: Colors.grey.shade400,
+                    endIndent: 10,
+                    indent: 10,
+                    height: 20,
                   ),
+                  itemCount: 5,
+                  itemBuilder: (context, index) {
+                    return quoteWidgetShimmer(context);
+                  },
                 )),
     );
   }
@@ -124,7 +132,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
       debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () {
         FirestoreDatabase()
-            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId]);
+            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId], context);
 
         debounceTimers.remove(quoteId);
         pendingLikeStatus.remove(quoteId);

@@ -28,14 +28,19 @@ class QuoteWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int likeCount = FirebaseAuth.instance.currentUser != null &&
-            isTrendingQuotes != null
+    int likeCount = isTrendingQuotes != null
         ? isTrendingQuotes!
             ? ref.watch(quotesProvider).trendingQuotes[quoteId]!.likes!.length
             : ref.watch(quotesProvider).recentQuotes[quoteId]!.likes!.length
-        : ref.watch(quotesProvider).currentUsersQuotes[quoteId]!.likes!.length;
-    bool isUserLikedQuote =
-        FirebaseAuth.instance.currentUser != null && isTrendingQuotes != null
+        : FirebaseAuth.instance.currentUser != null
+            ? ref
+                .watch(quotesProvider)
+                .currentUsersQuotes[quoteId]!
+                .likes!
+                .length
+            : 0;
+    bool isUserLikedQuote = FirebaseAuth.instance.currentUser != null
+        ? isTrendingQuotes != null
             ? isTrendingQuotes!
                 ? ref
                     .watch(quotesProvider)
@@ -53,7 +58,8 @@ class QuoteWidget extends ConsumerWidget {
                     .likes!
                     .contains(FirebaseAuth.instance.currentUser!.uid)
                 ? true
-                : false;
+                : false
+        : false;
     String text = quote.quoteText!;
     var textHeight = calculateTextHeight(
         text,

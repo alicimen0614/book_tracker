@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/widgets/sign_up_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -59,26 +60,27 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
 
   @override
   Widget build(BuildContext context) {
-    hasUserLikedQuote = FirebaseAuth.instance.currentUser != null &&
-            widget.isTrendingQuotes != null
-        ? widget.isTrendingQuotes!
-            ? ref
-                .watch(quotesProvider)
-                .trendingQuotes[widget.quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
+    hasUserLikedQuote = FirebaseAuth.instance.currentUser != null
+        ? widget.isTrendingQuotes != null
+            ? widget.isTrendingQuotes!
+                ? ref
+                    .watch(quotesProvider)
+                    .trendingQuotes[widget.quoteId]!
+                    .likes!
+                    .contains(FirebaseAuth.instance.currentUser!.uid)
+                : ref
+                    .watch(quotesProvider)
+                    .recentQuotes[widget.quoteId]!
+                    .likes!
+                    .contains(FirebaseAuth.instance.currentUser!.uid)
             : ref
-                .watch(quotesProvider)
-                .recentQuotes[widget.quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
-        : ref
-                .watch(quotesProvider)
-                .currentUsersQuotes[widget.quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
-            ? true
-            : false;
+                    .watch(quotesProvider)
+                    .currentUsersQuotes[widget.quoteId]!
+                    .likes!
+                    .contains(FirebaseAuth.instance.currentUser!.uid)
+                ? true
+                : false
+        : false;
     likeCount = widget.quote.likes!.length;
     return Scaffold(
       appBar: AppBar(
@@ -150,7 +152,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                               child: CachedNetworkImage(
                                 imageUrl:
                                     "https://covers.openlibrary.org/b/id/${widget.quote.bookCover!}-M.jpg",
-                                height: 120,
+                                fit: BoxFit.fill,
                                 errorWidget: (context, error, stackTrace) {
                                   return Image.asset(
                                     "lib/assets/images/error.png",
@@ -256,39 +258,52 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
   }
 
   Future<void> likePost(String quoteId) async {
-    // UI'yi anında güncelle
-    updateUILikeStatus(quoteId);
+    if (FirebaseAuth.instance.currentUser != null) {
+      // UI'yi anında güncelle
+      updateUILikeStatus(quoteId);
 
-    // Son beğeni durumu kaydet
-    pendingLikeStatus[quoteId] = widget.isTrendingQuotes != null
-        ? widget.isTrendingQuotes == true
-            ? ref
-                .read(quotesProvider)
-                .trendingQuotes[quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
-            : ref
-                .read(quotesProvider)
-                .recentQuotes[quoteId]!
-                .likes!
-                .contains(FirebaseAuth.instance.currentUser!.uid)
-        : ref
-            .read(quotesProvider)
-            .currentUsersQuotes[quoteId]!
-            .likes!
-            .contains(FirebaseAuth.instance.currentUser!.uid);
+      // Son beğeni durumu kaydet
+      pendingLikeStatus[quoteId] = widget.isTrendingQuotes != null
+          ? widget.isTrendingQuotes == true
+              ? ref
+                  .read(quotesProvider)
+                  .trendingQuotes[quoteId]!
+                  .likes!
+                  .contains(FirebaseAuth.instance.currentUser!.uid)
+              : ref
+                  .read(quotesProvider)
+                  .recentQuotes[quoteId]!
+                  .likes!
+                  .contains(FirebaseAuth.instance.currentUser!.uid)
+          : ref
+              .read(quotesProvider)
+              .currentUsersQuotes[quoteId]!
+              .likes!
+              .contains(FirebaseAuth.instance.currentUser!.uid);
 
-    // Eğer zaten bir zamanlayıcı varsa onu iptal et
-    debounceTimers[quoteId]?.cancel();
+      // Eğer zaten bir zamanlayıcı varsa onu iptal et
+      debounceTimers[quoteId]?.cancel();
 
-    // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
-    debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () async {
-      await FirestoreDatabase()
-          .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId]);
+      // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
+      debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () async {
+        await FirestoreDatabase()
+            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId], context);
 
-      debounceTimers.remove(quoteId);
-      pendingLikeStatus.remove(quoteId);
-    });
+        debounceTimers.remove(quoteId);
+        pendingLikeStatus.remove(quoteId);
+      });
+    } else {
+      showSignUpDialog();
+    }
+  }
+
+  void showSignUpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const SignUpDialog();
+      },
+    );
   }
 
   void updateUILikeStatus(String quoteId) {
@@ -312,6 +327,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     onAdLoaded: (ad) => debugPrint("adloaded"),
     onAdFailedToLoad: (ad, error) {
       ad.dispose();
+      print(error);
       debugPrint("adfailed to load");
     },
     onAdOpened: (ad) => debugPrint("ad opened"),
