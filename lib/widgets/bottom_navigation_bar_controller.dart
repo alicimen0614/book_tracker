@@ -2,6 +2,7 @@ import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../screens/discover_screen/discover_screen_view.dart';
 import '../screens/home_screen/home_screen_view.dart';
@@ -20,6 +21,7 @@ class BottomNavigationBarController extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarControllerState
     extends ConsumerState<BottomNavigationBarController> {
+  DateTime timeBackPressed = DateTime.now();
   final List<Widget> _widgetOptions = <Widget>[
     const HomeScreenView(),
     const DiscoverScreenView(),
@@ -69,14 +71,34 @@ class _BottomNavigationBarControllerState
     return StreamBuilder<User?>(
         stream: ref.read(authProvider).authState,
         builder: (context, snapshot) {
-          return Scaffold(
-            body: PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _pageController,
-              onPageChanged: onTap,
-              children: _widgetOptions,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              final difference = DateTime.now().difference(timeBackPressed);
+              final isExitWarning = difference >= const Duration(seconds: 2);
+              timeBackPressed = DateTime.now();
+              if (isExitWarning) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text(
+                    "Uygulamadan çıkmak için bir daha basın.",
+                  ),
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                ));
+                return;
+              } else {
+                SystemNavigator.pop();
+              }
+            },
+            child: Scaffold(
+              body: PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                onPageChanged: onTap,
+                children: _widgetOptions,
+              ),
+              bottomNavigationBar: bottomNavigationBarBuilder(),
             ),
-            bottomNavigationBar: bottomNavigationBarBuilder(),
           );
         });
   }
