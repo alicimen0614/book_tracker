@@ -212,14 +212,29 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
             Row(
               children: [
                 IconButton(
-                  icon: Icon(
-                      hasUserLikedQuote
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: hasUserLikedQuote
-                          ? Colors.red
-                          : const Color.fromARGB(196, 0, 0, 0),
-                      size: 30),
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    switchInCurve: Curves.bounceOut,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) {
+                      return ScaleTransition(
+                        scale: animation,
+                        child: RotationTransition(
+                          turns: animation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Icon(
+                        key: ValueKey<bool>(hasUserLikedQuote),
+                        hasUserLikedQuote
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: hasUserLikedQuote
+                            ? Colors.red
+                            : const Color.fromARGB(196, 0, 0, 0),
+                        size: 30),
+                  ),
                   onPressed: () async {
                     await likePost(widget.quoteId);
                   },
