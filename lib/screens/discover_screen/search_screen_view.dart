@@ -1,7 +1,7 @@
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/no_items_found_indicator_builder.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +61,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
   }
 
   void fetchBooks(int pageKey) async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
 
     try {
       var searchModelAsJson = await ref

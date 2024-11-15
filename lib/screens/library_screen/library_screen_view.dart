@@ -7,6 +7,7 @@ import 'package:book_tracker/screens/home_screen/my_quotes_view.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,9 +26,11 @@ class LibraryScreenView extends ConsumerStatefulWidget {
 class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
   @override
   void initState() {
-    if (ref.read(bookStateProvider).listOfBooksToShow == []) {
-      ref.read(bookStateProvider.notifier).getPageData();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(bookStateProvider).listOfBooksToShow.isEmpty) {
+        ref.read(bookStateProvider.notifier).getPageData();
+      }
+    });
 
     super.initState();
   }
@@ -39,48 +42,67 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       initialIndex: 0,
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              tooltip: "Alıntılarım",
-              splashRadius: 25,
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const MyQuotesView()));
-              },
-              icon: const CircleAvatar(
-                maxRadius: 15,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.format_quote_rounded,
-                  size: 25,
-                  color: Color(0xFF1B7695),
-                ),
-              )),
+          leadingWidth: Const.screenSize.width * 0.3,
+          leading: Row(
+            children: [
+              IconButton(
+                  tooltip: "Alıntılarım",
+                  splashRadius: 25,
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyQuotesView()));
+                  },
+                  icon: const CircleAvatar(
+                    maxRadius: 15,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.format_quote_rounded,
+                      size: 25,
+                      color: Color(0xFF1B7695),
+                    ),
+                  )),
+              ref.watch(bookStateProvider).isLoading == false
+                  ? IconButton(
+                      tooltip: "Notlarım",
+                      splashRadius: 25,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NotesView(
+                                  bookListFromFirebase: ref
+                                      .watch(bookStateProvider)
+                                      .listOfBooksFromFirestore,
+                                  bookListFromSql: ref
+                                      .watch(bookStateProvider)
+                                      .listOfBooksFromSql),
+                            ));
+                      },
+                      icon: const Icon(
+                        Icons.library_books,
+                        size: 30,
+                        color: Colors.white,
+                      ))
+                  : const SizedBox.shrink(),
+            ],
+          ),
           actions: [
-            ref.watch(bookStateProvider).isLoading == false
-                ? IconButton(
-                    tooltip: "Notlarım",
-                    splashRadius: 25,
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NotesView(
-                                bookListFromFirebase: ref
-                                    .watch(bookStateProvider)
-                                    .listOfBooksFromFirestore,
-                                bookListFromSql: ref
-                                    .watch(bookStateProvider)
-                                    .listOfBooksFromSql),
-                          ));
-                    },
-                    icon: const Icon(
-                      Icons.library_books,
-                      size: 30,
-                      color: Colors.white,
-                    ))
-                : const SizedBox.shrink(),
+            IconButton(
+                tooltip: "Kitapları yenile",
+                splashRadius: 25,
+                onPressed: () async {
+                  await ref.read(bookStateProvider.notifier).getPageData();
+                },
+                icon: const CircleAvatar(
+                    maxRadius: 15,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.refresh_rounded,
+                      size: 25,
+                      color: Color(0xFF1B7695),
+                    ))),
             IconButton(
                 tooltip: "Ekle",
                 splashRadius: 25,
@@ -196,200 +218,224 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
         : null;
 
     return listOfTheCurrentBookStatus!.isNotEmpty
-        ? GridView.builder(
-            physics: const ClampingScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 0.6,
-              crossAxisSpacing: 25,
-              mainAxisSpacing: 25,
-            ),
-            padding: const EdgeInsets.all(20),
-            itemBuilder: (context, index) {
-              return InkWell(
-                customBorder: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                onTap: () async {
-                  final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailedEditionInfo(
-                            editionInfo: listOfTheCurrentBookStatus[index],
-                            isNavigatingFromLibrary: true,
-                            bookImage: listOfBookIdsFromSql.contains(
-                                            uniqueIdCreater(
-                                                listOfTheCurrentBookStatus[
-                                                    index])) ==
-                                        true &&
-                                    listOfTheCurrentBookStatus[index].covers !=
-                                        null &&
-                                    listOfTheCurrentBookStatus[index]
-                                            .imageAsByte !=
-                                        null
-                                ? Image.memory(
-                                    width: 80,
-                                    base64Decode(getImageAsByte(
-                                        ref
-                                            .watch(bookStateProvider)
-                                            .listOfBooksFromSql,
-                                        listOfTheCurrentBookStatus[index])),
-                                    fit: BoxFit.fill,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Image.asset(
-                                                "lib/assets/images/error.png"),
-                                  )
-                                : listOfTheCurrentBookStatus[index].covers !=
+        ? RefreshIndicator(
+            onRefresh: () => ref.read(bookStateProvider.notifier).getPageData(),
+            child: GridView.builder(
+                physics: const ClampingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.6,
+                  crossAxisSpacing: 25,
+                  mainAxisSpacing: 25,
+                ),
+                padding: const EdgeInsets.all(20),
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    onTap: () async {
+                      final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailedEditionInfo(
+                                editionInfo: listOfTheCurrentBookStatus[index],
+                                isNavigatingFromLibrary: true,
+                                bookImage: listOfBookIdsFromSql.contains(
+                                                uniqueIdCreater(
+                                                    listOfTheCurrentBookStatus[
+                                                        index])) ==
+                                            true &&
+                                        listOfTheCurrentBookStatus[index]
+                                                .covers !=
                                             null &&
                                         listOfTheCurrentBookStatus[index]
-                                                .imageAsByte ==
-                                            null
-                                    ? Image.network(
-                                        "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Image.asset(
-                                          "lib/assets/images/error.png",
-                                        ),
-                                      )
-                                    : listOfTheCurrentBookStatus[index]
                                                 .imageAsByte !=
                                             null
-                                        ? Image.memory(
-                                            base64Decode(
-                                                listOfTheCurrentBookStatus[
-                                                        index]
-                                                    .imageAsByte!),
-                                            width: 90,
-                                            fit: BoxFit.fill,
+                                    ? Image.memory(
+                                        width: 80,
+                                        base64Decode(getImageAsByte(
+                                            ref
+                                                .watch(bookStateProvider)
+                                                .listOfBooksFromSql,
+                                            listOfTheCurrentBookStatus[index])),
+                                        fit: BoxFit.fill,
+                                        errorBuilder: (context, error,
+                                                stackTrace) =>
+                                            Image.asset(
+                                                "lib/assets/images/error.png"),
+                                      )
+                                    : listOfTheCurrentBookStatus[index]
+                                                    .covers !=
+                                                null &&
+                                            listOfTheCurrentBookStatus[index]
+                                                    .imageAsByte ==
+                                                null
+                                        ? Image.network(
+                                            "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Image.asset(
+                                              "lib/assets/images/error.png",
+                                            ),
                                           )
-                                        : null),
-                      ));
-                  //if there has been a change in the page we have popped we will get all the info again with new values
-                  if (result == true) {
-                    await ref.watch(bookStateProvider.notifier).getPageData();
-                  }
-                },
-                child: Column(children: [
-                  Expanded(
-                    flex: 5,
-                    child: Card(
-                      color: Colors.transparent,
-                      elevation: 0,
-                      child: listOfTheCurrentBookStatus[index].covers == null &&
-                              listOfTheCurrentBookStatus[index].imageAsByte ==
-                                  null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                "lib/assets/images/nocover.jpg",
-                                fit: BoxFit.fill,
-                              ),
-                            )
-                          /* if there is a list of books coming from firebase it doesn't have the imageAsByte value and
-                            we are checking here if the current book exist in sql if it does this means the book has imageAsByte
-                            value and I want to show the book image from local so I compare it in here if we have the book in 
-                            sql show it from local if it doesn't have it show it from network */
-                          : listOfBookIdsFromSql.contains(uniqueIdCreater(
-                                          listOfTheCurrentBookStatus[index])) ==
-                                      true &&
-                                  listOfTheCurrentBookStatus[index].covers !=
+                                        : listOfTheCurrentBookStatus[index]
+                                                    .imageAsByte !=
+                                                null
+                                            ? Image.memory(
+                                                base64Decode(
+                                                    listOfTheCurrentBookStatus[
+                                                            index]
+                                                        .imageAsByte!),
+                                                width: 90,
+                                                fit: BoxFit.fill,
+                                              )
+                                            : null),
+                          ));
+                      //if there has been a change in the page we have popped we will get all the info again with new values
+                      if (result == true) {
+                        await ref
+                            .watch(bookStateProvider.notifier)
+                            .getPageData();
+                      }
+                    },
+                    child: Column(children: [
+                      Expanded(
+                        flex: 5,
+                        child: Card(
+                          color: Colors.transparent,
+                          elevation: 0,
+                          child: listOfTheCurrentBookStatus[index].covers ==
                                       null &&
                                   listOfTheCurrentBookStatus[index]
-                                          .imageAsByte !=
+                                          .imageAsByte ==
                                       null
-                              ? Hero(
-                                  tag: uniqueIdCreater(
-                                      listOfTheCurrentBookStatus[index]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: Image.memory(
-                                      width: 80,
-                                      base64Decode(getImageAsByte(
-                                          ref
-                                              .watch(bookStateProvider)
-                                              .listOfBooksFromSql,
-                                          listOfTheCurrentBookStatus[index])),
-                                      fit: BoxFit.fill,
-                                      errorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Image.asset(
-                                              "lib/assets/images/error.png"),
-                                    ),
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.asset(
+                                    "lib/assets/images/nocover.jpg",
+                                    fit: BoxFit.fill,
                                   ),
                                 )
-                              : listOfTheCurrentBookStatus[index].imageAsByte !=
-                                      null
+                              /* if there is a list of books coming from firebase it doesn't have the imageAsByte value and
+                              we are checking here if the current book exist in sql if it does this means the book has imageAsByte
+                              value and I want to show the book image from local so I compare it in here if we have the book in 
+                              sql show it from local if it doesn't have it show it from network */
+                              : listOfBookIdsFromSql.contains(uniqueIdCreater(
+                                              listOfTheCurrentBookStatus[
+                                                  index])) ==
+                                          true &&
+                                      listOfTheCurrentBookStatus[index]
+                                              .covers !=
+                                          null &&
+                                      listOfTheCurrentBookStatus[index]
+                                              .imageAsByte !=
+                                          null
                                   ? Hero(
                                       tag: uniqueIdCreater(
                                           listOfTheCurrentBookStatus[index]),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(15),
                                         child: Image.memory(
-                                          base64Decode(
-                                              listOfTheCurrentBookStatus[index]
-                                                  .imageAsByte!),
                                           width: 80,
+                                          base64Decode(getImageAsByte(
+                                              ref
+                                                  .watch(bookStateProvider)
+                                                  .listOfBooksFromSql,
+                                              listOfTheCurrentBookStatus[
+                                                  index])),
                                           fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    )
-                                  : Hero(
-                                      tag: uniqueIdCreater(
-                                          listOfTheCurrentBookStatus[index]),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: FadeInImage.memoryNetwork(
-                                          width: 80,
-                                          image:
-                                              "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
-                                          placeholder: kTransparentImage,
-                                          fit: BoxFit.fill,
-                                          imageErrorBuilder: (context, error,
+                                          errorBuilder: (context, error,
                                                   stackTrace) =>
                                               Image.asset(
                                                   "lib/assets/images/error.png"),
                                         ),
                                       ),
-                                    ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(
-                      width: 200,
-                      child: Text(
-                        listOfTheCurrentBookStatus[index].title!,
-                        style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                                    )
+                                  : listOfTheCurrentBookStatus[index]
+                                              .imageAsByte !=
+                                          null
+                                      ? Hero(
+                                          tag: uniqueIdCreater(
+                                              listOfTheCurrentBookStatus[
+                                                  index]),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: Image.memory(
+                                              base64Decode(
+                                                  listOfTheCurrentBookStatus[
+                                                          index]
+                                                      .imageAsByte!),
+                                              width: 80,
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        )
+                                      : Hero(
+                                          tag: uniqueIdCreater(
+                                              listOfTheCurrentBookStatus[
+                                                  index]),
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            child: FadeInImage.memoryNetwork(
+                                              width: 80,
+                                              image:
+                                                  "https://covers.openlibrary.org/b/id/${listOfTheCurrentBookStatus[index].covers!.first!}-M.jpg",
+                                              placeholder: kTransparentImage,
+                                              fit: BoxFit.fill,
+                                              imageErrorBuilder: (context,
+                                                      error, stackTrace) =>
+                                                  Image.asset(
+                                                      "lib/assets/images/error.png"),
+                                            ),
+                                          ),
+                                        ),
+                        ),
                       ),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          width: 200,
+                          child: Text(
+                            listOfTheCurrentBookStatus[index].title!,
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ]),
+                  );
+                },
+                itemCount: listOfTheCurrentBookStatus.length),
+          )
+        : RefreshIndicator(
+            onRefresh: () => ref.read(bookStateProvider.notifier).getPageData(),
+            child: Center(
+              child: ListView(
+                children: [
+                  SizedBox(
+                    height: Const.screenSize.height * 0.2,
+                  ),
+                  Image.asset(
+                    "lib/assets/images/shelves.png",
+                    height: MediaQuery.of(context).size.height / 4,
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.width / 10,
+                  ),
+                  const Text(
+                    "Şu anda kitaplığınız boş.",
+                    style: TextStyle(
+                      fontSize: 20,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                ]),
-              );
-            },
-            itemCount: listOfTheCurrentBookStatus.length)
-        : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "lib/assets/images/shelves.png",
-                  width: MediaQuery.of(context).size.width / 2,
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.width / 10,
-                ),
-                const Text(
-                  "Şu anda kitaplığınız boş.",
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
   }
@@ -459,23 +505,25 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
             title:
                 const Text("Kitabına not ekle", style: TextStyle(fontSize: 20)),
           ),
-          const Divider(height: 0),
-          ListTile(
-            visualDensity: const VisualDensity(vertical: 3),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BooksListView(isNotes: false),
-                  ));
-            },
-            leading: const Icon(
-              Icons.library_add_outlined,
-              size: 30,
-            ),
-            title: const Text("Kitabına alıntı ekle",
-                style: TextStyle(fontSize: 20)),
-          )
+          if (FirebaseAuth.instance.currentUser != null)
+            const Divider(height: 0),
+          if (FirebaseAuth.instance.currentUser != null)
+            ListTile(
+              visualDensity: const VisualDensity(vertical: 3),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BooksListView(isNotes: false),
+                    ));
+              },
+              leading: const Icon(
+                Icons.library_add_outlined,
+                size: 30,
+              ),
+              title: const Text("Kitabına alıntı ekle",
+                  style: TextStyle(fontSize: 20)),
+            )
         ]);
       },
     );

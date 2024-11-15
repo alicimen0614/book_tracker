@@ -1,8 +1,8 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookstate_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class BookNotifier extends StateNotifier<BookState> {
@@ -20,7 +20,7 @@ class BookNotifier extends StateNotifier<BookState> {
     }
 
     await getSqlBookList();
-    bool isConnected = await checkForInternetConnection();
+    bool isConnected = ref.read(connectivityProvider).isConnected;
     state = state.copyWith(isConnected: isConnected);
 
     if (state.isUserAvailable && state.isConnected) {
@@ -83,13 +83,6 @@ class BookNotifier extends StateNotifier<BookState> {
           listOfBooksFromSql: listOfBooksFromSql,
           listOfBooksToShow: dummyBooks);
     }
-  }
-
-  Future<void> deleteBook(int bookId) async {
-    // Veritabanından kitabı sil
-    await ref.read(sqlProvider).deleteBook(bookId);
-    // Kitap listesini güncelle
-    await getPageData();
   }
 
   Future<void> getFilteredBooks(

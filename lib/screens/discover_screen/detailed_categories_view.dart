@@ -1,7 +1,7 @@
 import 'package:book_tracker/models/books_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 
@@ -48,7 +48,7 @@ class _DetailedCategoriesViewState
   }
 
   void fetchData(int pageKey) async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
     try {
       Map<String, dynamic>? categoryBooksModelAsJson = await ref
           .read(booksProvider)

@@ -1,6 +1,6 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 
 import 'package:book_tracker/widgets/animated_button.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
@@ -532,7 +532,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
   InkWell googleSignIn() {
     return InkWell(
       onTap: () async {
-        isConnected = await checkForInternetConnection();
+        isConnected = ref.read(connectivityProvider).isConnected;
         if (isConnected != true) {
           await internetConnectionErrorDialog(context, false);
         } else {

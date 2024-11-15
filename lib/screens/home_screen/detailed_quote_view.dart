@@ -4,7 +4,8 @@ import 'dart:convert';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
-import 'package:book_tracker/widgets/sign_up_dialog.dart';
+import 'package:book_tracker/screens/auth_screen/auth_view.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -301,7 +302,35 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     showDialog(
       context: context,
       builder: (context) {
-        return const SignUpDialog();
+        return CustomAlertDialog(
+          title: "VastReads",
+          description:
+              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          secondButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.register),
+                ));
+          },
+          secondButtonText: "Kayıt Ol",
+          thirdButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.signIn),
+                ));
+          },
+          thirdButtonText: "Giriş Yap",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Kapat",
+        );
       },
     );
   }

@@ -1,3 +1,4 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/widgets/shimmer_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,9 @@ Container authorImageAndDetailsShimmerBuilder(BuildContext context) {
             bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50))),
     child: Column(
       children: [
+        SizedBox(
+          height: Const.screenSize.height * 0.11,
+        ),
         Align(
             alignment: Alignment.center,
             child: ShimmerWidget.rectangular(

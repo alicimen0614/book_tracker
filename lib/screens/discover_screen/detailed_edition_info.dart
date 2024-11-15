@@ -1,13 +1,16 @@
+import 'dart:developer';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/detailed_edition_view_shimmer.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,21 +46,28 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Map doesBookAlreadyExist = {};
   bool doesBookAlreadyExistOnSql = false;
   bool doesBookAlreadyExistOnFirestore = false;
+  bool isBookBeingInserted = false;
 
   List<Map<String, dynamic>>? notesList = [];
-  bool doesBookHasSameStatus = false;
+  bool? didStatusChanged;
   String bookStatusAsString = "";
   bool hasChangeMade = false;
   BannerAd? _banner;
   InterstitialAd? _interstitialAd;
-
-  BookStatus bookStatus = BookStatus.wantToRead;
+  BookStatus? bookStatus;
 
   @override
   void initState() {
     if (widget.isNavigatingFromLibrary) {
       bookStatusAsString = widget.editionInfo.bookStatus!;
     }
+    bookStatus = widget.editionInfo.bookStatus != null
+        ? widget.editionInfo.bookStatus! == "Okumak istediklerim"
+            ? BookStatus.wantToRead
+            : widget.editionInfo.bookStatus! == "Şu an okuduklarım"
+                ? BookStatus.currentlyReading
+                : BookStatus.alreadyRead
+        : BookStatus.wantToRead;
     getPageData();
     _createBannerAd();
     _createInterstitialAd();
@@ -88,95 +98,117 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   child: AdWidget(ad: _banner!),
                 ),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          appBar: AppBar(
-            actions: [
-              widget.editionInfo.isbn_13 != null ||
-                      widget.editionInfo.isbn_10 != null
-                  ? IconButton(
-                      onPressed: () {
-                        launchUrl(Uri.parse(
-                            "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
-                      },
-                      icon: Image.asset("lib/assets/images/goodreads_icon.png",
-                          height: 30),
-                      splashRadius: 25)
-                  : const SizedBox.shrink(),
-              widget.isNavigatingFromLibrary == true
-                  ? IconButton(
-                      tooltip: "Alıntı Ekle",
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                  pinned: true,
+                  expandedHeight: Const.screenSize.height * 0.52,
+                  toolbarHeight: Const.screenSize.height * 0.06,
+                  actions: [
+                    if (widget.editionInfo.isbn_13 != null ||
+                        widget.editionInfo.isbn_10 != null)
+                      IconButton(
+                          tooltip: "GoodReads üzerinde incele",
+                          onPressed: () {
+                            launchUrl(Uri.parse(
+                                "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
+                          },
+                          icon: Image.asset(
+                              "lib/assets/images/goodreads_icon.png",
+                              height: 30),
+                          splashRadius: 25),
+                    if (widget.editionInfo.isbn_13 != null ||
+                        widget.editionInfo.isbn_10 != null)
+                      IconButton(
+                          tooltip: "OpenLibrary üzerinde incele",
+                          onPressed: () {
+                            launchUrl(Uri.parse(
+                                "https://openlibrary.org/isbn/${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
+                          },
+                          icon: Image.asset("lib/assets/images/openlibrary.png",
+                              height: 30),
+                          splashRadius: 25),
+                    widget.isNavigatingFromLibrary == true
+                        ? IconButton(
+                            tooltip: "Alıntı Ekle",
+                            splashRadius: 25,
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddQuoteScreen(
+                                        isNavigatingFromDetailedEdition: true,
+                                        showDeleteIcon: false,
+                                        bookInfo: widget.editionInfo,
+                                        bookImage: widget.bookImage),
+                                  ));
+                            },
+                            icon: const Icon(
+                              Icons.library_add_outlined,
+                              size: 30,
+                              color: Colors.white,
+                            ))
+                        : const SizedBox.shrink(),
+                    widget.isNavigatingFromLibrary == true
+                        ? IconButton(
+                            tooltip: "Not Ekle",
+                            splashRadius: 25,
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddNoteView(
+                                        showDeleteIcon: false,
+                                        bookInfo: widget.editionInfo,
+                                        bookImage: widget.bookImage),
+                                  )).then((value) {
+                                if (value == true) getPageData();
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.post_add_rounded,
+                              size: 34,
+                              color: Colors.white,
+                            ))
+                        : const SizedBox.shrink(),
+                    IconButton(
+                        color: Colors.white,
+                        splashRadius: 25,
+                        onPressed: () {
+                          modalBottomSheetBuilderForPopUpMenu(context);
+                        },
+                        icon: const Icon(
+                          Icons.more_vert_sharp,
+                          size: 30,
+                        ))
+                  ],
+                  leadingWidth: 50,
+                  leading: IconButton(
+                      color: Colors.white,
                       splashRadius: 25,
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddQuoteScreen(
-                                  isNavigatingFromDetailedEdition: true,
-                                  showDeleteIcon: false,
-                                  bookInfo: widget.editionInfo,
-                                  bookImage: widget.bookImage),
-                            ));
-                      },
+                      onPressed: () =>
+                          //we are checking if we changed the book status on database and returning the result as true or false after popping we
+                          //are in the library_screen_view if the value is true we call the getPageData() and get all the info with new changed data
+                          Navigator.pop(context, hasChangeMade),
                       icon: const Icon(
-                        Icons.library_add_outlined,
+                        Icons.arrow_back_sharp,
                         size: 30,
-                        color: Colors.white,
-                      ))
-                  : const SizedBox.shrink(),
-              widget.isNavigatingFromLibrary == true
-                  ? IconButton(
-                      tooltip: "Not Ekle",
-                      splashRadius: 25,
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddNoteView(
-                                  showDeleteIcon: false,
-                                  bookInfo: widget.editionInfo,
-                                  bookImage: widget.bookImage),
-                            )).then((value) {
-                          if (value == true) getPageData();
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.post_add_rounded,
-                        size: 34,
-                        color: Colors.white,
-                      ))
-                  : const SizedBox.shrink(),
-              IconButton(
-                  color: Colors.white,
-                  splashRadius: 25,
-                  onPressed: () {
-                    modalBottomSheetBuilderForPopUpMenu(context);
-                  },
-                  icon: const Icon(
-                    Icons.more_vert_sharp,
-                    size: 30,
-                  ))
-            ],
-            leadingWidth: 50,
-            leading: IconButton(
-                color: Colors.white,
-                splashRadius: 25,
-                onPressed: () =>
-                    //we are checking if we changed the book status on database and returning the result as true or false after popping we
-                    //are in the library_screen_view if the value is true we call the getPageData() and get all the info with new changed data
-                    Navigator.pop(context, hasChangeMade),
-                icon: const Icon(
-                  Icons.arrow_back_sharp,
-                  size: 30,
-                )),
-            backgroundColor: const Color(0xFF1B7695),
-            elevation: 0,
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              bookCoverAndDetailsBuilder(context),
-              isLoading != true
-                  ? editionInfoBodyBuilder(context)
-                  : detailedEditionInfoShimmerBuilder(context)
+                      )),
+                  backgroundColor: const Color(0xFF1B7695),
+                  elevation: 0,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: bookCoverAndDetailsBuilder(context),
+                  )),
+              SliverFillRemaining(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    isLoading != true
+                        ? editionInfoBodyBuilder(context)
+                        : detailedEditionInfoShimmerBuilder(context)
+                  ],
+                ),
+              )
             ],
           )),
     );
@@ -190,6 +222,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         color: Color(0xFF1B7695),
       ),
       child: Column(children: [
+        SizedBox(
+          height: Const.screenSize.height * 0.11,
+        ),
         widget.editionInfo.covers != null ||
                 widget.editionInfo.imageAsByte != null
             ? Align(
@@ -204,8 +239,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: Image(
-                                  height: 250,
-                                  width: 180,
+                                  height: Const.screenSize.height * 0.28,
+                                  width: Const.screenSize.width * 0.4,
                                   fit: BoxFit.fill,
                                   image: widget.bookImage!.image,
                                   errorBuilder: (context, error, stackTrace) =>
@@ -220,7 +255,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(15),
                                     child: Image(
-                                      height: 290,
+                                      height: Const.screenSize.height * 0.28,
                                       image: NetworkImage(
                                           "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg"),
                                       errorBuilder: (context, error,
@@ -342,6 +377,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   void modalBottomSheetBuilderForPopUpMenu(BuildContext context) {
+    doesBookAlreadyExist =
+        checkIfAlreadyExist(uniqueIdCreater(widget.editionInfo));
     showModalBottomSheet(
       backgroundColor: Colors.grey.shade300,
       shape: const RoundedRectangleBorder(
@@ -358,14 +395,25 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
                   onTap: () async {
-                    Navigator.pop(context);
-                    await bookStatusDialog(context);
+                    if (doesBookAlreadyExist["doesBookExistOnSql"] == true ||
+                        doesBookAlreadyExist["doesBookExistOnFirestore"]) {
+                      await alertDialogForDeletionBuilder(context);
+                    } else {
+                      Navigator.pop(context);
+                      await bookStatusDialog(context);
+                    }
                   },
                   leading: const Icon(
                     Icons.shelves,
                     size: 30,
                   ),
-                  title: Text("Rafa ekle",
+                  title: Text(
+                      doesBookAlreadyExist["doesBookExistOnSql"] == true ||
+                              doesBookAlreadyExist[
+                                      "doesBookExistOnFirestore"] ==
+                                  true
+                          ? "Raftan çıkar"
+                          : "Rafa ekle",
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40)),
                 )
@@ -386,31 +434,25 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.menu_book_rounded,
                     size: 30,
                   ),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(context);
-                    bookStatusDialog(context,
-                            initialBookStatus: widget.editionInfo.bookStatus ==
-                                    "Okumak istediklerim"
-                                ? BookStatus.wantToRead
-                                : widget.editionInfo.bookStatus ==
-                                        "Şu an okuduklarım"
-                                    ? BookStatus.currentlyReading
-                                    : BookStatus.alreadyRead)
-                        .then((didChanged) {
-                      getNewStatus(uniqueIdCreater(widget.editionInfo))
-                          .then((value) {
-                        if (value != null) {
-                          setState(() {
-                            bookStatus = value == "Okumak istediklerim"
-                                ? BookStatus.wantToRead
-                                : value == "Şu an okuduklarım"
-                                    ? BookStatus.currentlyReading
-                                    : BookStatus.alreadyRead;
-                            bookStatusAsString = value;
-                          });
-                        }
+                    bool hasChangeMade = await bookStatusDialog(context,
+                        initialBookStatus: widget.editionInfo.bookStatus ==
+                                "Okumak istediklerim"
+                            ? BookStatus.wantToRead
+                            : widget.editionInfo.bookStatus ==
+                                    "Şu an okuduklarım"
+                                ? BookStatus.currentlyReading
+                                : BookStatus.alreadyRead);
+                    if (hasChangeMade == true) {
+                      setState(() {
+                        bookStatusAsString = bookStatus == BookStatus.wantToRead
+                            ? "Okumak istediklerim"
+                            : bookStatus == BookStatus.currentlyReading
+                                ? "Şu an okuduklarım"
+                                : "Okuduklarım";
                       });
-                    });
+                    }
                   },
                   visualDensity: const VisualDensity(vertical: 3),
                 )
@@ -555,7 +597,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   Future<dynamic> bookStatusDialog(BuildContext mainContext,
       {BookStatus? initialBookStatus}) {
     if (initialBookStatus != null) {
-      bookStatus = initialBookStatus;
+      if (initialBookStatus != bookStatus) {
+      } else {
+        bookStatus = initialBookStatus;
+      }
     }
 
     return showDialog(
@@ -645,32 +690,31 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                       child: const Text("Vazgeç")),
                                   TextButton(
                                       onPressed: () async {
-                                        _showInterstitialAd();
-
                                         setState(() {
                                           onProgress = true;
                                         });
-                                        doesBookAlreadyExist =
-                                            await checkIfAlreadyExist(
-                                                uniqueIdCreater(
-                                                    widget.editionInfo));
+
                                         doesBookAlreadyExistOnFirestore =
                                             doesBookAlreadyExist[
                                                 "doesBookExistOnFirestore"];
                                         doesBookAlreadyExistOnSql =
                                             doesBookAlreadyExist[
                                                 "doesBookExistOnSql"];
-
-                                        doesBookHasSameStatus =
-                                            checkIfBookHasSameStatus(
-                                                bookStatus, initialBookStatus);
+                                        if (widget.editionInfo.bookStatus !=
+                                            null) {
+                                          didStatusChanged =
+                                              checkIfStatusChanged(bookStatus!,
+                                                  initialBookStatus);
+                                        }
 
                                         if (widget.editionInfo.covers != null &&
-                                            (doesBookAlreadyExistOnFirestore !=
-                                                    true ||
-                                                doesBookAlreadyExistOnSql !=
-                                                    true) &&
-                                            doesBookHasSameStatus != true) {
+                                            (doesBookAlreadyExist[
+                                                        "doesBookExistOnSql"] ==
+                                                    false ||
+                                                doesBookAlreadyExist[
+                                                        "doesBookExistOnFirestore"] ==
+                                                    false) &&
+                                            didStatusChanged == null) {
                                           Uint8List? base64AsString =
                                               await readNetworkImage(
                                                   "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg");
@@ -682,13 +726,19 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               null) {
                                             await insertToFirestore();
                                           }
+
+                                          ref
+                                              .read(bookStateProvider.notifier)
+                                              .getPageData();
                                         } else if (widget.editionInfo.covers ==
                                                 null &&
-                                            (doesBookAlreadyExistOnFirestore !=
-                                                    true ||
-                                                doesBookAlreadyExistOnSql !=
-                                                    true) &&
-                                            doesBookHasSameStatus != true) {
+                                            (doesBookAlreadyExist[
+                                                        "doesBookExistOnSql"] ==
+                                                    false ||
+                                                doesBookAlreadyExist[
+                                                        "doesBookExistOnFirestore"] ==
+                                                    false) &&
+                                            didStatusChanged == null) {
                                           await insertToSqlDatabase(
                                               null, context);
                                           if (ref
@@ -697,18 +747,26 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               null) {
                                             await insertToFirestore();
                                           }
-                                        } else if ((doesBookAlreadyExistOnFirestore ==
+                                          ref
+                                              .read(bookStateProvider.notifier)
+                                              .getPageData();
+                                        } else if ((doesBookAlreadyExist[
+                                                        "doesBookExistOnSql"] ==
                                                     true ||
-                                                doesBookAlreadyExistOnSql ==
+                                                doesBookAlreadyExist[
+                                                        "doesBookExistOnFirestore"] ==
                                                     true) &&
-                                            doesBookHasSameStatus == false) {
+                                            didStatusChanged == true) {
+                                          log(bookStatusAsString);
+                                          log(bookStatus.toString());
                                           hasChangeMade = true;
                                           updateBookStatus(
                                               uniqueIdCreater(
                                                   widget.editionInfo),
-                                              bookStatus,
+                                              bookStatus!,
                                               doesBookAlreadyExistOnFirestore,
                                               doesBookAlreadyExistOnSql);
+
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
                                             duration:
@@ -720,26 +778,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                                 onPressed: () {}),
                                             behavior: SnackBarBehavior.floating,
                                           ));
-                                        } else {
-                                          hasChangeMade = false;
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                            duration:
-                                                const Duration(seconds: 1),
-                                            content: const Text(
-                                                'Bu kitap zaten kitaplığınızda mevcut.'),
-                                            action: SnackBarAction(
-                                                label: 'Tamam',
-                                                onPressed: () {}),
-                                            behavior: SnackBarBehavior.floating,
-                                          ));
+                                        }
+                                        if (initialBookStatus != null) {
+                                          _showInterstitialAd();
                                         }
 
                                         setState(() {
                                           onProgress = false;
                                         });
 
-                                        Navigator.pop(context);
+                                        Navigator.pop(context, hasChangeMade);
                                       },
                                       child: const Text("Onayla"))
                                 ],
@@ -870,6 +918,14 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Expanded editionInfoBodyBuilder(BuildContext context) {
+    String? joinedText;
+    if (widget.editionInfo.authorsNames != null && authorsNames.isEmpty) {
+      joinedText = widget.editionInfo.authorsNames!.join("\n");
+    }
+    if (widget.editionInfo.authorsNames == null && authorsNames.isNotEmpty) {
+      joinedText = authorsNames.join("\n");
+    }
+
     String descriptionText = "";
     if (widget.editionInfo.description != null) {
       descriptionText = widget.editionInfo.description!.startsWith("{")
@@ -881,8 +937,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         thickness: 3,
         radius: const Radius.circular(20),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          physics: const ClampingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          physics: const NeverScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -922,36 +978,19 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.authorsNames == null &&
                   authorsNames.isNotEmpty)
-                SizedBox(
-                    height: widget.editionInfo.authors!.length * 25,
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => const SizedBox(
-                        height: 5,
-                      ),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: widget.editionInfo.authors!.length,
-                      itemBuilder: (context, index) => Text(
-                        authorsNames[index],
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height / 60),
-                      ),
-                    )),
-              if (widget.editionInfo.authorsNames != null &&
+                Text(
+                  joinedText!,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                ),
+              if ((widget.editionInfo.authorsNames != null &&
+                      widget.editionInfo.authorsNames!.isNotEmpty) &&
                   authorsNames.isEmpty)
-                SizedBox(
-                    height: widget.editionInfo.authorsNames!.length * 25,
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => const SizedBox(
-                        height: 5,
-                      ),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: widget.editionInfo.authorsNames!.length,
-                      itemBuilder: (context, index) => Text(
-                        widget.editionInfo.authorsNames![index]!,
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height / 60),
-                      ),
-                    )),
+                Text(
+                  joinedText!,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                ),
               if (widget.editionInfo.description != null)
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.description != null)
@@ -1159,8 +1198,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       fontSize: MediaQuery.of(context).size.height / 50,
                       fontWeight: FontWeight.bold),
                 ),
-              if (notesList!.isEmpty != true)
-                const Divider(color: Colors.transparent, thickness: 0),
               if (notesList!.isEmpty != true) notesBuilder()
             ],
           ),
@@ -1170,7 +1207,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Future getPageData() async {
-    isConnected = await checkForInternetConnection();
+    doesBookAlreadyExist =
+        checkIfAlreadyExist(uniqueIdCreater(widget.editionInfo));
+    isConnected = ref.read(connectivityProvider).isConnected;
 
     setState(() {
       isLoading = true;
@@ -1226,7 +1265,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(25)),
-              height: 200,
+              height: Const.screenSize.height * 0.2,
               width: MediaQuery.sizeOf(context).width - 40,
               child: ListTile(
                 title: Text((index + 1).toString(),
@@ -1264,31 +1303,25 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     return authorsNames = authorsNamesList;
   }
 
-  Future<Map> checkIfAlreadyExist(int bookId) async {
+  Map<String, dynamic> checkIfAlreadyExist(int bookId) {
     bool doesBookExistOnSql = false;
     bool doesBookExistOnFirestore = false;
     List<int>? bookIdsFromSql = [];
     List<BookWorkEditionsModelEntries>? booksListFromSql =
-        await ref.read(sqlProvider).getBookShelf();
-    List<BookWorkEditionsModelEntries>? booksListFromFirestore = [];
+        ref.read(bookStateProvider).listOfBooksFromSql;
+    List<BookWorkEditionsModelEntries>? booksListFromFirestore =
+        ref.read(bookStateProvider).listOfBooksFromFirestore;
     List<int>? bookIdsFromFirestore = [];
 
-    if (isConnected == true && ref.read(authProvider).currentUser != null) {
-      var data = await ref
-          .read(firestoreProvider)
-          .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
-      if (data != null) {
-        booksListFromFirestore = data.docs
-            .map(
-              (e) => BookWorkEditionsModelEntries.fromJson(e.data()),
-            )
-            .toList();
+    print(booksListFromFirestore);
+    print(booksListFromSql);
 
-        bookIdsFromFirestore =
-            booksListFromFirestore.map((e) => uniqueIdCreater(e)).toList();
-      }
+    if (ref.read(authProvider).currentUser != null &&
+        booksListFromFirestore != []) {
+      bookIdsFromFirestore =
+          booksListFromFirestore.map((e) => uniqueIdCreater(e)).toList();
     }
-    if (booksListFromSql != null) {
+    if (booksListFromSql != []) {
       bookIdsFromSql = booksListFromSql.map((e) => uniqueIdCreater(e)).toList();
     }
 
@@ -1305,12 +1338,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     };
   }
 
-  bool checkIfBookHasSameStatus(
-      BookStatus chosenStatus, BookStatus? oldStatus) {
+  bool checkIfStatusChanged(BookStatus chosenStatus, BookStatus? oldStatus) {
     if (chosenStatus == oldStatus) {
-      return true;
-    } else {
       return false;
+    } else {
+      return true;
     }
   }
 
@@ -1320,6 +1352,38 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
   Future<String?> getNewStatus(int bookId) async {
     return await ref.read(sqlProvider).getNewStatus(context, bookId);
+  }
+
+  Future<dynamic> alertDialogForDeletionBuilder(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog(
+            title: "VastReads",
+            description:
+                "Bu kitabı kitaplığınızdan silmek istediğinizden emin misiniz?",
+            firstButtonText: "Vazgeç",
+            firstButtonOnPressed: () {
+              Navigator.pop(context);
+            },
+            thirdButtonText: "Sil",
+            thirdButtonOnPressed: () async {
+              await deleteAuthorsFromSql(widget.editionInfo);
+              await deleteNote(widget.editionInfo);
+              deleteBook(widget.editionInfo);
+
+              ref.read(bookStateProvider.notifier).getPageData();
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                duration: const Duration(seconds: 1),
+                content: const Text('Kitap başarıyla silindi.'),
+                action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                behavior: SnackBarBehavior.floating,
+              ));
+            });
+      },
+    );
   }
 
   void _createBannerAd() {
@@ -1347,6 +1411,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
+
           _createInterstitialAd();
         },
         onAdFailedToShowFullScreenContent: (ad, error) {
@@ -1355,6 +1420,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         },
       );
       _interstitialAd!.show();
+
       _interstitialAd = null;
     }
   }

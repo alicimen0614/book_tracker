@@ -1,10 +1,11 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/authors_books_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/author_info_body_shimmer.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
@@ -38,28 +39,38 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leadingWidth: 50,
-          leading: IconButton(
-              splashRadius: 25,
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_sharp,
-                size: 30,
-                color: Colors.white,
-              )),
-          automaticallyImplyLeading: false,
-          elevation: 0,
-        ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: Column(
-          children: [
-            isLoading != true
-                ? authorImageAndDetailsBuilder()
-                : authorImageAndDetailsShimmerBuilder(context),
-            isLoading != true
-                ? authorInfoBodyBuilder(context)
-                : authorInfoBodyShimmerBuilder(context)
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+                pinned: true,
+                expandedHeight: Const.screenSize.height * 0.52,
+                toolbarHeight: Const.screenSize.height * 0.06,
+                leadingWidth: 50,
+                leading: IconButton(
+                    splashRadius: 25,
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back_sharp,
+                      size: 30,
+                      color: Colors.white,
+                    )),
+                automaticallyImplyLeading: false,
+                elevation: 0,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: isLoading != true
+                      ? authorImageAndDetailsBuilder()
+                      : authorImageAndDetailsShimmerBuilder(context),
+                )),
+            SliverFillRemaining(
+              child: Column(
+                children: [
+                  isLoading != true
+                      ? authorInfoBodyBuilder(context)
+                      : authorInfoBodyShimmerBuilder(context)
+                ],
+              ),
+            ),
           ],
         ));
   }
@@ -74,6 +85,9 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
               bottomRight: Radius.circular(50))),
       child: Column(
         children: [
+          SizedBox(
+            height: Const.screenSize.height * 0.11,
+          ),
           authorsModel.photos != null
               ? Align(
                   alignment: Alignment.center,
@@ -177,7 +191,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
         radius: const Radius.circular(20),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          physics: const ClampingScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -371,7 +385,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
   }
 
   Future getPageData() async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
     setState(() {
       isLoading = true;
     });

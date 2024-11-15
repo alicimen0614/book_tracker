@@ -1,8 +1,9 @@
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -193,7 +194,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       fit: BoxFit.scaleDown,
                       child: Text("Kitapları yedekle veya senkronize et")),
                   onTap: () async {
-                    isConnected = await checkForInternetConnection();
+                    isConnected = ref.read(connectivityProvider).isConnected;
                     if (ref.read(authProvider).currentUser == null) {
                       ScaffoldMessenger.of(context).clearSnackBars;
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -387,37 +388,31 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("BookTracker"),
-          content: const Text("Çıkış yapmak istediğinizden emin misiniz?"),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Vazgeç")),
-            TextButton(
-                onPressed: () {
-                  ref.read(quotesProvider.notifier).clearMyQuotes();
-                  ref.read(bookStateProvider.notifier).clearBooks();
-                  ref.read(authProvider).signOut(context).whenComplete(() {
-                    setState(() {
-                      isUserLoggedIn = false;
-                    });
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text("Çıkış yap"))
-          ],
+        return CustomAlertDialog(
+          title: "VastReads",
+          description: "Çıkış yapmak istediğinizden emin misiniz?",
+          thirdButtonOnPressed: () {
+            ref.read(quotesProvider.notifier).clearMyQuotes();
+            ref.read(bookStateProvider.notifier).clearBooks();
+            ref.read(authProvider).signOut(context).whenComplete(() {
+              setState(() {
+                isUserLoggedIn = false;
+              });
+            });
+            Navigator.pop(context);
+          },
+          thirdButtonText: "Çıkış yap",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Vazgeç",
         );
       },
     );
   }
 
   Future<void> getBooks() async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
     if (isConnected == true && ref.read(authProvider).currentUser != null) {
       var data = await ref.read(firestoreProvider).getBooks(
             "usersBooks",

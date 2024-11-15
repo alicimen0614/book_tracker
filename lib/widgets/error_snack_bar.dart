@@ -11,12 +11,6 @@ errorSnackBar(BuildContext snackbarContext, String errorMessage,
         const SizedBox(
           height: 3,
         ),
-        Text(
-          errorMessage,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-          textAlign: TextAlign.left,
-          maxLines: 1,
-        ),
       ],
     ),
     action: SnackBarAction(label: 'Tamam', onPressed: () {}),

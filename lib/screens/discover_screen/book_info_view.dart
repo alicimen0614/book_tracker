@@ -3,17 +3,18 @@ import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/author_info_screen.dart';
 import 'package:book_tracker/screens/discover_screen/book_editions_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'shimmer_effect_builders/book_info_view_shimmer.dart';
 
@@ -52,6 +53,18 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   ) {
     return Scaffold(
         appBar: AppBar(
+          actions: [
+            if (mainBook.key != null)
+              IconButton(
+                  tooltip: "OpenLibrary üzerinde incele",
+                  onPressed: () {
+                    launchUrl(
+                        Uri.parse("https://openlibrary.org/${mainBook.key}"));
+                  },
+                  icon: Image.asset("lib/assets/images/openlibrary.png",
+                      height: 30),
+                  splashRadius: 25)
+          ],
           leadingWidth: 50,
           title: Text(
             "Kitap Detayı",
@@ -609,7 +622,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   }
 
   Future<void> getPageData() async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
     setState(() {
       isDataLoading = true;
     });

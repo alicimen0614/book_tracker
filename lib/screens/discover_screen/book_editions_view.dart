@@ -3,7 +3,6 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,6 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
   }
 
   void fetchData(int pageKey) async {
-    isConnected = await checkForInternetConnection();
     try {
       BookWorkEditionsModel editionsModel = await ref
           .read(booksProvider)
@@ -59,154 +57,151 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
   Widget build(
     BuildContext context,
   ) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          leadingWidth: 50,
-          title: Text(
-            "${widget.title} Baskıları",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: MediaQuery.of(context).size.height / 40),
-          ),
-          leading: IconButton(
-              splashRadius: 25,
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back_sharp,
-                size: 30,
-              )),
-          automaticallyImplyLeading: false,
-          elevation: 5,
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        leadingWidth: 50,
+        title: Text(
+          "${widget.title} Baskıları",
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 40),
         ),
-        body: PagedGridView<int, BookWorkEditionsModelEntries?>(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 1,
-              mainAxisExtent: 250,
-              crossAxisSpacing: 25,
-              mainAxisSpacing: 25),
-          pagingController: pagingController,
-          builderDelegate:
-              PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
-            newPageErrorIndicatorBuilder: (context) =>
-                newPageErrorIndicatorBuilder(
-                    () => pagingController.retryLastFailedRequest()),
-            firstPageErrorIndicatorBuilder: (context) {
-              if (!isConnected) {
-                return booksListError(
-                  true,
-                  context,
-                  () {
-                    pagingController.retryLastFailedRequest();
-                  },
-                );
-              } else {
-                return booksListError(false, context, () {
+        leading: IconButton(
+            splashRadius: 25,
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.arrow_back_sharp,
+              size: 30,
+            )),
+        automaticallyImplyLeading: false,
+        elevation: 5,
+      ),
+      body: PagedGridView<int, BookWorkEditionsModelEntries?>(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 1,
+            mainAxisExtent: 250,
+            crossAxisSpacing: 25,
+            mainAxisSpacing: 25),
+        pagingController: pagingController,
+        builderDelegate:
+            PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
+          newPageErrorIndicatorBuilder: (context) =>
+              newPageErrorIndicatorBuilder(
+                  () => pagingController.retryLastFailedRequest()),
+          firstPageErrorIndicatorBuilder: (context) {
+            if (!isConnected) {
+              return booksListError(
+                true,
+                context,
+                () {
                   pagingController.retryLastFailedRequest();
-                });
-              }
-            },
-            firstPageProgressIndicatorBuilder: (context) =>
-                gridViewBooksShimmerEffectBuilder(),
-            itemBuilder: (context, item, index) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                child: InkWell(
-                  customBorder: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailedEditionInfo(
-                            editionInfo: item,
-                            isNavigatingFromLibrary: false,
-                            bookImage: item.covers != null
-                                ? Image.network(
-                                    "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Image.asset(
-                                      "lib/assets/images/error.png",
-                                    ),
-                                  )
-                                : null,
-                            indexOfEdition: index,
-                          ),
-                        ));
-                  },
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 15,
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  image: item!.covers != null
-                                      ? DecorationImage(
-                                          image: NetworkImage(
-                                              "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
-                                          onError: (exception, stackTrace) =>
-                                              const AssetImage(
-                                                  "lib/assets/images/error.png"),
-                                          fit: BoxFit.fill,
-                                        )
-                                      : DecorationImage(
-                                          image: const AssetImage(
-                                              "lib/assets/images/nocover.jpg"),
-                                          onError: (exception, stackTrace) =>
-                                              const AssetImage(
-                                                  "lib/assets/images/error.png"),
-                                          fit: BoxFit.fill)),
-                            ),
+                },
+              );
+            } else {
+              return booksListError(false, context, () {
+                pagingController.retryLastFailedRequest();
+              });
+            }
+          },
+          firstPageProgressIndicatorBuilder: (context) =>
+              gridViewBooksShimmerEffectBuilder(),
+          itemBuilder: (context, item, index) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+              child: InkWell(
+                customBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailedEditionInfo(
+                          editionInfo: item,
+                          isNavigatingFromLibrary: false,
+                          bookImage: item.covers != null
+                              ? Image.network(
+                                  "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg",
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    "lib/assets/images/error.png",
+                                  ),
+                                )
+                              : null,
+                          indexOfEdition: index,
+                        ),
+                      ));
+                },
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 15,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                image: item!.covers != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                            "https://covers.openlibrary.org/b/id/${item.covers!.first}-M.jpg"),
+                                        onError: (exception, stackTrace) =>
+                                            const AssetImage(
+                                                "lib/assets/images/error.png"),
+                                        fit: BoxFit.fill,
+                                      )
+                                    : DecorationImage(
+                                        image: const AssetImage(
+                                            "lib/assets/images/nocover.jpg"),
+                                        onError: (exception, stackTrace) =>
+                                            const AssetImage(
+                                                "lib/assets/images/error.png"),
+                                        fit: BoxFit.fill)),
                           ),
                         ),
-                        const Spacer(flex: 1),
+                      ),
+                      const Spacer(flex: 1),
+                      Expanded(
+                        flex: 6,
+                        child: SizedBox(
+                          child: Text(
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            item.title!,
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      if (item.languages != null)
                         Expanded(
-                          flex: 6,
+                          flex: 3,
                           child: SizedBox(
                             child: Text(
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              item.title!,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                              countryNameCreater(item),
                               textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        if (item.languages != null)
-                          Expanded(
-                            flex: 3,
-                            child: SizedBox(
-                              child: Text(
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                countryNameCreater(item),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                ),
+                              style: const TextStyle(
+                                fontSize: 14,
                               ),
                             ),
                           ),
-                        if (item.languages == null)
-                          const Expanded(
-                            flex: 3,
-                            child: SizedBox.shrink(),
-                          )
-                      ]),
-                ),
-              );
-            },
-          ),
-          physics: const ClampingScrollPhysics(),
+                        ),
+                      if (item.languages == null)
+                        const Expanded(
+                          flex: 3,
+                          child: SizedBox.shrink(),
+                        )
+                    ]),
+              ),
+            );
+          },
         ),
+        physics: const ClampingScrollPhysics(),
       ),
     );
   }

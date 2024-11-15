@@ -56,6 +56,7 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
   // Firebase'den quote verilerini çekme fonksiyonu
   Future<void> fetchTrendingQuotes() async {
     try {
+      state = state.copyWith(isTrendingLoading: true);
       final querySnapshot = await FirebaseFirestore.instance
           .collection('quotes')
           .orderBy("likeCount", descending: true)
@@ -63,24 +64,25 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
 
       // Quote modeline dönüştürüp state'i güncelliyoruz
       Map<String, Quote> trendingQuotes = {};
-      print(querySnapshot.docs.length);
       querySnapshot.docs.forEach((doc) {
-        print(doc.data());
         trendingQuotes.addAll({(doc.id): Quote.fromJson(doc.data())});
       });
-      print(trendingQuotes.length);
 
       state = state.copyWith(
           trendingQuotes: trendingQuotes,
           isTrendingLoading: false); // State'i güncelle
     } catch (e) {
-      // Hata durumunu yönet
-      print("Error fetching quotes: $e");
+      state = state.copyWith(isTrendingLoading: false);
     }
+  }
+
+  Future<void> clearQuotes() async {
+    state = state.copyWith(recentQuotes: {}, trendingQuotes: {});
   }
 
   Future<void> fetchRecentQuotes() async {
     try {
+      state = state.copyWith(isRecentLoading: true);
       final querySnapshot = await FirebaseFirestore.instance
           .collection('quotes')
           .orderBy("date", descending: true)
@@ -88,18 +90,15 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
 
       // Quote modeline dönüştürüp state'i güncelliyoruz
       Map<String, Quote> quotes = {};
-      print(querySnapshot.docs.length);
       querySnapshot.docs.forEach((doc) {
-        print(doc.data());
         quotes.addAll({(doc.id): Quote.fromJson(doc.data())});
       });
-      print(quotes.length);
 
       state = state.copyWith(
           recentQuotes: quotes, isRecentLoading: false); // State'i güncelle
     } catch (e) {
       // Hata durumunu yönet
-      print("Error fetching quotes: $e");
+      state = state.copyWith(isRecentLoading: false);
     }
   }
 
@@ -114,19 +113,15 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
 
       // Quote modeline dönüştürüp state'i güncelliyoruz
       Map<String, Quote> currentUsersQuotes = {};
-      print(querySnapshot.docs.length);
       querySnapshot.docs.forEach((doc) {
-        print(doc.data());
         currentUsersQuotes.addAll({(doc.id): Quote.fromJson(doc.data())});
       });
-      print(currentUsersQuotes.length);
 
       state = state.copyWith(
           currentUsersQuotes: currentUsersQuotes,
           isUsersQuotesLoading: false); // State'i güncelle
     } catch (e) {
       // Hata durumunu yönet
-      print("Error fetching quotes: $e");
     }
   }
 
@@ -151,7 +146,6 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       return true;
     } catch (e) {
       // Hata durumunu yönet
-      print("Error deleting quote $e");
       return false;
     }
   }
@@ -227,7 +221,6 @@ class QuotesNotifier extends StateNotifier<QuoteState> {
       state = state.copyWith(currentUsersQuotes: {});
     } catch (e) {
       // Hata durumunu yönet
-      print("Error fetching quotes: $e");
     }
   }
 }

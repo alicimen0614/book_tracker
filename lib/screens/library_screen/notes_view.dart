@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/shimmer_effects/notes_view_shimmer.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -265,7 +265,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
             widget.bookListFromSql!.map((e) => uniqueIdCreater(e)).toList()
         : null;
 
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
     if (isConnected != false && ref.read(authProvider).currentUser != null) {
       bookListToShow = widget.bookListFromFirebase;
       BookIdsListToShow =
@@ -321,6 +321,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
   }
 
   Future<void> insertingProcesses() async {
+    notesFromSql = await ref.read(sqlProvider).getNotes(context);
     List<int?>? listOfNoteIdsFromSql = [];
     List<int?> listOfNoteIdsFromFirestore = [];
     if (notesFromFirestore != null) {
@@ -350,6 +351,18 @@ class _NotesViewState extends ConsumerState<NotesView> {
           await insertNoteToSql(notesFromFirestore![i]);
         }
       }
+    }
+
+    notesFromSql = await ref.read(sqlProvider).getNotes(context);
+    var data = await ref.read(firestoreProvider).getNotes(
+        "usersBooks", ref.read(authProvider).currentUser!.uid, context);
+
+    if (data != null) {
+      notesFromFirestore = data.docs
+          .map(
+            (e) => e.data(),
+          )
+          .toList();
     }
   }
 

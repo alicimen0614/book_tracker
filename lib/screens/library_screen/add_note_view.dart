@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -59,7 +58,6 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
 
   @override
   Widget build(BuildContext context) {
-    log("${uniqueIdCreater(widget.bookInfo)} unique");
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -300,34 +298,25 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("BookTracker"),
-          content: const Text("Bu notu silmek istediğinizden emin misiniz?"),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Vazgeç")),
-            TextButton(
-                onPressed: () async {
-                  await ref
-                      .read(sqlProvider)
-                      .deleteNote(widget.noteId!, context);
-                  if (ref.read(authProvider).currentUser != null) {
-                    await ref.read(firestoreProvider).deleteNote(context,
-                        referencePath: 'usersBooks',
-                        userId: ref.read(authProvider).currentUser!.uid,
-                        noteId: widget.noteId.toString());
-                  }
-                  Navigator.pop(context);
-                  Navigator.pop(context, true);
-                },
-                child: const Text("Sil"))
-          ],
-        );
+        return CustomAlertDialog(
+            title: "VastReads",
+            description: "Bu notu silmek istediğinizden emin misiniz?",
+            firstButtonText: "Vazgeç",
+            firstButtonOnPressed: () {
+              Navigator.pop(context);
+            },
+            thirdButtonText: "Sil",
+            thirdButtonOnPressed: () async {
+              await ref.read(sqlProvider).deleteNote(widget.noteId!, context);
+              if (ref.read(authProvider).currentUser != null) {
+                await ref.read(firestoreProvider).deleteNote(context,
+                    referencePath: 'usersBooks',
+                    userId: ref.read(authProvider).currentUser!.uid,
+                    noteId: widget.noteId.toString());
+              }
+              Navigator.pop(context);
+              Navigator.pop(context, true);
+            });
       },
     );
   }

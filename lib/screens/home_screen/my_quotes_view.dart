@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/quote_widget_shimmer.dart';
+import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
-import 'package:book_tracker/widgets/sign_up_dialog.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +39,21 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Alıntılarım"),
+        actions: [
+          if (FirebaseAuth.instance.currentUser != null)
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const BooksListView(isNotes: false)));
+                },
+                icon: const Icon(
+                  Icons.add,
+                  size: 30,
+                ))
+        ],
       ),
       body: RefreshIndicator(
           onRefresh: () async {
@@ -150,7 +167,35 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
     showDialog(
       context: context,
       builder: (context) {
-        return const SignUpDialog();
+        return CustomAlertDialog(
+          title: "VastReads",
+          description:
+              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          secondButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.register),
+                ));
+          },
+          secondButtonText: "Kayıt Ol",
+          thirdButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.signIn),
+                ));
+          },
+          thirdButtonText: "Giriş Yap",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Kapat",
+        );
       },
     );
   }

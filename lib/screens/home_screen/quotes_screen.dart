@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/quote_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/quote_widget_shimmer.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
+import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
-import 'package:book_tracker/widgets/sign_up_dialog.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,8 +26,15 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
 
   @override
   void initState() {
-    ref.read(quotesProvider.notifier).fetchTrendingQuotes();
-    ref.read(quotesProvider.notifier).fetchRecentQuotes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(quotesProvider).trendingQuotes.isEmpty) {
+        ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+      }
+      if (ref.read(quotesProvider).recentQuotes.isEmpty) {
+        ref.read(quotesProvider.notifier).fetchRecentQuotes();
+      }
+    });
+
     super.initState();
   }
 
@@ -51,18 +61,19 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                     ),
                   ),
                   actions: [
-                    IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const BooksListView(isNotes: false)));
-                        },
-                        icon: const Icon(
-                          Icons.add,
-                          size: 30,
-                        ))
+                    if (FirebaseAuth.instance.currentUser != null)
+                      IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const BooksListView(isNotes: false)));
+                          },
+                          icon: const Icon(
+                            Icons.add,
+                            size: 30,
+                          ))
                   ],
                   expandedHeight: 150,
                   pinned: true,
@@ -92,22 +103,112 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                 ),
               ];
             },
-            body: TabBarView(
-                children: [quotesBuilder(true), quotesBuilder(false)])),
+            body: TabBarView(children: [
+              ref.watch(quotesProvider).trendingQuotes.isNotEmpty &&
+                      ref.watch(quotesProvider).isTrendingLoading == false
+                  ? quotesBuilder(true)
+                  : ref.watch(quotesProvider).trendingQuotes.isEmpty &&
+                          ref.watch(quotesProvider).isTrendingLoading == true
+                      ? quotesShimmerBuilder(true)
+                      : ref.read(connectivityProvider).isConnected == true
+                          ? booksListError(false, context, () {
+                              if (ref.read(connectivityProvider).isConnected ==
+                                  true) {
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchRecentQuotes();
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchTrendingQuotes();
+                              }
+                            })
+                          : booksListError(true, context, () {
+                              if (ref.read(connectivityProvider).isConnected ==
+                                  true) {
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchRecentQuotes();
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchTrendingQuotes();
+                              }
+                            }),
+              ref.watch(quotesProvider).recentQuotes.isNotEmpty &&
+                      ref.watch(quotesProvider).isRecentLoading == false
+                  ? quotesBuilder(false)
+                  : ref.watch(quotesProvider).recentQuotes.isEmpty &&
+                          ref.watch(quotesProvider).isRecentLoading == true
+                      ? quotesShimmerBuilder(true)
+                      : ref.read(connectivityProvider).isConnected == true
+                          ? booksListError(false, context, () {
+                              if (ref.read(connectivityProvider).isConnected ==
+                                  true) {
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchRecentQuotes();
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchTrendingQuotes();
+                              }
+                            })
+                          : booksListError(true, context, () {
+                              if (ref.read(connectivityProvider).isConnected ==
+                                  true) {
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchRecentQuotes();
+                                ref
+                                    .read(quotesProvider.notifier)
+                                    .fetchTrendingQuotes();
+                              }
+                            }),
+            ])),
       ),
     );
   }
 
-  ListView quotesBuilder(bool isTrendingQuotes) {
+  RefreshIndicator quotesBuilder(bool isTrendingQuotes) {
     Map<String, Quote> readQuotesList = isTrendingQuotes
         ? ref.read(quotesProvider).trendingQuotes
         : ref.read(quotesProvider).recentQuotes;
     Map<String, Quote> watchQuotesList = isTrendingQuotes
         ? ref.watch(quotesProvider).trendingQuotes
         : ref.watch(quotesProvider).recentQuotes;
-    bool isLoading = isTrendingQuotes
-        ? ref.watch(quotesProvider).isTrendingLoading
-        : ref.watch(quotesProvider).isRecentLoading;
+    return RefreshIndicator(
+      onRefresh: () {
+        ref.read(quotesProvider.notifier).clearQuotes();
+        ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+        return ref.read(quotesProvider.notifier).fetchRecentQuotes();
+      },
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        separatorBuilder: (context, index) => Divider(
+          color: Colors.grey.shade400,
+          endIndent: 10,
+          indent: 10,
+          height: 20,
+        ),
+        itemCount: watchQuotesList.length,
+        itemBuilder: (context, index) {
+          final quoteId = watchQuotesList.keys.toList()[index];
+          return QuoteWidget(
+              onDoubleTap: () {
+                print("doubletap");
+                likePost(quoteId, index, isTrendingQuotes);
+              },
+              quote: readQuotesList[quoteId]!,
+              quoteId: quoteId,
+              isTrendingQuotes: isTrendingQuotes,
+              onPressedLikeButton: () {
+                print("doubletap");
+                likePost(quoteId, index, isTrendingQuotes);
+              });
+        },
+      ),
+    );
+  }
+
+  ListView quotesShimmerBuilder(bool isTrendingQuotes) {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 10),
       separatorBuilder: (context, index) => Divider(
@@ -116,23 +217,9 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
         indent: 10,
         height: 20,
       ),
-      itemCount: isLoading == true ? 10 : readQuotesList.length,
+      itemCount: 5,
       itemBuilder: (context, index) {
-        final quoteId = watchQuotesList.keys.toList()[index];
-        return isLoading == false
-            ? QuoteWidget(
-                onDoubleTap: () {
-                  print("doubletap");
-                  likePost(quoteId, index, isTrendingQuotes);
-                },
-                quote: readQuotesList[quoteId]!,
-                quoteId: quoteId,
-                isTrendingQuotes: isTrendingQuotes,
-                onPressedLikeButton: () {
-                  print("doubletap");
-                  likePost(quoteId, index, isTrendingQuotes);
-                })
-            : quoteWidgetShimmer(context);
+        return quoteWidgetShimmer(context);
       },
     );
   }
@@ -181,7 +268,35 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return const SignUpDialog();
+        return CustomAlertDialog(
+          title: "VastReads",
+          description:
+              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          secondButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.register),
+                ));
+          },
+          secondButtonText: "Kayıt Ol",
+          thirdButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.signIn),
+                ));
+          },
+          thirdButtonText: "Giriş Yap",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Kapat",
+        );
       },
     );
   }

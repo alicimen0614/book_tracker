@@ -1,11 +1,11 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/categories_view_shimmer.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
-import 'package:book_tracker/services/internet_connection_service.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -31,12 +31,15 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   );
   @override
   void initState() {
-    getTrendingBooks();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getTrendingBooks();
+    });
+
     super.initState();
   }
 
   Future<void> getTrendingBooks() async {
-    isConnected = await checkForInternetConnection();
+    isConnected = ref.read(connectivityProvider).isConnected;
 
     setState(() {
       isLoading = true;
@@ -222,7 +225,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
             color: Theme.of(context).primaryColor,
             iconSize: 30,
             onPressed: () async {
-              isConnected = await checkForInternetConnection();
+              isConnected = ref.read(connectivityProvider).isConnected;
               setState(() {
                 isLoading = true;
               });
@@ -240,18 +243,20 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
         child: ListView.builder(
             physics: const ClampingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            itemCount: items?.length,
+            itemCount: items != null ? items?.length : 5,
             itemBuilder: (context, index) {
               return SizedBox(
                 width: 120,
                 child: InkWell(
                     borderRadius: BorderRadius.circular(15),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return BookInfoView(trendingBook: items?[index]);
-                        },
-                      ));
+                      if (items != null) {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return BookInfoView(trendingBook: items?[index]);
+                          },
+                        ));
+                      }
                     },
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(3, 0, 3, 0),
@@ -261,23 +266,30 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                             flex: 10,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
-                              child: CachedNetworkImage(
-                                fit: BoxFit.fill,
-                                width: 80,
-                                imageUrl:
-                                    "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
-                                placeholder: (context, url) => ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Transform.scale(
-                                    scale: 0.3,
-                                    child: const Center(
-                                        child: CircularProgressIndicator()),
-                                  ),
-                                ),
-                                cacheManager: customCacheManager,
-                                errorWidget: (context, url, error) =>
-                                    Image.asset("lib/assets/images/error.png"),
-                              ),
+                              child: items?[index]?.coverI != null
+                                  ? CachedNetworkImage(
+                                      fit: BoxFit.fill,
+                                      width: Const.screenSize.width * 0.2,
+                                      imageUrl:
+                                          "https://covers.openlibrary.org/b/id/${items?[index]?.coverI}-M.jpg",
+                                      placeholder: (context, url) => ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Transform.scale(
+                                          scale: 0.3,
+                                          child: const Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        ),
+                                      ),
+                                      cacheManager: customCacheManager,
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                              "lib/assets/images/error.png"),
+                                    )
+                                  : Image.asset(
+                                      "lib/assets/images/error.png",
+                                      width: Const.screenSize.width * 0.2,
+                                    ),
                             ),
                           ),
                           const Spacer(),

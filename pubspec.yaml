@@ -59,6 +59,7 @@ dependencies:
   percent_indicator: ^4.2.3
   google_mobile_ads: ^5.1.0
   timeago: ^3.7.0
+  smooth_page_indicator: ^1.2.0+3
   
 
 dev_dependencies:

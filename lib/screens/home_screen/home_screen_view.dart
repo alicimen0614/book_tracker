@@ -5,8 +5,10 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/discover_screen/discover_screen_view.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
@@ -14,11 +16,13 @@ import 'package:book_tracker/screens/home_screen/home_screen_shimmer/home_screen
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/text_shimmer_effect.dart';
 import 'package:book_tracker/screens/home_screen/quotes_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
-import 'package:book_tracker/widgets/sign_up_dialog.dart';
+import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import 'home_screen_shimmer/quote_widget_shimmer.dart';
@@ -52,13 +56,18 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
   List<BookWorkEditionsModelEntries?>? editionList = [];
   Map<String, Timer?> debounceTimers = {}; // Her post için bir zamanlayıcı
   Map<String, bool> pendingLikeStatus = {}; // Son beğeni durumu (beğeni/yok)
+  final PageController _pageController = PageController();
 
   @override
   void initState() {
-    if (ref.read(bookStateProvider).listOfBooksToShow == []) {
-      ref.read(bookStateProvider.notifier).getPageData();
-    }
-    ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(bookStateProvider).listOfBooksToShow.isEmpty) {
+        ref.read(bookStateProvider.notifier).getPageData();
+      }
+      if (ref.read(quotesProvider).trendingQuotes.isEmpty) {
+        ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+      }
+    });
 
     super.initState();
   }
@@ -138,7 +147,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               borderRadius: BorderRadius.circular(15),
               color: const Color(0xFFF7E6C4)),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding:
@@ -167,12 +176,25 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                   ],
                 ),
               ),
-              ref.watch(quotesProvider).isTrendingLoading == false
+              ref.watch(quotesProvider).isTrendingLoading == false &&
+                      ref.read(quotesProvider).trendingQuotes.isNotEmpty
                   ? Container(
                       height: Const.screenSize.height * 0.47,
                       child: PageView.builder(
+                        controller: _pageController,
                         scrollDirection: Axis.horizontal,
-                        itemCount: 5,
+                        itemCount: ref
+                                .watch(quotesProvider)
+                                .trendingQuotes
+                                .isEmpty
+                            ? 0
+                            : ref.watch(quotesProvider).trendingQuotes.length <=
+                                    5
+                                ? ref
+                                    .watch(quotesProvider)
+                                    .trendingQuotes
+                                    .length
+                                : 5,
                         itemBuilder: (context, index) {
                           final quoteId = ref
                               .watch(quotesProvider)
@@ -239,18 +261,32 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                       child: Row(
                                         children: [
                                           ref
-                                                      .read(quotesProvider)
-                                                      .trendingQuotes[quoteId]!
-                                                      .userPicture !=
-                                                  null
-                                              ? CircleAvatar(
-                                                  backgroundColor: Colors.grey,
-                                                  backgroundImage: NetworkImage(
-                                                      ref
                                                           .read(quotesProvider)
                                                           .trendingQuotes[
                                                               quoteId]!
-                                                          .userPicture!),
+                                                          .userPicture !=
+                                                      null &&
+                                                  ref
+                                                          .read(
+                                                              connectivityProvider)
+                                                          .isConnected !=
+                                                      false
+                                              ? CircleAvatar(
+                                                  backgroundColor: Colors.grey,
+                                                  backgroundImage:
+                                                      Image.network(
+                                                    ref
+                                                        .read(quotesProvider)
+                                                        .trendingQuotes[
+                                                            quoteId]!
+                                                        .userPicture!,
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        Image.asset(
+                                                      "lib/assets/images/error.png",
+                                                    ),
+                                                  ).image,
                                                 )
                                               : const Icon(
                                                   Icons.account_circle_sharp,
@@ -379,46 +415,54 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                 BorderRadius
                                                                     .circular(
                                                                         15),
-                                                            child:
-                                                                CachedNetworkImage(
-                                                              imageUrl:
-                                                                  "https://covers.openlibrary.org/b/id/${ref.read(quotesProvider).trendingQuotes[quoteId]!.bookCover}-M.jpg",
-                                                              fit: BoxFit.fill,
-                                                              errorWidget:
-                                                                  (context,
-                                                                      error,
-                                                                      stackTrace) {
-                                                                return Image
-                                                                    .asset(
-                                                                  "lib/assets/images/error.png",
-                                                                  height: 80,
-                                                                  width: 50,
-                                                                );
-                                                              },
-                                                              placeholder:
-                                                                  (context,
-                                                                      url) {
-                                                                return Container(
-                                                                  decoration: BoxDecoration(
-                                                                      color: Colors
-                                                                          .grey
-                                                                          .shade400,
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              15)),
-                                                                  child:
-                                                                      const Center(
-                                                                    child:
-                                                                        CircularProgressIndicator(
-                                                                      strokeWidth:
-                                                                          2,
-                                                                      strokeAlign:
-                                                                          -10,
-                                                                    ),
+                                                            child: ref
+                                                                    .read(
+                                                                        connectivityProvider)
+                                                                    .isConnected
+                                                                ? CachedNetworkImage(
+                                                                    imageUrl:
+                                                                        "https://covers.openlibrary.org/b/id/${ref.read(quotesProvider).trendingQuotes[quoteId]!.bookCover}-M.jpg",
+                                                                    fit: BoxFit
+                                                                        .fill,
+                                                                    errorWidget:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      return Image
+                                                                          .asset(
+                                                                        "lib/assets/images/error.png",
+                                                                        height:
+                                                                            80,
+                                                                        width:
+                                                                            50,
+                                                                      );
+                                                                    },
+                                                                    placeholder:
+                                                                        (context,
+                                                                            url) {
+                                                                      return Container(
+                                                                        decoration: BoxDecoration(
+                                                                            color:
+                                                                                Colors.grey.shade400,
+                                                                            borderRadius: BorderRadius.circular(15)),
+                                                                        child:
+                                                                            const Center(
+                                                                          child:
+                                                                              CircularProgressIndicator(
+                                                                            strokeWidth:
+                                                                                2,
+                                                                            strokeAlign:
+                                                                                -10,
+                                                                          ),
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  )
+                                                                : Image.asset(
+                                                                    "lib/assets/images/error.png",
+                                                                    height: 80,
+                                                                    width: 50,
                                                                   ),
-                                                                );
-                                                              },
-                                                            ),
                                                           )
                                                         : ClipRRect(
                                                             borderRadius:
@@ -469,8 +513,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                     flex: 1,
                                     child: Divider(
                                       color: Colors.grey.shade400,
-                                      endIndent: 10,
-                                      indent: 10,
+                                      endIndent: 15,
+                                      indent: 15,
                                     ),
                                   ),
                                   Expanded(
@@ -519,7 +563,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                       ),
                                     ),
                                   ),
-                                  const Spacer()
+                                  const Spacer(),
                                 ],
                               ),
                             ),
@@ -527,7 +571,24 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                         },
                       ),
                     )
-                  : quoteWidgetShimmer(context)
+                  : ref.read(quotesProvider).isTrendingLoading == true &&
+                          ref.read(quotesProvider).trendingQuotes.isEmpty
+                      ? quoteWidgetShimmer(context)
+                      : trendingErrorWidget(context),
+              SmoothPageIndicator(
+                controller: _pageController,
+                count: 5, // Toplam quote sayısı
+                effect: const JumpingDotEffect(
+                  activeDotColor: Color(0xFF1B7695),
+                  dotColor: Colors.grey,
+                  dotHeight: 8,
+                  dotWidth: 8,
+                  spacing: 8,
+                ),
+              ),
+              SizedBox(
+                height: Const.minSize,
+              )
             ],
           )),
     );
@@ -594,9 +655,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                       editionInfo: books[index],
                                                       isNavigatingFromLibrary:
                                                           true,
-                                                      bookImage: listOfBookIdsFromSql!.contains(
-                                                                      uniqueIdCreater(books[
-                                                                          index])) ==
+                                                      bookImage: listOfBookIdsFromSql!
+                                                                      .contains(
+                                                                          uniqueIdCreater(
+                                                                              books[
+                                                                                  index])) ==
                                                                   true &&
                                                               books[index]
                                                                       .covers !=
@@ -617,11 +680,17 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                 "lib/assets/images/error.png",
                                                               ),
                                                             )
-                                                          : books[index].covers !=
+                                                          : books[index]
+                                                                          .covers !=
                                                                       null &&
                                                                   books[index]
                                                                           .imageAsByte ==
-                                                                      null
+                                                                      null &&
+                                                                  ref
+                                                                          .read(
+                                                                              connectivityProvider)
+                                                                          .isConnected ==
+                                                                      true
                                                               ? Image.network(
                                                                   "https://covers.openlibrary.org/b/id/${books[index].covers!.first!}-M.jpg",
                                                                   errorBuilder: (context,
@@ -632,11 +701,9 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                                                     "lib/assets/images/error.png",
                                                                   ),
                                                                 )
-                                                              : books[index]
-                                                                          .imageAsByte !=
+                                                              : books[index].imageAsByte !=
                                                                       null
-                                                                  ? Image
-                                                                      .memory(
+                                                                  ? Image.memory(
                                                                       base64Decode(
                                                                           books[index]
                                                                               .imageAsByte!),
@@ -1031,8 +1098,66 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
     showDialog(
       context: context,
       builder: (context) {
-        return const SignUpDialog();
+        return CustomAlertDialog(
+          title: "VastReads",
+          description:
+              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          secondButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.register),
+                ));
+          },
+          secondButtonText: "Kayıt Ol",
+          thirdButtonOnPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const AuthView(formStatusData: FormStatus.signIn),
+                ));
+          },
+          thirdButtonText: "Giriş Yap",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Kapat",
+        );
       },
+    );
+  }
+
+  Center trendingErrorWidget(BuildContext context) {
+    return Center(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Text(
+          "Alıntılar yüklenemedi.",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.height / 50,
+          ),
+        ),
+        Text(
+          "Lütfen yenilemek için tıklayın.",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.height / 50,
+          ),
+        ),
+        IconButton(
+            color: Theme.of(context).primaryColor,
+            iconSize: 30,
+            onPressed: () async {
+              if (ref.read(connectivityProvider).isConnected == true) {
+                ref.read(quotesProvider.notifier).fetchTrendingQuotes();
+              } else {
+                internetConnectionErrorDialog(context, false);
+              }
+            },
+            icon: const Icon(Icons.refresh_sharp))
+      ]),
     );
   }
 }

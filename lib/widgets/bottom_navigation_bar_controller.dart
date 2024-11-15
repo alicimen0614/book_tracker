@@ -1,3 +1,4 @@
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class _BottomNavigationBarControllerState
 
   @override
   void initState() {
+    ref.read(connectivityProvider.notifier).isConnected;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(bookStateProvider.notifier).getPageData();
     });

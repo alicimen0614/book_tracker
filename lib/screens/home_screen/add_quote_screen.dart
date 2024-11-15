@@ -1,9 +1,9 @@
-import 'dart:developer';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,7 +56,6 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    log("${uniqueIdCreater(widget.bookInfo)} unique");
     return GestureDetector(
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
@@ -223,38 +222,43 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("VastReads"),
-          content:
-              const Text("Bu alıntıyı silmek istediğinizden emin misiniz?"),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Vazgeç")),
-            TextButton(
-                onPressed: () async {
-                  var result = await ref
-                      .read(quotesProvider.notifier)
-                      .deleteQuote(widget.quoteId);
-                  if (result == true) {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Alıntı başarıyla silindi.")));
-                  } else {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content:
-                            Text("Alıntı silinirken bir hata meydana geldi")));
-                  }
-                },
-                child: const Text("Sil"))
-          ],
+        return CustomAlertDialog(
+          title: "VastReads",
+          description: "Bu alıntıyı silmek istediğinizden emin misiniz?",
+          firstButtonText: "Vazgeç",
+          firstButtonOnPressed: () async {
+            var result = await ref
+                .read(quotesProvider.notifier)
+                .deleteQuote(widget.quoteId);
+            if (result == true) {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
+            } else {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Alıntı silinirken bir hata meydana geldi")));
+            }
+          },
+          thirdButtonText: "Sil",
+          thirdButtonOnPressed: () async {
+            var result = await ref
+                .read(quotesProvider.notifier)
+                .deleteQuote(widget.quoteId);
+            if (result == true) {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
+            } else {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Alıntı silinirken bir hata meydana geldi")));
+            }
+          },
         );
       },
     );

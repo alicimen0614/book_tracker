@@ -12,7 +12,7 @@ class BookState {
   final List<BookWorkEditionsModelEntries> listOfBooksAlreadyRead;
 
   BookState(
-      {this.isLoading = false,
+      {this.isLoading = true,
       this.isUserAvailable = false,
       this.isConnected = false,
       this.listOfBooksFromFirestore = const [],

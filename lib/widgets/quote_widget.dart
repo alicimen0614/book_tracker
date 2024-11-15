@@ -6,6 +6,7 @@ import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
+import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -367,38 +368,29 @@ class QuoteWidget extends ConsumerWidget {
     return showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("VastReads"),
-          content:
-              const Text("Bu alıntıyı silmek istediğinizden emin misiniz?"),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("Vazgeç")),
-            TextButton(
-                onPressed: () async {
-                  var result = await ref
-                      .read(quotesProvider.notifier)
-                      .deleteQuote(quoteId);
-                  if (result == true) {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Alıntı başarıyla silindi.")));
-                  } else {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content:
-                            Text("Alıntı silinirken bir hata meydana geldi")));
-                  }
-                },
-                child: const Text("Sil"))
-          ],
+        return CustomAlertDialog(
+          title: "VastReads",
+          description: "Bu alıntıyı silmek istediğinizden emin misiniz?",
+          thirdButtonOnPressed: () async {
+            var result =
+                await ref.read(quotesProvider.notifier).deleteQuote(quoteId);
+            if (result == true) {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
+            } else {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("Alıntı silinirken bir hata meydana geldi")));
+            }
+          },
+          thirdButtonText: "Sil",
+          firstButtonOnPressed: () {
+            Navigator.pop(context);
+          },
+          firstButtonText: "Vazgeç",
         );
       },
     );

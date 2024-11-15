@@ -294,7 +294,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                         height: MediaQuery.of(context).size.height / 60,
                       ),
                       Text(
-                        "Not eklemek için önce kitap eklemelisiniz.",
+                        "${widget.isNotes == true ? "Not eklemek" : "Alıntı eklemek"} için önce kitap eklemelisiniz.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: MediaQuery.of(context).size.height / 40,
