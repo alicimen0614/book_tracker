@@ -11,6 +11,7 @@ import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,7 +129,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           icon: Image.asset("lib/assets/images/openlibrary.png",
                               height: 30),
                           splashRadius: 25),
-                    widget.isNavigatingFromLibrary == true
+                    widget.isNavigatingFromLibrary == true &&
+                            FirebaseAuth.instance.currentUser != null
                         ? IconButton(
                             tooltip: "Alıntı Ekle",
                             splashRadius: 25,
