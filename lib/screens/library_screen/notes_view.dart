@@ -9,6 +9,7 @@ import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/shimmer_effects/notes_view_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NotesView extends ConsumerStatefulWidget {
   const NotesView(
@@ -46,7 +47,7 @@ class _NotesViewState extends ConsumerState<NotesView> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            "Notlarım",
+            AppLocalizations.of(context)!.myNotes,
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: MediaQuery.of(context).size.height / 40),
@@ -245,9 +246,9 @@ class _NotesViewState extends ConsumerState<NotesView> {
                         SizedBox(
                           height: MediaQuery.of(context).size.width / 10,
                         ),
-                        const Text(
-                          "Not bulunamadı.",
-                          style: TextStyle(fontSize: 20),
+                        Text(
+                          AppLocalizations.of(context)!.emptyNotes,
+                          style: const TextStyle(fontSize: 20),
                         )
                       ],
                     ),

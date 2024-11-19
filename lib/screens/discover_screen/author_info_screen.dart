@@ -11,7 +11,7 @@ import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'shimmer_effect_builders/author_image_and_details_shimmer.dart';
 
 class AuthorInfoScreen extends ConsumerStatefulWidget {
@@ -62,15 +62,10 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                       ? authorImageAndDetailsBuilder()
                       : authorImageAndDetailsShimmerBuilder(context),
                 )),
-            SliverFillRemaining(
-              child: Column(
-                children: [
-                  isLoading != true
-                      ? authorInfoBodyBuilder(context)
-                      : authorInfoBodyShimmerBuilder(context)
-                ],
-              ),
-            ),
+            SliverToBoxAdapter(
+                child: isLoading != true
+                    ? authorInfoBodyBuilder(context)
+                    : authorInfoBodyShimmerBuilder(context)),
           ],
         ));
   }
@@ -130,7 +125,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Doğum Tarihi",
+                        Text(AppLocalizations.of(context)!.birthDate,
                             maxLines: 1,
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -153,7 +148,7 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Ölüm Tarihi",
+                        Text(AppLocalizations.of(context)!.deathDate,
                             maxLines: 1,
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -179,206 +174,203 @@ class _DetailedEditionInfoState extends ConsumerState<AuthorInfoScreen> {
     );
   }
 
-  Expanded authorInfoBodyBuilder(BuildContext context) {
+  Scrollbar authorInfoBodyBuilder(BuildContext context) {
     String textAsString = "";
     if (authorsModel.bio != null) {
       textAsString = authorsModel.bio!.replaceRange(0, 26, "");
     }
 
-    return Expanded(
-      child: Scrollbar(
-        thickness: 2,
-        radius: const Radius.circular(20),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          physics: const NeverScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Yazar Adı",
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.height / 50,
-                    fontWeight: FontWeight.bold),
-              ),
-              const Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.name != null)
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 40,
-                  child: Text(
-                    authorsModel.name!,
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60,
-                    ),
-                  ),
-                ),
-              const Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.bio != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.bio != null)
-                Text(
-                  "Biyografi",
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (authorsModel.bio != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (authorsModel.bio != null)
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 40,
-                  child: Text(
-                    authorsModel.bio!.startsWith("{")
-                        ? textAsString.replaceRange(
-                            textAsString.length - 1, textAsString.length, "")
-                        : authorsModel.bio!,
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height / 60),
-                    maxLines: biographyShowMore != true ? 5 : null,
-                  ),
-                ),
-              if (authorsModel.bio != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                      onPressed: () {
-                        setState(() {
-                          biographyShowMore = !biographyShowMore;
-                        });
-                      },
-                      child: biographyShowMore != true
-                          ? Text(
-                              "Daha fazla göster",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 60),
-                            )
-                          : Text("Daha az göster",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: MediaQuery.of(context).size.height /
-                                      60))),
-                ),
-              if (authorsModel.birthDate != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              Text(
-                "Yazara Ait Kitaplar",
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.height / 50,
-                    fontWeight: FontWeight.bold),
-              ),
-              const Divider(color: Colors.transparent, thickness: 0),
+    return Scrollbar(
+      thickness: 2,
+      radius: const Radius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.authorName,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
+            ),
+            const Divider(color: Colors.transparent, thickness: 0),
+            if (authorsModel.name != null)
               SizedBox(
-                  height: MediaQuery.of(context).size.width > 500 ? 300 : 150,
-                  width: double.infinity,
-                  child: ListView.separated(
-                      separatorBuilder: (context, index) => const SizedBox(
-                            width: 10,
-                          ),
-                      physics: const ClampingScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) => SizedBox(
-                            height: MediaQuery.of(context).size.width > 500
-                                ? 250
-                                : 100,
-                            width: MediaQuery.of(context).size.width > 500
-                                ? 150
-                                : 80,
-                            child: InkWell(
-                                customBorder: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BookInfoView(
-                                          authorBook: authorsWorks![index]),
-                                    )),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                        flex: 10,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5),
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: Ink(
-                                              width: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
-                                                      500
-                                                  ? 150
-                                                  : 70,
-                                              height: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
-                                                      500
-                                                  ? 500
-                                                  : 150,
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  image: authorsWorks![index]!
-                                                              .covers !=
-                                                          null
-                                                      ? DecorationImage(
-                                                          image: NetworkImage(
-                                                              "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
-                                                          onError: (exception,
-                                                                  stackTrace) =>
-                                                              const AssetImage(
-                                                                  "lib/assets/images/error.png"),
-                                                          fit: BoxFit.fill)
-                                                      : DecorationImage(
-                                                          image: const AssetImage(
-                                                              "lib/assets/images/nocover.jpg"),
-                                                          onError: (exception,
-                                                                  stackTrace) =>
-                                                              const AssetImage(
-                                                                  "lib/assets/images/error.png"))),
-                                            ),
-                                          ),
-                                        )),
-                                    Expanded(
-                                        flex: 4,
-                                        child: Text(
-                                            textAlign: TextAlign.center,
-                                            authorsWorks![index]!.title!,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontSize: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    60)))
-                                  ],
-                                )),
-                          ),
-                      itemCount: authorsWorks!.length >= 5
-                          ? 5
-                          : authorsWorks!.length)),
+                width: MediaQuery.sizeOf(context).width - 40,
+                child: Text(
+                  authorsModel.name!,
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 60,
+                  ),
+                ),
+              ),
+            const Divider(color: Colors.transparent, thickness: 0),
+            if (authorsModel.bio != null)
+              const Divider(color: Colors.transparent, thickness: 0),
+            if (authorsModel.bio != null)
+              Text(
+                AppLocalizations.of(context)!.biography,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (authorsModel.bio != null)
+              const Divider(color: Colors.transparent, thickness: 0),
+            if (authorsModel.bio != null)
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width - 40,
+                child: Text(
+                  authorsModel.bio!.startsWith("{")
+                      ? textAsString.replaceRange(
+                          textAsString.length - 1, textAsString.length, "")
+                      : authorsModel.bio!,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60),
+                  maxLines: biographyShowMore != true ? 5 : null,
+                ),
+              ),
+            if (authorsModel.bio != null)
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AuthorsBooksScreen(
-                                authorKey: widget.authorKey,
-                                authorName: authorsModel.name!),
-                          ));
+                      setState(() {
+                        biographyShowMore = !biographyShowMore;
+                      });
                     },
-                    child: Text(
-                      "$authorsWorksSize Kitabın Tümünü Görüntüle",
-                      style: TextStyle(
-                          color: const Color(0xFF1B7695),
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.height / 60),
-                    )),
-              )
-            ],
-          ),
+                    child: biographyShowMore != true
+                        ? Text(
+                            AppLocalizations.of(context)!.showMore,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 60),
+                          )
+                        : Text(AppLocalizations.of(context)!.showLess,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 60))),
+              ),
+            if (authorsModel.birthDate != null)
+              const Divider(color: Colors.transparent, thickness: 0),
+            Text(
+              AppLocalizations.of(context)!.booksByAuthor,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
+            ),
+            const Divider(color: Colors.transparent, thickness: 0),
+            SizedBox(
+                height: MediaQuery.of(context).size.width > 500 ? 300 : 150,
+                width: double.infinity,
+                child: ListView.separated(
+                    separatorBuilder: (context, index) => const SizedBox(
+                          width: 10,
+                        ),
+                    physics: const ClampingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) => SizedBox(
+                          height: MediaQuery.of(context).size.width > 500
+                              ? 250
+                              : 100,
+                          width: MediaQuery.of(context).size.width > 500
+                              ? 150
+                              : 80,
+                          child: InkWell(
+                              customBorder: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookInfoView(
+                                        authorBook: authorsWorks![index]),
+                                  )),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                      flex: 10,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: Ink(
+                                            width: MediaQuery.of(context)
+                                                        .size
+                                                        .width >
+                                                    500
+                                                ? 150
+                                                : 70,
+                                            height: MediaQuery.of(context)
+                                                        .size
+                                                        .width >
+                                                    500
+                                                ? 500
+                                                : 150,
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                image: authorsWorks![index]!
+                                                            .covers !=
+                                                        null
+                                                    ? DecorationImage(
+                                                        image: NetworkImage(
+                                                            "https://covers.openlibrary.org/b/id/${authorsWorks![index]!.covers!.first}-M.jpg"),
+                                                        onError: (exception,
+                                                                stackTrace) =>
+                                                            const AssetImage(
+                                                                "lib/assets/images/error.png"),
+                                                        fit: BoxFit.fill)
+                                                    : DecorationImage(
+                                                        image: const AssetImage(
+                                                            "lib/assets/images/nocover.jpg"),
+                                                        onError: (exception,
+                                                                stackTrace) =>
+                                                            const AssetImage(
+                                                                "lib/assets/images/error.png"))),
+                                          ),
+                                        ),
+                                      )),
+                                  Expanded(
+                                      flex: 4,
+                                      child: Text(
+                                          textAlign: TextAlign.center,
+                                          authorsWorks![index]!.title!,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  60)))
+                                ],
+                              )),
+                        ),
+                    itemCount:
+                        authorsWorks!.length >= 5 ? 5 : authorsWorks!.length)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AuthorsBooksScreen(
+                              authorKey: widget.authorKey,
+                              authorName: authorsModel.name!),
+                        ));
+                  },
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .viewAllBooks(authorsWorksSize!),
+                    style: TextStyle(
+                        color: const Color(0xFF1B7695),
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                  )),
+            )
+          ],
         ),
       ),
     );

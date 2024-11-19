@@ -5,6 +5,7 @@ import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FirestoreDatabase extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -41,7 +42,7 @@ class FirestoreDatabase extends ChangeNotifier {
           .get();
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Notlar getirilirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorFetchingNotes);
       return null;
     }
   }
@@ -70,7 +71,7 @@ class FirestoreDatabase extends ChangeNotifier {
           .delete();
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap silinirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorDeletingBook);
     }
   }
 
@@ -87,7 +88,7 @@ class FirestoreDatabase extends ChangeNotifier {
           .delete();
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Not silinirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorDeletingNote);
     }
   }
 
@@ -112,7 +113,7 @@ class FirestoreDatabase extends ChangeNotifier {
               }));
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Notlar silinirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorDeletingNotes);
     }
   }
 
@@ -136,7 +137,7 @@ class FirestoreDatabase extends ChangeNotifier {
           .set(bookAsMap);
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingBook);
     }
   }
 
@@ -150,7 +151,7 @@ class FirestoreDatabase extends ChangeNotifier {
       }
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Alıntı yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingQuote);
     }
   }
 
@@ -182,9 +183,9 @@ class FirestoreDatabase extends ChangeNotifier {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
-      print("User is not logged in");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
+
       return;
     }
 
@@ -200,8 +201,8 @@ class FirestoreDatabase extends ChangeNotifier {
       DocumentSnapshot snapshot = await transaction.get(quoteDocRef);
 
       if (!snapshot.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
         return;
       }
 
@@ -226,8 +227,8 @@ class FirestoreDatabase extends ChangeNotifier {
     }).then((_) {
       print("Transaction success!");
     }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Bir şeyler yanlış gitti.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
       print("Transaction failed: $error");
     });
   }
@@ -246,7 +247,7 @@ class FirestoreDatabase extends ChangeNotifier {
           .update({'bookStatus': newBookStatus});
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap durumu güncellenirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorUpdatingBookStatus);
     }
   }
 
@@ -275,7 +276,7 @@ class FirestoreDatabase extends ChangeNotifier {
       });
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Not yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingNote);
     }
   }
   //update data

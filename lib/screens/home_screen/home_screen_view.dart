@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:transparent_image/transparent_image.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'home_screen_shimmer/quote_widget_shimmer.dart';
 
 class HomeScreenView extends ConsumerStatefulWidget {
@@ -106,8 +106,12 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                             .watch(bookStateProvider)
                             .listOfBooksCurrentlyReading
                             .isNotEmpty
-                        ? "Şu anda ${ref.watch(bookStateProvider).listOfBooksCurrentlyReading.length} kitap okuyorsunuz."
-                        : "Şu anda okuduğunuz kitap bulunmamakta.",
+                        ? AppLocalizations.of(context)!.currentlyReadingBooks(
+                            ref
+                                .watch(bookStateProvider)
+                                .listOfBooksCurrentlyReading
+                                .length)
+                        : AppLocalizations.of(context)!.noCurrentReads,
                     ref
                         .watch(bookStateProvider)
                         .listOfBooksCurrentlyReading
@@ -119,8 +123,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                             .watch(bookStateProvider)
                             .listOfBooksWantToRead
                             .isNotEmpty
-                        ? "Toplamda ${ref.watch(bookStateProvider).listOfBooksWantToRead.length} okumak istediğiniz kitap var."
-                        : "Şu anda okumak istediğiniz kitap bulunmamakta.",
+                        ? AppLocalizations.of(context)!.totalBooksToRead(ref
+                            .watch(bookStateProvider)
+                            .listOfBooksWantToRead
+                            .length)
+                        : AppLocalizations.of(context)!.noWantedReads,
                     ref.watch(bookStateProvider).listOfBooksWantToRead.length,
                     _scrollControllerWantToRead),
                 booksBuilder(
@@ -129,8 +136,12 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                             .watch(bookStateProvider)
                             .listOfBooksAlreadyRead
                             .isNotEmpty
-                        ? "Tebrikler toplamda ${ref.watch(bookStateProvider).listOfBooksAlreadyRead.length} kitap okudunuz."
-                        : "Şu anda bitirdiğiniz kitap bulunmamakta.",
+                        ? AppLocalizations.of(context)!
+                            .congratulationsTotalBooksRead(ref
+                                .watch(bookStateProvider)
+                                .listOfBooksAlreadyRead
+                                .length)
+                        : AppLocalizations.of(context)!.noFinishedReads,
                     ref.watch(bookStateProvider).listOfBooksAlreadyRead.length,
                     _scrollControllerAlrRead)
               ],
@@ -154,7 +165,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Row(
                   children: [
-                    Text("Alıntı Köşesi",
+                    Text(AppLocalizations.of(context)!.quoteCorner,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 40,
@@ -168,7 +179,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                 builder: (context) => const QuotesScreen(),
                               ));
                         },
-                        child: Text("Tümü",
+                        child: Text(AppLocalizations.of(context)!.all,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: MediaQuery.of(context).size.height / 50,
@@ -346,13 +357,15 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                             ),
                                           ),
                                           if (textHeight > 85)
-                                            const Padding(
-                                              padding: EdgeInsets.symmetric(
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 15,
                                               ),
                                               child: Text(
-                                                "Daha fazla",
-                                                style: TextStyle(
+                                                AppLocalizations.of(context)!
+                                                    .more,
+                                                style: const TextStyle(
                                                     color: Color(0xFF1B7695),
                                                     fontWeight:
                                                         FontWeight.w700),
@@ -565,17 +578,26 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                           const SizedBox(width: 8.0),
                                           Text(isUserLikedQuote &&
                                                   likeCount != 1
-                                              ? "Siz ve ${likeCount - 1} diğer kişi bunu beğendi."
+                                              ? AppLocalizations.of(context)!
+                                                  .likedByYouAndOneOther(
+                                                      likeCount - 1)
                                               : isUserLikedQuote &&
                                                       likeCount == 1
-                                                  ? "$likeCount kişi beğendi."
+                                                  ? AppLocalizations.of(
+                                                          context)!
+                                                      .peopleLiked(likeCount)
                                                   : isUserLikedQuote == false &&
                                                           likeCount == 0
-                                                      ? "Henüz kimse beğenmedi."
+                                                      ? AppLocalizations.of(
+                                                              context)!
+                                                          .noOneLikedYet
                                                       : isUserLikedQuote ==
                                                                   false &&
                                                               likeCount != 0
-                                                          ? "$likeCount kişi bunu beğendi."
+                                                          ? AppLocalizations.of(
+                                                                  context)!
+                                                              .peopleLiked(
+                                                                  likeCount)
                                                           : ""),
                                         ],
                                       ),
@@ -916,7 +938,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               left: 15,
               top: 60,
               child: Text(
-                "Hoş geldin :)",
+                AppLocalizations.of(context)!.welcome,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: MediaQuery.of(context).size.height / 40,
@@ -932,7 +954,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
             top: 170,
             left: 15,
             right: 15,
-            child: Text("Bir kitap mı okuyorsun? \nKitap ekle",
+            child: Text(
+                "${AppLocalizations.of(context)!.areYouReadingABook} \n${AppLocalizations.of(context)!.addBook}",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: MediaQuery.of(context).size.height / 40,
@@ -989,7 +1012,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.all(15),
-              hintText: "Ara",
+              hintText: AppLocalizations.of(context)!.search,
               focusedBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
                     color: Color(0xFF1B7695),
@@ -1034,10 +1057,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
       context: context,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
-          const ListTile(
-            title: Text("Kitap ekle",
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.addBook,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             titleAlignment: ListTileTitleAlignment.center,
           ),
           const Divider(height: 0),
@@ -1051,7 +1075,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               Icons.search,
               size: 30,
             ),
-            title: const Text("Arama ile", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.addBookWithSearch,
+                style: const TextStyle(fontSize: 20)),
           ),
           const Divider(height: 0),
           ListTile(
@@ -1071,7 +1096,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
               Icons.keyboard,
               size: 30,
             ),
-            title: const Text("Kendin ekle", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.addYourBook,
+                style: const TextStyle(fontSize: 20)),
           )
         ]);
       },
@@ -1118,8 +1144,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description:
-              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -1129,7 +1154,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                       const AuthView(formStatusData: FormStatus.register),
                 ));
           },
-          secondButtonText: "Kayıt Ol",
+          secondButtonText: AppLocalizations.of(context)!.signUp,
           thirdButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -1139,11 +1164,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                       const AuthView(formStatusData: FormStatus.signIn),
                 ));
           },
-          thirdButtonText: "Giriş Yap",
+          thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Kapat",
+          firstButtonText: AppLocalizations.of(context)!.close,
         );
       },
     );
@@ -1153,13 +1178,13 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
     return Center(
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-          "Alıntılar yüklenemedi.",
+          AppLocalizations.of(context)!.quotesFailedToLoad,
           style: TextStyle(
             fontSize: MediaQuery.of(context).size.height / 50,
           ),
         ),
         Text(
-          "Lütfen yenilemek için tıklayın.",
+          AppLocalizations.of(context)!.clickToRefresh,
           style: TextStyle(
             fontSize: MediaQuery.of(context).size.height / 50,
           ),

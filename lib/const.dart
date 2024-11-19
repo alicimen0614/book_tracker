@@ -2,6 +2,45 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:flutter/material.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+List<String> getMainCategoriesNames(BuildContext context) {
+  return [
+    AppLocalizations.of(context)!.classics,
+    AppLocalizations.of(context)!.fantasy,
+    AppLocalizations.of(context)!.adventure,
+    AppLocalizations.of(context)!.contemporary,
+    AppLocalizations.of(context)!.romance,
+    AppLocalizations.of(context)!.dystopian,
+    AppLocalizations.of(context)!.horror,
+    AppLocalizations.of(context)!.paranormal,
+    AppLocalizations.of(context)!.historicalFiction,
+    AppLocalizations.of(context)!.scienceFiction,
+    AppLocalizations.of(context)!.childrens,
+    AppLocalizations.of(context)!.academic,
+    AppLocalizations.of(context)!.mystery,
+    AppLocalizations.of(context)!.thrillers,
+    AppLocalizations.of(context)!.memoir,
+    AppLocalizations.of(context)!.selfHelp,
+    AppLocalizations.of(context)!.cookbook,
+    AppLocalizations.of(context)!.art_Photography,
+    AppLocalizations.of(context)!.youngAdult,
+    AppLocalizations.of(context)!.personalDevelopment,
+    AppLocalizations.of(context)!.motivational,
+    AppLocalizations.of(context)!.health,
+    AppLocalizations.of(context)!.history,
+    AppLocalizations.of(context)!.travel,
+    AppLocalizations.of(context)!.guide,
+    AppLocalizations.of(context)!.families_Relationships,
+    AppLocalizations.of(context)!.humor,
+    AppLocalizations.of(context)!.graphicNovel,
+    AppLocalizations.of(context)!.shortStory,
+    AppLocalizations.of(context)!.biographyAndAutobiography,
+    AppLocalizations.of(context)!.poetry,
+    AppLocalizations.of(context)!.religion_Spirituality
+  ];
+}
+
 class Const {
   static late Size screenSize;
   static late double minSize;
@@ -44,41 +83,6 @@ class Const {
     "Biography and Autobiography",
     "Poetry",
     "Religion & Spirituality"
-  ];
-
-  static const List mainCategoriesNames = [
-    "Klasikler",
-    "Fantastik",
-    "Macera",
-    "Modern",
-    "Romantik",
-    "Distopik",
-    "Korku",
-    "Paranormal",
-    "Tarihsel kurgu",
-    "Bilim kurgu",
-    "Çocuk",
-    "Akademik",
-    "Gizem",
-    "Gerilim",
-    "Anı",
-    "Kendine yardım",
-    "Yemek kitabı",
-    "Sanat ve Fotoğrafçılık",
-    "Genç Yetişkin",
-    "Kişisel Gelişim",
-    "Motivasyonel",
-    "Sağlık",
-    "Tarih",
-    "Seyahat",
-    "Rehber",
-    "Aileler ve İlişkiler",
-    "Mizah",
-    "Çizgi roman",
-    "Kısa hikaye",
-    "Biyografi ve Otobiyografi",
-    "Şiir",
-    "Din ve Maneviyat"
   ];
 
   static const List mainCategoriesImages = [

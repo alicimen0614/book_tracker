@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
+import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
@@ -12,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuoteWidget extends ConsumerWidget {
   final Function()? onDoubleTap;
@@ -146,13 +148,13 @@ class QuoteWidget extends ConsumerWidget {
                     ),
                   ),
                   if (textHeight > 85)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 15,
                       ),
                       child: Text(
-                        "Daha fazla",
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.more,
+                        style: const TextStyle(
                             color: Color(0xFF1B7695),
                             fontWeight: FontWeight.w700),
                         textAlign: TextAlign.end,
@@ -284,17 +286,19 @@ class QuoteWidget extends ConsumerWidget {
                   ),
                   const SizedBox(width: 8.0),
                   Text(isUserLikedQuote && likeCount != 1
-                      ? "Siz ve ${likeCount - 1} diğer kişi bunu beğendi."
+                      ? AppLocalizations.of(context)!
+                          .likedByYouAndOneOther(likeCount - 1)
                       : isUserLikedQuote && likeCount == 1
-                          ? "$likeCount kişi beğendi."
+                          ? AppLocalizations.of(context)!.peopleLiked(likeCount)
                           : isUserLikedQuote == false && likeCount == 0
-                              ? "Henüz kimse beğenmedi."
+                              ? AppLocalizations.of(context)!.noOneLikedYet
                               : isUserLikedQuote == false && likeCount != 0
-                                  ? "$likeCount kişi bunu beğendi."
+                                  ? AppLocalizations.of(context)!
+                                      .peopleLiked(likeCount)
                                   : ""),
                   const Spacer(),
                   Text(
-                    timeAgo(quote.date),
+                    timeAgo(quote.date, ref),
                   ),
                 ],
               ),
@@ -305,12 +309,13 @@ class QuoteWidget extends ConsumerWidget {
     );
   }
 
-  String timeAgo(String? dateString) {
-    timeago.setLocaleMessages('tr', timeago.TrMessages());
+  String timeAgo(String? dateString, WidgetRef ref) {
+    /* timeago.setLocaleMessages('tr', timeago.TrMessages()); */
     if (dateString == null) return '';
     final dateTime = DateTime.parse(dateString);
     final difference = DateTime.now().difference(dateTime);
-    return timeago.format(DateTime.now().subtract(difference), locale: 'tr');
+    return timeago.format(DateTime.now().subtract(difference),
+        locale: ref.read(localeProvider).languageCode);
   }
 
   void modalBottomSheetBuilderForPopUpMenu(
@@ -323,13 +328,6 @@ class QuoteWidget extends ConsumerWidget {
       context: pageContext,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
-          const ListTile(
-            title: Text("Alıntıyı",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            titleAlignment: ListTileTitleAlignment.center,
-          ),
-          const Divider(height: 0),
           ListTile(
             visualDensity: const VisualDensity(vertical: 3),
             onTap: () {
@@ -360,7 +358,8 @@ class QuoteWidget extends ConsumerWidget {
               Icons.keyboard,
               size: 30,
             ),
-            title: const Text("Düzenle", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.editQuote,
+                style: const TextStyle(fontSize: 20)),
           ),
           const Divider(height: 0),
           ListTile(
@@ -372,7 +371,8 @@ class QuoteWidget extends ConsumerWidget {
               Icons.delete,
               size: 30,
             ),
-            title: const Text("Sil", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.deleteQuote,
+                style: const TextStyle(fontSize: 20)),
           )
         ]);
       },
@@ -385,27 +385,29 @@ class QuoteWidget extends ConsumerWidget {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description: "Bu alıntıyı silmek istediğinizden emin misiniz?",
+          description: AppLocalizations.of(context)!.confirmDeleteQuote,
           thirdButtonOnPressed: () async {
             var result =
                 await ref.read(quotesProvider.notifier).deleteQuote(quoteId);
             if (result == true) {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      AppLocalizations.of(context)!.quoteSuccessfullyDeleted)));
             } else {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Alıntı silinirken bir hata meydana geldi")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context)!.errorDeletingQuote)));
             }
           },
-          thirdButtonText: "Sil",
+          thirdButtonText: AppLocalizations.of(context)!.delete,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Vazgeç",
+          firstButtonText: AppLocalizations.of(context)!.cancel,
         );
       },
     );

@@ -103,7 +103,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
           builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
             noItemsFoundIndicatorBuilder: (context) {
               return noItemsFoundIndicatorBuilder(
-                  MediaQuery.of(context).size.width);
+                  MediaQuery.of(context).size.width, context);
             },
             firstPageErrorIndicatorBuilder: (context) {
               if (!isConnected) {

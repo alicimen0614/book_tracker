@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
+import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
@@ -11,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 import '../../models/quote_model.dart';
@@ -37,11 +39,11 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
   Map<String, Timer?> debounceTimers = {}; // Her post için bir zamanlayıcı
   Map<String, bool> pendingLikeStatus = {}; // Son beğeni durumu (beğeni/yok)
   String timeAgo(String? dateString) {
-    timeago.setLocaleMessages('tr', timeago.TrMessages());
     if (dateString == null) return '';
     final dateTime = DateTime.parse(dateString);
     final difference = DateTime.now().difference(dateTime);
-    return timeago.format(DateTime.now().subtract(difference), locale: 'tr');
+    return timeago.format(DateTime.now().subtract(difference),
+        locale: ref.read(localeProvider).languageCode);
   }
 
   @override
@@ -85,7 +87,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     likeCount = widget.quote.likes!.length;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Alıntı Detayı'),
+        title: Text(AppLocalizations.of(context)!.quoteDetails),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -241,13 +243,15 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                 ),
                 Spacer(),
                 Text(hasUserLikedQuote && likeCount != 1
-                    ? "Siz ve ${(likeCount - 1)} diğer kişi bunu beğendi."
+                    ? AppLocalizations.of(context)!
+                        .likedByYouAndOneOther(likeCount - 1)
                     : hasUserLikedQuote && likeCount == 1
-                        ? "$likeCount kişi beğendi."
+                        ? AppLocalizations.of(context)!.peopleLiked(likeCount)
                         : hasUserLikedQuote == false && likeCount == 0
-                            ? "Henüz kimse beğenmedi."
+                            ? AppLocalizations.of(context)!.noOneLikedYet
                             : hasUserLikedQuote == false && likeCount != 0
-                                ? "$likeCount kişi bunu beğendi."
+                                ? AppLocalizations.of(context)!
+                                    .peopleLiked(likeCount)
                                 : ""),
                 const Spacer(
                   flex: 5,
@@ -319,8 +323,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description:
-              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -330,7 +333,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                       const AuthView(formStatusData: FormStatus.register),
                 ));
           },
-          secondButtonText: "Kayıt Ol",
+          secondButtonText: AppLocalizations.of(context)!.signUp,
           thirdButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -340,11 +343,11 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                       const AuthView(formStatusData: FormStatus.signIn),
                 ));
           },
-          thirdButtonText: "Giriş Yap",
+          thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Kapat",
+          firstButtonText: AppLocalizations.of(context)!.close,
         );
       },
     );

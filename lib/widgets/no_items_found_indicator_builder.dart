@@ -1,6 +1,7 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
-Center noItemsFoundIndicatorBuilder(double width) {
+Center noItemsFoundIndicatorBuilder(double width, BuildContext context) {
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -12,9 +13,9 @@ Center noItemsFoundIndicatorBuilder(double width) {
         SizedBox(
           height: width / 10,
         ),
-        const Text(
-          "Sonuç bulunamadı.",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.noResultsFound,
+          style: const TextStyle(
             fontSize: 20,
           ),
         ),

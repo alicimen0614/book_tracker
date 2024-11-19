@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddQuoteScreen extends ConsumerStatefulWidget {
   const AddQuoteScreen(
@@ -39,8 +40,6 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
 
   @override
   void initState() {
-    initializeDateFormatting('tr');
-
     date = DateFormat("dd MMMM yyy H.m").format(DateTime.now());
 
     quoteFieldController.text = widget.initialQuoteValue;
@@ -68,8 +67,8 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
         appBar: AppBar(
             title: Text(
                 widget.initialQuoteValue == ""
-                    ? "Bir alıntı ekle: ${widget.bookInfo.title}"
-                    : "Alıntıyı Düzenle",
+                    ? "${AppLocalizations.of(context)!.addQuote}: ${widget.bookInfo.title}"
+                    : AppLocalizations.of(context)!.editQuote,
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold)),
@@ -79,7 +78,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
             actions: [
               widget.showDeleteIcon == true
                   ? IconButton(
-                      tooltip: "Alıntıyı Sil",
+                      tooltip: AppLocalizations.of(context)!.deleteQuote,
                       onPressed: () async {
                         alertDialogBuilder(context);
                       },
@@ -94,8 +93,9 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                 splashRadius: 25,
                 onPressed: () async {
                   if (quoteFieldController.text == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Lütfen bir alıntı giriniz.")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                            AppLocalizations.of(context)!.pleaseEnterQuote)));
                   } else if (quoteFieldController.text ==
                       widget.initialQuoteValue) {
                     Navigator.pop(context);
@@ -140,8 +140,9 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                       Navigator.pop(context);
                     }
 
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Alıntı başarıyla eklendi")));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(AppLocalizations.of(context)!
+                            .quoteSuccessfullyAdded)));
                   }
                 },
                 icon: const Icon(Icons.check_sharp, size: 30),
@@ -185,10 +186,10 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
             Text(
                 widget.quoteDate != ""
                     ? DateTime.tryParse(widget.quoteDate) != null
-                        ? DateFormat("dd MMMM yyy H.mm")
+                        ? DateFormat("dd MMMM yyy HH.mm")
                             .format(DateTime.tryParse(widget.quoteDate)!)
-                        : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} "
-                    : DateFormat("dd MMMM yyy H.mm").format(DateTime.now()),
+                        : "${DateFormat("dd MMMM yyy HH.mm").format(DateTime.now())} "
+                    : DateFormat("dd MMMM yyy HH.mm").format(DateTime.now()),
                 style: TextStyle(
                     color: const Color(0xFF1B7695),
                     fontWeight: FontWeight.bold,
@@ -197,8 +198,8 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
             TextFormField(
               maxLength: 600,
               controller: quoteFieldController,
-              decoration: const InputDecoration(
-                hintText: "Alıntı girin.",
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.enterQuote,
               ),
               maxLines: null,
               minLines: null,
@@ -213,7 +214,8 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 2),
       content: Text(text),
-      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+      action: SnackBarAction(
+          label: AppLocalizations.of(context)!.okay, onPressed: () {}),
       behavior: SnackBarBehavior.floating,
     ));
   }
@@ -224,25 +226,12 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description: "Bu alıntıyı silmek istediğinizden emin misiniz?",
-          firstButtonText: "Vazgeç",
+          description: AppLocalizations.of(context)!.confirmDeleteQuote,
+          firstButtonText: AppLocalizations.of(context)!.cancel,
           firstButtonOnPressed: () async {
-            var result = await ref
-                .read(quotesProvider.notifier)
-                .deleteQuote(widget.quoteId);
-            if (result == true) {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
-            } else {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Alıntı silinirken bir hata meydana geldi")));
-            }
+            Navigator.pop(context);
           },
-          thirdButtonText: "Sil",
+          thirdButtonText: AppLocalizations.of(context)!.delete,
           thirdButtonOnPressed: () async {
             var result = await ref
                 .read(quotesProvider.notifier)
@@ -250,13 +239,15 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
             if (result == true) {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Alıntı başarıyla silindi.")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      AppLocalizations.of(context)!.quoteSuccessfullyDeleted)));
             } else {
               Navigator.pop(context);
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Alıntı silinirken bir hata meydana geldi")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content:
+                      Text(AppLocalizations.of(context)!.errorDeletingQuote)));
             }
           },
         );
@@ -272,14 +263,13 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: const Text("VastReads"),
-          content:
-              const Text("Bu alıntıyı kaydetmek istediğinizden emin misiniz?"),
+          content: Text(AppLocalizations.of(context)!.confirmSaveQuote),
           actions: [
             TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text("Vazgeç")),
+                child: Text(AppLocalizations.of(context)!.cancel)),
             TextButton(
                 onPressed: () async {
                   ref.read(firestoreProvider).setQuoteData(context,
@@ -290,10 +280,11 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                       docId: widget.quoteId);
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text("Alıntı başarıyla güncellendi.")));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(AppLocalizations.of(context)!
+                          .quoteSuccessfullyUpdated)));
                 },
-                child: const Text("Kaydet"))
+                child: Text(AppLocalizations.of(context)!.save))
           ],
         );
       },

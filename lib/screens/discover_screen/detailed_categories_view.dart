@@ -4,11 +4,9 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/new_page_error_indicator.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
 import 'shimmer_effect_builders/grid_view_books_shimmer.dart';
 
 class DetailedCategoriesView extends ConsumerStatefulWidget {
@@ -99,7 +97,7 @@ class _DetailedCategoriesViewState
           builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
             newPageErrorIndicatorBuilder: (context) =>
                 newPageErrorIndicatorBuilder(
-                    () => pagingController.retryLastFailedRequest()),
+                    () => pagingController.retryLastFailedRequest(), context),
             firstPageErrorIndicatorBuilder: (context) {
               if (!isConnected) {
                 return booksListError(

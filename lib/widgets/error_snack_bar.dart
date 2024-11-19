@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 errorSnackBar(BuildContext snackbarContext, String errorMessage,
-    {String infoMessage = 'Bir hata meydana geldi. Lütfen tekrar deneyiniz.'}) {
+    {String infoMessage = ''}) {
+  infoMessage =
+      '${AppLocalizations.of(snackbarContext)!.somethingWentWrong} ${AppLocalizations.of(snackbarContext)!.tryAgainLater}';
   return ScaffoldMessenger.of(snackbarContext).showSnackBar(SnackBar(
     duration: const Duration(seconds: 4),
     content: Column(
@@ -13,7 +16,8 @@ errorSnackBar(BuildContext snackbarContext, String errorMessage,
         ),
       ],
     ),
-    action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+    action: SnackBarAction(
+        label: AppLocalizations.of(snackbarContext)!.okay, onPressed: () {}),
     behavior: SnackBarBehavior.floating,
   ));
 }

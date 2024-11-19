@@ -5,6 +5,7 @@ import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/gri
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthorsBooksScreen extends ConsumerStatefulWidget {
   const AuthorsBooksScreen(
@@ -55,7 +56,7 @@ class _AuthorsBooksScreenState extends ConsumerState<AuthorsBooksScreen> {
         leadingWidth: 50,
         centerTitle: true,
         title: Text(
-          "${widget.authorName} Kitapları",
+          AppLocalizations.of(context)!.authorsBooks(widget.authorName),
           style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: MediaQuery.of(context).size.height / 40),

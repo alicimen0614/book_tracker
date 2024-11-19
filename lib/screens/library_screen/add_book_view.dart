@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum BookFormat { paperBook, ebook, audioBook }
 
@@ -115,7 +116,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "Kitap ekle",
+            AppLocalizations.of(context)!.addBook,
             textAlign: TextAlign.left,
             style: TextStyle(
                 fontSize: MediaQuery.of(context).size.height / 40,
@@ -125,7 +126,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
           centerTitle: true,
           leadingWidth: 50,
           leading: IconButton(
-              tooltip: "Geri dön",
+              tooltip: AppLocalizations.of(context)!.goBack,
               splashRadius: 25,
               onPressed: () => Navigator.pop(context),
               icon: const Icon(
@@ -140,9 +141,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     duration: const Duration(seconds: 2),
-                    content: const Text('Lütfen bir başlık girin'),
+                    content: Text(AppLocalizations.of(context)!.enterTitle),
                     action: SnackBarAction(
-                      label: 'Tamam',
+                      label: AppLocalizations.of(context)!.okay,
                       onPressed: () {},
                     ),
                     behavior: SnackBarBehavior.floating,
@@ -156,10 +157,10 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   BookWorkEditionsModelEntries bookInfo =
                       BookWorkEditionsModelEntries(
                           physical_format: bookFormat.name == "ebook"
-                              ? "E-kitap"
+                              ? AppLocalizations.of(context)!.ebook
                               : bookFormat.name == "audioBook"
-                                  ? "Sesli kitap"
-                                  : "Kağıt kitap",
+                                  ? AppLocalizations.of(context)!.audioBook
+                                  : AppLocalizations.of(context)!.paperBook,
                           publish_date: publishDateFieldController.text != ""
                               ? publishDateFieldController.text
                               : null,
@@ -275,10 +276,10 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                               ? [authorFieldController.text]
                               : null,
                           "physical_format": bookFormat.name == "ebook"
-                              ? "E-kitap"
+                              ? AppLocalizations.of(context)!.ebook
                               : bookFormat.name == "audioBook"
-                                  ? "Sesli kitap"
-                                  : "Kağıt kitap",
+                                  ? AppLocalizations.of(context)!.audioBook
+                                  : AppLocalizations.of(context)!.paperBook,
                           "publish_date": publishDateFieldController.text != ""
                               ? publishDateFieldController.text
                               : null,
@@ -322,9 +323,13 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                   ScaffoldMessenger.of(context).clearSnackBars;
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text(!widget.toUpdate
-                        ? 'Kitap başarıyla eklendi!'
-                        : 'Kitap başarıyla güncellendi!'),
-                    action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                        ? AppLocalizations.of(context)!
+                            .bookSuccessfullyAddedToLibrary
+                        : AppLocalizations.of(context)!
+                            .bookStatusUpdatedSuccessfully),
+                    action: SnackBarAction(
+                        label: AppLocalizations.of(context)!.okay,
+                        onPressed: () {}),
                     behavior: SnackBarBehavior.floating,
                   ));
                 }
@@ -441,7 +446,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     controller: titleFieldController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
-                        hintText: "Başlık",
+                        hintText: AppLocalizations.of(context)!.title,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
@@ -453,7 +458,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     controller: authorFieldController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
-                        hintText: "Yazar",
+                        hintText: AppLocalizations.of(context)!.authorName,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
@@ -465,7 +470,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     controller: publisherFieldController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
-                        hintText: "Yayıncı",
+                        hintText: AppLocalizations.of(context)!.publisher,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
@@ -473,9 +478,10 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  const Text(
-                    "Kitap durumu",
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  Text(
+                    AppLocalizations.of(context)!.bookStatus,
+                    style: const TextStyle(
+                        fontSize: 17, fontWeight: FontWeight.bold),
                   ),
                   const Divider(
                     thickness: 0,
@@ -490,7 +496,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     controller: publishDateFieldController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
-                        hintText: "Yayın tarihi",
+                        hintText: AppLocalizations.of(context)!.publishDate,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
@@ -516,7 +522,7 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     controller: pageNumberFieldController,
                     decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
-                        hintText: "Sayfa sayısı",
+                        hintText: AppLocalizations.of(context)!.pageCount,
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30))),
                   ),
@@ -524,9 +530,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                     thickness: 0,
                     color: Colors.transparent,
                   ),
-                  const Text("Kitap türü",
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  Text(AppLocalizations.of(context)!.bookFormat,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold)),
                   const Divider(
                     thickness: 0,
                     color: Colors.transparent,
@@ -549,20 +555,22 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
-              text: "Okumak İstiyorum", bookStatusName: BookStatus.wantToRead),
+              text: AppLocalizations.of(context)!.wantToRead,
+              bookStatusName: BookStatus.wantToRead),
         ),
         const Spacer(),
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
-              text: "Şu an okuyorum",
+              text: AppLocalizations.of(context)!.currentlyReading,
               bookStatusName: BookStatus.currentlyReading),
         ),
         const Spacer(),
         Expanded(
           flex: 4,
           child: bookStatusCustomElevatedButton(
-              text: "Okudum", bookStatusName: BookStatus.alreadyRead),
+              text: AppLocalizations.of(context)!.alreadyRead,
+              bookStatusName: BookStatus.alreadyRead),
         ),
         const Spacer()
       ],
@@ -607,19 +615,22 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
-              text: "Kağıt kitap", bookFormatName: BookFormat.paperBook),
+              text: AppLocalizations.of(context)!.paperBook,
+              bookFormatName: BookFormat.paperBook),
         ),
         const Spacer(),
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
-              text: "E-kitap", bookFormatName: BookFormat.ebook),
+              text: AppLocalizations.of(context)!.ebook,
+              bookFormatName: BookFormat.ebook),
         ),
         const Spacer(),
         Expanded(
           flex: 4,
           child: bookTypeCustomElevatedButton(
-              text: "Sesli kitap", bookFormatName: BookFormat.audioBook),
+              text: AppLocalizations.of(context)!.audioBook,
+              bookFormatName: BookFormat.audioBook),
         ),
         const Spacer()
       ],
@@ -678,7 +689,8 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
               Icons.photo_camera_outlined,
               size: 30,
             ),
-            title: const Text("Kamera", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.camera,
+                style: const TextStyle(fontSize: 20)),
           ),
           const Divider(
             height: 0,
@@ -691,7 +703,8 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
               color: Colors.black,
               size: 30,
             ),
-            title: const Text("Galeri", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.gallery,
+                style: const TextStyle(fontSize: 20)),
           ),
         ]);
       },
@@ -721,9 +734,9 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
             isImageSizeSuitable = false;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               duration: const Duration(seconds: 4),
-              content: const Text(
-                  "Seçtiğiniz resimin boyutu yüksek olduğundan dolayı yedeklemede kaybedebilirsiniz."),
-              action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+              content: Text(AppLocalizations.of(context)!.imageSizeWarning),
+              action: SnackBarAction(
+                  label: AppLocalizations.of(context)!.okay, onPressed: () {}),
               behavior: SnackBarBehavior.floating,
             ));
           }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddNoteView extends ConsumerStatefulWidget {
   const AddNoteView(
@@ -39,7 +40,6 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
 
   @override
   void initState() {
-    initializeDateFormatting('tr');
     if (widget.noteId != null) {
       oldNoteId = widget.noteId!;
     }
@@ -68,7 +68,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       },
       child: Scaffold(
         appBar: AppBar(
-            title: Text("Kitaba bir not ekle: ${widget.bookInfo.title}",
+            title: Text(
+                "${AppLocalizations.of(context)!.addNoteToBook}: ${widget.bookInfo.title}",
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold)),
@@ -99,7 +100,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             actions: [
               widget.showDeleteIcon == true
                   ? IconButton(
-                      tooltip: "Notu Sil",
+                      tooltip: AppLocalizations.of(context)!.deleteNote,
                       onPressed: () async {
                         alertDialogBuilder(context);
                       },
@@ -148,7 +149,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                           noteDate: date);
                     }
 
-                    showSnackBar(context, "Not Başarıyla Güncellendi");
+                    showSnackBar(context,
+                        AppLocalizations.of(context)!.noteSuccessfullyUpdated);
                     hasNoteSaved = true;
                     Future.delayed(
                       const Duration(milliseconds: 100),
@@ -185,7 +187,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                           noteDate: date);
                     }
                     ref.read(bookStateProvider.notifier).getPageData();
-                    showSnackBar(context, "Not Başarıyla Eklendi");
+                    showSnackBar(context,
+                        AppLocalizations.of(context)!.noteSuccessfullyAdded);
                     hasNoteSaved = true;
                     Future.delayed(
                       const Duration(milliseconds: 100),
@@ -205,14 +208,17 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   else if (widget.initialNoteValue == "" &&
                       noteFieldController.text == "") {
                     FocusScope.of(context).unfocus();
-                    showSnackBar(context, "Lütfen Önce Bir Not Ekleyin");
+                    showSnackBar(context,
+                        AppLocalizations.of(context)!.pleaseAddNoteFirst);
                   }
                   //there is initial note but trying to save when its empty
                   else if (widget.initialNoteValue != "" &&
                       noteFieldController.text == "") {
                     FocusScope.of(context).unfocus();
                     showSnackBar(
-                        context, "Lütfen Önce Bir Not Ekleyin Yada Notu Silin");
+                        context,
+                        AppLocalizations.of(context)!
+                            .pleaseAddOrDeleteNoteFirst);
                   } else {
                     FocusScope.of(context).unfocus();
                     Future.delayed(
@@ -264,7 +270,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             Text(
                 widget.noteDate != ""
                     ? widget.noteDate
-                    : "${DateFormat("dd MMMM yyy H.mm").format(DateTime.now())} ",
+                    : "${DateFormat("dd MMMM yyy HH.mm").format(DateTime.now())} ",
                 style: TextStyle(
                     color: const Color(0xFF1B7695),
                     fontWeight: FontWeight.bold,
@@ -273,8 +279,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             TextFormField(
               maxLength: 200,
               controller: noteFieldController,
-              decoration: const InputDecoration(
-                hintText: "Notunuzu girin.",
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.enterYourNote,
               ),
               maxLines: null,
               minLines: null,
@@ -289,7 +295,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 2),
       content: Text(text),
-      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+      action: SnackBarAction(
+          label: AppLocalizations.of(context)!.okay, onPressed: () {}),
       behavior: SnackBarBehavior.floating,
     ));
   }
@@ -300,12 +307,12 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       builder: (context) {
         return CustomAlertDialog(
             title: "VastReads",
-            description: "Bu notu silmek istediğinizden emin misiniz?",
-            firstButtonText: "Vazgeç",
+            description: AppLocalizations.of(context)!.confirmDeleteNote,
+            firstButtonText: AppLocalizations.of(context)!.cancel,
             firstButtonOnPressed: () {
               Navigator.pop(context);
             },
-            thirdButtonText: "Sil",
+            thirdButtonText: AppLocalizations.of(context)!.delete,
             thirdButtonOnPressed: () async {
               await ref.read(sqlProvider).deleteNote(widget.noteId!, context);
               if (ref.read(authProvider).currentUser != null) {

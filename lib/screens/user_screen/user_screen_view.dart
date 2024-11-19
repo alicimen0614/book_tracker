@@ -1,5 +1,7 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
+import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
@@ -12,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../auth_screen/auth_view.dart';
 
 class UserScreenView extends ConsumerStatefulWidget {
@@ -98,7 +100,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
         ),
       );
     } else if (isLoading == true && getCurrentUser(ref)!.displayName == null) {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     } else if (isLoading == false && userName != "") {
@@ -116,7 +118,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
       return FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          "Ziyaretçi",
+          AppLocalizations.of(context)!.visitor,
           style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -170,7 +172,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                                         null
                                 ? FirebaseAuth
                                     .instance.currentUser!.displayName!
-                                : "Ziyaretçi",
+                                : AppLocalizations.of(context)!.visitor,
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -186,22 +188,25 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
               padding: const EdgeInsets.all(15.0),
               child: Column(children: [
                 ListTile(
+                  leading: const Icon(Icons.sync),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   tileColor: Colors.white,
-                  title: const FittedBox(
+                  title: FittedBox(
                       alignment: Alignment.centerLeft,
                       fit: BoxFit.scaleDown,
-                      child: Text("Kitapları yedekle veya senkronize et")),
+                      child:
+                          Text(AppLocalizations.of(context)!.backupSyncBooks)),
                   onTap: () async {
                     isConnected = ref.read(connectivityProvider).isConnected;
                     if (ref.read(authProvider).currentUser == null) {
                       ScaffoldMessenger.of(context).clearSnackBars;
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: const Text(
-                            'Kitaplarınızı yedeklemek için giriş yapmalısınız.'),
-                        action:
-                            SnackBarAction(label: 'Tamam', onPressed: () {}),
+                        content: Text(
+                            AppLocalizations.of(context)!.loginToBackupBooks),
+                        action: SnackBarAction(
+                            label: AppLocalizations.of(context)!.okay,
+                            onPressed: () {}),
                         behavior: SnackBarBehavior.floating,
                       ));
                     } else if (isConnected == false) {
@@ -221,9 +226,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                       if (didChangeMade == false) {
                         ScaffoldMessenger.of(context).clearSnackBars;
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: const Text('Şu anda güncelsiniz!'),
-                          action:
-                              SnackBarAction(label: 'Tamam', onPressed: () {}),
+                          content: Text(AppLocalizations.of(context)!.upToDate),
+                          action: SnackBarAction(
+                              label: AppLocalizations.of(context)!.okay,
+                              onPressed: () {}),
                           behavior: SnackBarBehavior.floating,
                         ));
                       }
@@ -236,15 +242,17 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   height: 20,
                 ),
                 ListTile(
+                    leading: const Icon(Icons.play_circle_fill),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     onTap: () async {
                       await _createInterstitialAd();
                     },
-                    title: const FittedBox(
+                    title: FittedBox(
                         alignment: Alignment.centerLeft,
                         fit: BoxFit.scaleDown,
-                        child: Text("Reklam izleyerek destekle",
+                        child: Text(
+                            AppLocalizations.of(context)!.supportWithAds,
                             textAlign: TextAlign.start)),
                     tileColor: Colors.white),
                 const Divider(
@@ -253,19 +261,141 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   height: 20,
                 ),
                 ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Text(AppLocalizations.of(context)!.language,
+                            textAlign: TextAlign.start),
+                      ),
+                      FittedBox(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                            ref.watch(localeProvider).languageCode == "tr"
+                                ? "Türkçe"
+                                : "English",
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(color: Colors.grey)),
+                      )
+                    ],
+                  ),
+                  tileColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  onTap: () {
+                    showModalBottomSheet(
+                      backgroundColor: Colors.grey.shade300,
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30))),
+                      context: context,
+                      builder: (context) {
+                        print(ref.read(localeProvider).runtimeType);
+                        return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                visualDensity: const VisualDensity(vertical: 3),
+                                leading: Image.asset(
+                                  "lib/assets/images/turkey_flag.png",
+                                  fit: BoxFit.scaleDown,
+                                  height: Const.screenSize.height * 0.04,
+                                ),
+                                title: const Text("Türkçe",
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    )),
+                                titleAlignment: ListTileTitleAlignment.center,
+                                trailing:
+                                    ref.watch(localeProvider).languageCode ==
+                                            "tr"
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.black,
+                                          )
+                                        : null,
+                                onTap: () async {
+                                  if (ref.read(localeProvider).languageCode !=
+                                      "tr") {
+                                    await ref
+                                        .read(localeProvider.notifier)
+                                        .changeLocale("tr");
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Dil Türkçe olarak değiştirildi.')));
+                                  }
+                                },
+                              ),
+                              const Divider(height: 0),
+                              ListTile(
+                                  onTap: () async {
+                                    if (ref.read(localeProvider).languageCode !=
+                                        "en") {
+                                      await ref
+                                          .read(localeProvider.notifier)
+                                          .changeLocale("en");
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text(
+                                                  'Language changed to English')));
+                                    }
+                                  },
+                                  visualDensity:
+                                      const VisualDensity(vertical: 3),
+                                  leading: Image.asset(
+                                    "lib/assets/images/uk_flag.png",
+                                    fit: BoxFit.scaleDown,
+                                    height: Const.screenSize.height * 0.04,
+                                  ),
+                                  title: const Text("English",
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                      )),
+                                  titleAlignment: ListTileTitleAlignment.center,
+                                  trailing:
+                                      ref.watch(localeProvider).languageCode ==
+                                              "en"
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: Colors.black,
+                                            )
+                                          : null),
+                            ]);
+                      },
+                    );
+                  },
+                ),
+                const Divider(
+                  endIndent: 10,
+                  indent: 10,
+                  height: 20,
+                ),
+                ListTile(
+                    leading: const Icon(Icons.email),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     tileColor: Colors.white,
-                    title: const Column(
+                    title: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            "Bize ulaşın",
+                            AppLocalizations.of(context)!.contactUs,
                           ),
                         ),
-                        FittedBox(
+                        const FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
                             "cimensoft@gmail.com",
@@ -279,9 +409,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                           .then((value) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(seconds: 2),
-                          content: const Text('E-posta adresi kopyalandı.'),
-                          action:
-                              SnackBarAction(label: 'Tamam', onPressed: () {}),
+                          content:
+                              Text(AppLocalizations.of(context)!.emailCopied),
+                          action: SnackBarAction(
+                              label: AppLocalizations.of(context)!.okay,
+                              onPressed: () {}),
                           behavior: SnackBarBehavior.floating,
                         ));
                       });
@@ -292,6 +424,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   height: 20,
                 ),
                 ListTile(
+                    leading: const Icon(Icons.shield),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     onTap: () async {
@@ -301,10 +434,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                               builder: (context) =>
                                   const AlertForDataSource()));
                     },
-                    title: const FittedBox(
+                    title: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        "Uygulama veri kaynağı ve sorumluluk bildirimi",
+                        AppLocalizations.of(context)!.dataSourceDisclaimer,
                       ),
                     ),
                     tileColor: Colors.white),
@@ -316,6 +449,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   ),
                 isUserLoggedIn == false
                     ? ListTile(
+                        leading: const Icon(Icons.login),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
                         onTap: () {
@@ -326,11 +460,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                                     formStatusData: FormStatus.signIn),
                               ));
                         },
-                        title: const FittedBox(
+                        title: FittedBox(
                             alignment: Alignment.centerLeft,
                             fit: BoxFit.scaleDown,
-                            child:
-                                Text("Giriş Yap", textAlign: TextAlign.start)),
+                            child: Text(AppLocalizations.of(context)!.signIn,
+                                textAlign: TextAlign.start)),
                         tileColor: Colors.white)
                     : const SizedBox.shrink(),
                 if (isUserLoggedIn == false)
@@ -341,6 +475,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   ),
                 isUserLoggedIn == false
                     ? ListTile(
+                        leading: const Icon(Icons.person_add),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
                         onTap: () {
@@ -351,10 +486,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                                     formStatusData: FormStatus.register),
                               ));
                         },
-                        title: const FittedBox(
+                        title: FittedBox(
                             alignment: Alignment.centerLeft,
                             fit: BoxFit.scaleDown,
-                            child: Text("Üye Ol")),
+                            child: Text(AppLocalizations.of(context)!.signUp)),
                         tileColor: Colors.white)
                     : const SizedBox.shrink(),
                 if (isUserLoggedIn == true)
@@ -365,15 +500,16 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                   ),
                 isUserLoggedIn == true
                     ? ListTile(
+                        leading: const Icon(Icons.logout),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
                         onTap: () async {
                           await alertDialogBuilder(context);
                         },
-                        title: const FittedBox(
+                        title: FittedBox(
                             alignment: Alignment.centerLeft,
                             fit: BoxFit.scaleDown,
-                            child: Text("Çıkış Yap")),
+                            child: Text(AppLocalizations.of(context)!.signOut)),
                         tileColor: Colors.white)
                     : const SizedBox.shrink()
               ]),
@@ -390,7 +526,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description: "Çıkış yapmak istediğinizden emin misiniz?",
+          description: AppLocalizations.of(context)!.confirmLogout,
           thirdButtonOnPressed: () {
             ref.read(quotesProvider.notifier).clearMyQuotes();
             ref.read(bookStateProvider.notifier).clearBooks();
@@ -401,11 +537,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
             });
             Navigator.pop(context);
           },
-          thirdButtonText: "Çıkış yap",
+          thirdButtonText: AppLocalizations.of(context)!.signOut,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Vazgeç",
+          firstButtonText: AppLocalizations.of(context)!.cancel,
         );
       },
     );
@@ -430,8 +566,6 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   }
 
   Future<void> _createInterstitialAd() async {
-    print("create çalıştı");
-
     await InterstitialAd.load(
         adUnitId: "ca-app-pub-1939809254312142/7806936586",
         request: const AdRequest(),

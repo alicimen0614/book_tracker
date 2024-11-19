@@ -11,6 +11,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class MyQuotesView extends ConsumerStatefulWidget {
   const MyQuotesView({super.key});
 
@@ -38,7 +40,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
     quotes = ref.watch(quotesProvider).currentUsersQuotes;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alıntılarım"),
+        title: Text(AppLocalizations.of(context)!.myQuotes),
         actions: [
           if (FirebaseAuth.instance.currentUser != null)
             IconButton(
@@ -78,12 +80,10 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
                             isTrendingQuotes: null,
                             quote: quotes[quoteId]!,
                             onDoubleTap: () {
-                              print("doubletap");
                               likePost(quoteId, index);
                             },
                             quoteId: quoteId,
                             onPressedLikeButton: () {
-                              print("doubletap");
                               likePost(quoteId, index);
                             });
                       },
@@ -103,8 +103,9 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
                           Center(
                             child: Text(
                               FirebaseAuth.instance.currentUser != null
-                                  ? "Henüz bir alıntı eklemediniz."
-                                  : "Alıntı ekleyebilmek için önce giriş yapmalısınız.",
+                                  ? AppLocalizations.of(context)!.noQuoteAdded
+                                  : AppLocalizations.of(context)!
+                                      .loginToAddQuote,
                               style: const TextStyle(fontSize: 20),
                               textAlign: TextAlign.center,
                             ),
@@ -169,8 +170,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description:
-              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -180,7 +180,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
                       const AuthView(formStatusData: FormStatus.register),
                 ));
           },
-          secondButtonText: "Kayıt Ol",
+          secondButtonText: AppLocalizations.of(context)!.signUp,
           thirdButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -190,11 +190,11 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> {
                       const AuthView(formStatusData: FormStatus.signIn),
                 ));
           },
-          thirdButtonText: "Giriş Yap",
+          thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Kapat",
+          firstButtonText: AppLocalizations.of(context)!.close,
         );
       },
     );

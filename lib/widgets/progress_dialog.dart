@@ -7,7 +7,7 @@ import 'package:book_tracker/services/auth_service.dart';
 import 'package:book_tracker/widgets/animated_percent_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../databases/firestore_database.dart';
 
 enum CurrentProcess { InsertingToFirebase, InsertingToSql }
@@ -52,12 +52,12 @@ class _ProgressDialogState extends State<ProgressDialog> {
           onPressed: () {
             if (mounted) Navigator.pop(context, didChangeMade);
           },
-          child: const Text("Kapat"),
+          child: Text(AppLocalizations.of(context)!.close),
         )
       ],
-      title: const Text('Kitaplar senkronize ediliyor.',
+      title: Text(AppLocalizations.of(context)!.booksSyncing,
           textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold)),
+          style: const TextStyle(fontWeight: FontWeight.bold)),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         Row(
           children: [
@@ -74,7 +74,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
         AnimatedPercentIndicator(
           percentage: percentage,
         ),
-        const Text("Lütfen bekleyiniz."),
+        Text(AppLocalizations.of(context)!.pleaseWait),
         const Divider(
           color: Colors.transparent,
           thickness: 0,

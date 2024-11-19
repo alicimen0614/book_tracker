@@ -7,6 +7,7 @@ import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SqlHelper {
   Future<Database> _openDatabase() async {
@@ -70,7 +71,7 @@ class SqlHelper {
       );
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingBook);
     }
   }
 
@@ -88,7 +89,7 @@ class SqlHelper {
           [newBookStatus, '$bookId']);
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitap yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingBook);
     }
   }
 
@@ -111,7 +112,7 @@ class SqlHelper {
       );
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Not yazdırılırken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorAddingNote);
     }
   }
 
@@ -249,7 +250,7 @@ class SqlHelper {
       return newStatus.first.values.first;
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Kitaplar getirilirken bir hata oluştu.");
+          infoMessage: AppLocalizations.of(context)!.errorFetchingBooks);
       return null;
     }
   }
@@ -272,7 +273,7 @@ class SqlHelper {
       // Convert the List<Map<String, dynamic> into a List<Notes>.
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Notlar getirilirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorFetchingNotes);
       return null;
     }
   }
@@ -308,7 +309,7 @@ class SqlHelper {
       );
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Not silinirken bir hata oluştu");
+          infoMessage: AppLocalizations.of(context)!.errorDeletingNote);
     }
   }
 

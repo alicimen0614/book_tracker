@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'shimmer_effect_builders/book_info_view_shimmer.dart';
 
 class BookInfoView extends ConsumerStatefulWidget {
@@ -56,7 +56,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           actions: [
             if (mainBook.key != null)
               IconButton(
-                  tooltip: "OpenLibrary üzerinde incele",
+                  tooltip: AppLocalizations.of(context)!.reviewOnOpenLibrary,
                   onPressed: () {
                     launchUrl(
                         Uri.parse("https://openlibrary.org/${mainBook.key}"));
@@ -67,7 +67,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           ],
           leadingWidth: 50,
           title: Text(
-            "Kitap Detayı",
+            AppLocalizations.of(context)!.bookDetail,
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: MediaQuery.of(context).size.height / 40),
@@ -141,7 +141,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Mevcut Diller",
+                  AppLocalizations.of(context)!.availableLanguages,
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -150,11 +150,11 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             const SizedBox(
               width: 5,
             ),
-            const Tooltip(
-              showDuration: Duration(seconds: 3),
+            Tooltip(
+              showDuration: const Duration(seconds: 3),
               triggerMode: TooltipTriggerMode.tap,
-              message: "Buradaki diller mevcut tüm dilleri göstermeyebilir.",
-              child: Icon(Icons.info_outline, color: Colors.black),
+              message: AppLocalizations.of(context)!.limitedLanguagesDisplayed,
+              child: const Icon(Icons.info_outline, color: Colors.black),
             )
           ],
         ),
@@ -220,7 +220,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Baskılar",
+              AppLocalizations.of(context)!.editions,
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -328,7 +328,8 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   ));
                 },
                 child: Text(
-                  "$bookEditionsSize Baskının Tümünü Görüntüle",
+                  AppLocalizations.of(context)!
+                      .viewAllEditions(bookEditionsSize!),
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.height / 60),
@@ -343,7 +344,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "İlk Cümle",
+              AppLocalizations.of(context)!.firstSentence,
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -378,13 +379,13 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               },
               child: textShowMoreForFirstSentence == false
                   ? Text(
-                      "Daha fazla",
+                      AppLocalizations.of(context)!.showMore,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 60),
                     )
                   : Text(
-                      "Daha az",
+                      AppLocalizations.of(context)!.showLess,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 60),
@@ -402,7 +403,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
         Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Açıklama",
+              AppLocalizations.of(context)!.description,
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -449,13 +450,13 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
               },
               child: textShowMoreForDescription == false
                   ? Text(
-                      "Daha fazla",
+                      AppLocalizations.of(context)!.showMore,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 60),
                     )
                   : Text(
-                      "Daha az",
+                      AppLocalizations.of(context)!.showLess,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 60),

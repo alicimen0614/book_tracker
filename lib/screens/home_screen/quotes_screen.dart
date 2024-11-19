@@ -12,6 +12,7 @@ import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuotesScreen extends ConsumerStatefulWidget {
   const QuotesScreen({super.key});
@@ -51,7 +52,7 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                 SliverAppBar(
                   automaticallyImplyLeading: false,
                   leading: IconButton(
-                    tooltip: "Yeni Alıntı Ekle",
+                    tooltip: AppLocalizations.of(context)!.addQuote,
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -78,25 +79,25 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                   expandedHeight: 150,
                   pinned: true,
                   floating: true,
-                  title: const Text("Alıntılar"),
-                  bottom: const TabBar(
+                  title: Text(AppLocalizations.of(context)!.quotes),
+                  bottom: TabBar(
                     tabAlignment: TabAlignment.fill,
                     unselectedLabelColor: Colors.white60,
                     indicatorColor: Colors.white,
                     labelColor: Colors.white,
                     indicatorSize: TabBarIndicatorSize.tab,
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 15,
                       fontFamily: "Nunito Sans",
                       fontWeight: FontWeight.bold,
                     ),
                     tabs: [
                       Tab(
-                          text: "Trendler",
-                          icon: Icon(Icons.trending_up_rounded)),
+                          text: AppLocalizations.of(context)!.trendings,
+                          icon: const Icon(Icons.trending_up_rounded)),
                       Tab(
-                          text: "En Yeni",
-                          icon: Icon(Icons.access_time_rounded))
+                          text: AppLocalizations.of(context)!.newest,
+                          icon: const Icon(Icons.access_time_rounded))
                     ],
                     indicatorWeight: 5,
                   ),
@@ -193,14 +194,12 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
           final quoteId = watchQuotesList.keys.toList()[index];
           return QuoteWidget(
               onDoubleTap: () {
-                print("doubletap");
                 likePost(quoteId, index, isTrendingQuotes);
               },
               quote: readQuotesList[quoteId]!,
               quoteId: quoteId,
               isTrendingQuotes: isTrendingQuotes,
               onPressedLikeButton: () {
-                print("doubletap");
                 likePost(quoteId, index, isTrendingQuotes);
               });
         },
@@ -270,8 +269,7 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
       builder: (context) {
         return CustomAlertDialog(
           title: "VastReads",
-          description:
-              "Bir gönderiyi beğenebilmek için giriş yapmış olmalısınız.",
+          description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -281,7 +279,7 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                       const AuthView(formStatusData: FormStatus.register),
                 ));
           },
-          secondButtonText: "Kayıt Ol",
+          secondButtonText: AppLocalizations.of(context)!.signUp,
           thirdButtonOnPressed: () {
             Navigator.pop(context);
             Navigator.push(
@@ -291,11 +289,11 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                       const AuthView(formStatusData: FormStatus.signIn),
                 ));
           },
-          thirdButtonText: "Giriş Yap",
+          thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {
             Navigator.pop(context);
           },
-          firstButtonText: "Kapat",
+          firstButtonText: AppLocalizations.of(context)!.close,
         );
       },
     );

@@ -1,8 +1,10 @@
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/screens/discover_screen/categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/search_screen_view.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum PageStatus { search, categories, trending }
 
@@ -40,92 +42,96 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return SafeArea(
-      child: Scaffold(
-          body: GestureDetector(
-        onTap: () {
-          FocusScopeNode currentFocus = FocusScope.of(context);
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-        },
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (pageStatus == PageStatus.categories)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                child: searchBarBuilder(),
+    return Scaffold(
+        body: GestureDetector(
+      onTap: () {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.unfocus();
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (pageStatus == PageStatus.categories)
+            Container(
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25)),
+                  color: Color(0xFF1B7695)),
+              padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+              height: Const.screenSize.height * 0.15,
+              child: searchBarBuilder(),
+            )
+          else if (widget.searchValue != "")
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                  child: searchBarBuilder(),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: FittedBox(
+                        child: Text(
+                          AppLocalizations.of(context)!.cancel,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      )),
+                ),
               )
-            else if (widget.searchValue != "")
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                    child: searchBarBuilder(),
-                  ),
+            ])
+          else
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
+                  child: searchBarBuilder(),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const FittedBox(
-                          child: Text(
-                            "Vazgeç",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        )),
-                  ),
-                )
-              ])
-            else
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 4, 5),
-                    child: searchBarBuilder(),
-                  ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          pageStatus = PageStatus.categories;
+                          searchBarController.clear();
+                        });
+                      },
+                      child: FittedBox(
+                        child: Text(
+                          AppLocalizations.of(context)!.cancel,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      )),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 4),
-                    child: TextButton(
-                        onPressed: () {
-                          setState(() {
-                            pageStatus = PageStatus.categories;
-                            searchBarController.clear();
-                          });
-                        },
-                        child: const FittedBox(
-                          child: Text(
-                            "Vazgeç",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        )),
-                  ),
-                )
-              ]),
-            pageStatus == PageStatus.search || widget.searchValue != ""
-                ? SearchScreenView(
-                    searchValue: widget.searchValue == "" ||
-                            searchBarController.text != widget.searchValue
-                        ? searchBarController.text
-                        : widget.searchValue)
-                : pageStatus == PageStatus.trending
-                    ? const TrendingBooksView(date: "monthly")
-                    : const CategoriesView()
-          ],
-        ),
-      )),
-    );
+              )
+            ]),
+          pageStatus == PageStatus.search || widget.searchValue != ""
+              ? SearchScreenView(
+                  searchValue: widget.searchValue == "" ||
+                          searchBarController.text != widget.searchValue
+                      ? searchBarController.text
+                      : widget.searchValue)
+              : pageStatus == PageStatus.trending
+                  ? const TrendingBooksView(date: "monthly")
+                  : const CategoriesView()
+        ],
+      ),
+    ));
   }
 
   Row searchBarBuilder() {
@@ -143,11 +149,14 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
               });
             },
             controller: searchBarController,
+            cursorColor: Colors.black,
             keyboardType: TextInputType.text,
             autocorrect: true,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
               contentPadding: const EdgeInsets.all(15),
-              hintText: "Ara",
+              hintText: AppLocalizations.of(context)!.search,
               focusedBorder: OutlineInputBorder(
                   borderSide: const BorderSide(
                     color: Color(0xFF1B7695),

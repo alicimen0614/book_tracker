@@ -8,6 +8,7 @@ import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BooksListView extends ConsumerStatefulWidget {
   const BooksListView({super.key, required this.isNotes});
@@ -41,7 +42,9 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-            "${widget.isNotes == true ? "Not eklemek" : "Alıntı eklemek"} istediğin kitabı seç",
+            widget.isNotes == true
+                ? AppLocalizations.of(context)!.selectBookToAddNote
+                : AppLocalizations.of(context)!.selectBookToAddQuote,
             style: TextStyle(
                 fontSize: MediaQuery.of(context).size.height / 40,
                 fontWeight: FontWeight.bold)),
@@ -285,7 +288,7 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                         height: MediaQuery.of(context).size.width / 10,
                       ),
                       Text(
-                        "Şu anda kitaplığınız boş.",
+                        AppLocalizations.of(context)!.emptyLibraryMessage,
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40,
                         ),
@@ -294,7 +297,9 @@ class _BooksListViewState extends ConsumerState<BooksListView> {
                         height: MediaQuery.of(context).size.height / 60,
                       ),
                       Text(
-                        "${widget.isNotes == true ? "Not eklemek" : "Alıntı eklemek"} için önce kitap eklemelisiniz.",
+                        widget.isNotes == true
+                            ? AppLocalizations.of(context)!.addBookBeforeNote
+                            : AppLocalizations.of(context)!.addBookBeforeQuote,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: MediaQuery.of(context).size.height / 40,

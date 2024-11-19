@@ -8,6 +8,7 @@ import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -114,10 +115,10 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   children: [
                     Text(
                         formStatus == FormStatus.register
-                            ? "Kayıt Ol"
+                            ? AppLocalizations.of(context)!.signUp
                             : formStatus == FormStatus.signIn
-                                ? "Giriş Yap"
-                                : "Parola Sıfırla",
+                                ? AppLocalizations.of(context)!.signIn
+                                : AppLocalizations.of(context)!.resetPassword,
                         style: const TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
@@ -168,11 +169,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   if (EmailValidator.validate(value!)) {
                     return null;
                   } else {
-                    return 'Lütfen geçerli bir E-posta adresi giriniz.';
+                    return AppLocalizations.of(context)!.enterValidEmail;
                   }
                 },
                 controller: signInEmailController,
-                hintText: "E-mail",
+                hintText: AppLocalizations.of(context)!.email,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.mail,
@@ -183,14 +184,14 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: TextFieldWidget(
                 validator: (value) {
                   if (value!.length < 6 || value.length > 16) {
-                    return "Şifreniz 6-16 karakter arasında olmalıdır";
+                    return AppLocalizations.of(context)!.passwordLength;
                   } else {
                     return null;
                   }
                 },
                 controller: signInPasswordController,
                 obscureText: true,
-                hintText: "Şifre",
+                hintText: AppLocalizations.of(context)!.password,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
@@ -207,9 +208,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                         formStatus = FormStatus.reset;
                       });
                     },
-                    child: const Text(
-                      "Şifremi Unuttum",
-                    )),
+                    child: Text(AppLocalizations.of(context)!.forgotPassword)),
               ),
             ),
             Expanded(
@@ -244,7 +243,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       }
                     }
                   },
-                  text: "Giriş Yap",
+                  text: AppLocalizations.of(context)!.signIn,
                   widthSize: 200,
                   backgroundColor: const Color.fromRGBO(204, 149, 68, 1)),
             ),
@@ -272,16 +271,14 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Üye değil misin?"),
+                  Text(AppLocalizations.of(context)!.notAMemberYet),
                   TextButton(
                       onPressed: () {
                         setState(() {
                           formStatus = FormStatus.register;
                         });
                       },
-                      child: const Text(
-                        "Üye Ol",
-                      )),
+                      child: Text(AppLocalizations.of(context)!.signUp)),
                 ],
               ),
             )
@@ -305,11 +302,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   if (value!.length >= 3) {
                     return null;
                   } else {
-                    return 'Lütfen daha uzun bir isim giriniz.';
+                    return AppLocalizations.of(context)!.enterLongerName;
                   }
                 },
                 controller: registerNameController,
-                hintText: "Ad Soyad",
+                hintText: AppLocalizations.of(context)!.fullName,
                 autoCorrect: true,
                 keyboardType: TextInputType.name,
                 prefixIconData: Icons.account_circle,
@@ -322,11 +319,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   if (EmailValidator.validate(value!)) {
                     return null;
                   } else {
-                    return 'Lütfen geçerli bir E-posta adresi giriniz.';
+                    return AppLocalizations.of(context)!.enterValidEmail;
                   }
                 },
                 controller: registerEmailController,
-                hintText: "E-posta",
+                hintText: AppLocalizations.of(context)!.email,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.mail,
@@ -337,18 +334,18 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: TextFieldWidget(
                 validator: (value) {
                   if (value!.length < 6 || value.length > 16) {
-                    return "Şifreniz 6-16 karakter arasında olmalıdır";
+                    return AppLocalizations.of(context)!.passwordLength;
                   } else if (value != registerPasswordConfirmController.text) {
-                    return 'Şifreler Uyuşmuyor';
+                    return AppLocalizations.of(context)!.passwordsDoNotMatch;
                   } else if (value.contains(" ")) {
-                    return "Şifrede boşluk olamaz.";
+                    return AppLocalizations.of(context)!.passwordNoSpaces;
                   } else {
                     return null;
                   }
                 },
                 controller: registerPasswordController,
                 obscureText: true,
-                hintText: "Şifre",
+                hintText: AppLocalizations.of(context)!.password,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
@@ -360,18 +357,18 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: TextFieldWidget(
                 validator: (value) {
                   if (value!.length < 6 || value.length > 16) {
-                    return "Şifreniz 6-16 karakter arasında olmalıdır";
+                    return AppLocalizations.of(context)!.passwordLength;
                   } else if (value != registerPasswordConfirmController.text) {
-                    return 'Şifreler Uyuşmuyor';
+                    return AppLocalizations.of(context)!.passwordsDoNotMatch;
                   } else if (value.contains(" ")) {
-                    return "Şifrede boşluk olamaz.";
+                    return AppLocalizations.of(context)!.passwordNoSpaces;
                   } else {
                     return null;
                   }
                 },
                 controller: registerPasswordConfirmController,
                 obscureText: true,
-                hintText: "Şifre tekrar",
+                hintText: AppLocalizations.of(context)!.confirmPassword,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.lock,
@@ -414,7 +411,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       );
                     }
                   },
-                  text: "Kayıt Ol",
+                  text: AppLocalizations.of(context)!.signUp,
                   widthSize: 200,
                   backgroundColor: const Color.fromRGBO(204, 149, 68, 1)),
             ),
@@ -442,15 +439,15 @@ class _AuthViewState extends ConsumerState<AuthView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Zaten üye misin?"),
+                  Text(AppLocalizations.of(context)!.alreadyAMember),
                   TextButton(
                       onPressed: () {
                         setState(() {
                           formStatus = FormStatus.signIn;
                         });
                       },
-                      child: const Text(
-                        "Giriş Yap",
+                      child: Text(
+                        AppLocalizations.of(context)!.signIn,
                       )),
                 ],
               ),
@@ -475,11 +472,11 @@ class _AuthViewState extends ConsumerState<AuthView> {
                   if (EmailValidator.validate(value!)) {
                     return null;
                   } else {
-                    return "Lütfen geçerli bir e-mail adresi giriniz";
+                    return AppLocalizations.of(context)!.enterValidEmail;
                   }
                 },
                 controller: resetEmailController,
-                hintText: "E-mail",
+                hintText: AppLocalizations.of(context)!.email,
                 autoCorrect: true,
                 keyboardType: TextInputType.emailAddress,
                 prefixIconData: Icons.mail,
@@ -489,7 +486,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
               flex: 3,
               child: AnimatedButton(
                   onTap: () {},
-                  text: "Gönder",
+                  text: AppLocalizations.of(context)!.send,
                   widthSize: 200,
                   backgroundColor: const Color.fromRGBO(204, 149, 68, 1)),
             ),
@@ -519,8 +516,8 @@ class _AuthViewState extends ConsumerState<AuthView> {
                       formStatus = FormStatus.signIn;
                     });
                   },
-                  child: const Text(
-                    "Giriş Yap",
+                  child: Text(
+                    AppLocalizations.of(context)!.signIn,
                   )),
             )
           ],

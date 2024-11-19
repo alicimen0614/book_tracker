@@ -13,6 +13,7 @@ import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'shimmer_effects/library_screen_shimmer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 
@@ -46,7 +47,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           leading: Row(
             children: [
               IconButton(
-                  tooltip: "Alıntılarım",
+                  tooltip: AppLocalizations.of(context)!.myQuotes,
                   splashRadius: 25,
                   onPressed: () {
                     Navigator.push(
@@ -65,7 +66,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   )),
               ref.watch(bookStateProvider).isLoading == false
                   ? IconButton(
-                      tooltip: "Notlarım",
+                      tooltip: AppLocalizations.of(context)!.myNotes,
                       splashRadius: 25,
                       onPressed: () {
                         Navigator.push(
@@ -90,7 +91,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           ),
           actions: [
             IconButton(
-                tooltip: "Kitapları yenile",
+                tooltip: AppLocalizations.of(context)!.refreshBooks,
                 splashRadius: 25,
                 onPressed: () async {
                   await ref.read(bookStateProvider.notifier).getPageData();
@@ -104,7 +105,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                       color: Color(0xFF1B7695),
                     ))),
             IconButton(
-                tooltip: "Ekle",
+                tooltip: AppLocalizations.of(context)!.add,
                 splashRadius: 25,
                 onPressed: () {
                   modalBottomSheetBuilderForAddIcon(context);
@@ -126,7 +127,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
           ],
           centerTitle: true,
           title: Text(
-            "Kitaplığım",
+            AppLocalizations.of(context)!.myLibrary,
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: MediaQuery.of(context).size.height / 40),
@@ -145,26 +146,26 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               ),
               tabs: [
                 Tab(
-                  text: "Tümü",
+                  text: AppLocalizations.of(context)!.all,
                   icon: Image.asset(
                     "lib/assets/images/books.png",
                     height: 30,
                   ),
                 ),
                 Tab(
-                    text: "Şu an okuduklarım",
+                    text: AppLocalizations.of(context)!.currentlyReading,
                     icon: Image.asset(
                       "lib/assets/images/reading.png",
                       height: 30,
                     )),
                 Tab(
-                    text: "Okumak istediklerim",
+                    text: AppLocalizations.of(context)!.wantToRead,
                     icon: Image.asset(
                       "lib/assets/images/want_to_read.png",
                       height: 30,
                     )),
                 Tab(
-                    text: "Okuduklarım",
+                    text: AppLocalizations.of(context)!.alreadyRead,
                     icon: Image.asset(
                       "lib/assets/images/alreadyread.png",
                       height: 30,
@@ -427,9 +428,9 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                   SizedBox(
                     height: MediaQuery.of(context).size.width / 10,
                   ),
-                  const Text(
-                    "Şu anda kitaplığınız boş.",
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.emptyLibraryMessage,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                     textAlign: TextAlign.center,
@@ -461,10 +462,11 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
       context: context,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
-          const ListTile(
-            title: Text("Ekle",
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.add,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             titleAlignment: ListTileTitleAlignment.center,
           ),
           const Divider(height: 0),
@@ -485,8 +487,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               Icons.keyboard,
               size: 30,
             ),
-            title: const Text("Kendi kitabını ekle",
-                style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.addYourBook,
+                style: const TextStyle(fontSize: 20)),
           ),
           const Divider(height: 0),
           ListTile(
@@ -502,8 +504,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
               Icons.post_add,
               size: 30,
             ),
-            title:
-                const Text("Kitabına not ekle", style: TextStyle(fontSize: 20)),
+            title: Text(AppLocalizations.of(context)!.addNoteToBook,
+                style: const TextStyle(fontSize: 20)),
           ),
           if (FirebaseAuth.instance.currentUser != null)
             const Divider(height: 0),
@@ -521,8 +523,8 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 Icons.library_add_outlined,
                 size: 30,
               ),
-              title: const Text("Kitabına alıntı ekle",
-                  style: TextStyle(fontSize: 20)),
+              title: Text(AppLocalizations.of(context)!.addQuoteToBook,
+                  style: const TextStyle(fontSize: 20)),
             )
         ]);
       },

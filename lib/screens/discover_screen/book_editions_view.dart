@@ -8,6 +8,7 @@ import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookEditionsView extends ConsumerStatefulWidget {
   const BookEditionsView(
@@ -62,7 +63,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
         centerTitle: true,
         leadingWidth: 50,
         title: Text(
-          "${widget.title} Baskıları",
+          AppLocalizations.of(context)!.bookEditions(widget.title),
           style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: MediaQuery.of(context).size.height / 40),
@@ -89,7 +90,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
             PagedChildBuilderDelegate<BookWorkEditionsModelEntries?>(
           newPageErrorIndicatorBuilder: (context) =>
               newPageErrorIndicatorBuilder(
-                  () => pagingController.retryLastFailedRequest()),
+                  () => pagingController.retryLastFailedRequest(), context),
           firstPageErrorIndicatorBuilder: (context) {
             if (!isConnected) {
               return booksListError(

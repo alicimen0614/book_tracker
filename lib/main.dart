@@ -1,10 +1,13 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,15 +17,21 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Intl.defaultLocale = 'tr';
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeProvider).languageCode == "tr"
+        ? timeago.setLocaleMessages("tr", timeago.TrMessages())
+        : timeago.setLocaleMessages("en", timeago.EnMessages());
+    Intl.defaultLocale = ref.watch(localeProvider).languageCode;
     Const.init(context);
     return MaterialApp(
       title: 'Book Tracker',
+      locale: Locale(ref.watch(localeProvider).languageCode),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1B7695),

@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum BookStatus { wantToRead, currentlyReading, alreadyRead }
 
@@ -109,7 +110,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     if (widget.editionInfo.isbn_13 != null ||
                         widget.editionInfo.isbn_10 != null)
                       IconButton(
-                          tooltip: "GoodReads üzerinde incele",
+                          tooltip:
+                              AppLocalizations.of(context)!.reviewOnGoodReads,
                           onPressed: () {
                             launchUrl(Uri.parse(
                                 "https://www.goodreads.com/search?q=${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
@@ -121,7 +123,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     if (widget.editionInfo.isbn_13 != null ||
                         widget.editionInfo.isbn_10 != null)
                       IconButton(
-                          tooltip: "OpenLibrary üzerinde incele",
+                          tooltip:
+                              AppLocalizations.of(context)!.reviewOnOpenLibrary,
                           onPressed: () {
                             launchUrl(Uri.parse(
                                 "https://openlibrary.org/isbn/${widget.editionInfo.isbn_13 ?? widget.editionInfo.isbn_10}"));
@@ -132,7 +135,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     widget.isNavigatingFromLibrary == true &&
                             FirebaseAuth.instance.currentUser != null
                         ? IconButton(
-                            tooltip: "Alıntı Ekle",
+                            tooltip: AppLocalizations.of(context)!.addQuote,
                             splashRadius: 25,
                             onPressed: () {
                               Navigator.push(
@@ -153,7 +156,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         : const SizedBox.shrink(),
                     widget.isNavigatingFromLibrary == true
                         ? IconButton(
-                            tooltip: "Not Ekle",
+                            tooltip: AppLocalizations.of(context)!.addNote,
                             splashRadius: 25,
                             onPressed: () {
                               Navigator.push(
@@ -201,15 +204,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   flexibleSpace: FlexibleSpaceBar(
                     background: bookCoverAndDetailsBuilder(context),
                   )),
-              SliverFillRemaining(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    isLoading != true
-                        ? editionInfoBodyBuilder(context)
-                        : detailedEditionInfoShimmerBuilder(context)
-                  ],
-                ),
+              SliverToBoxAdapter(
+                child: isLoading != true
+                    ? editionInfoBodyBuilder(context)
+                    : detailedEditionInfoShimmerBuilder(context),
               )
             ],
           )),
@@ -302,7 +300,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Yayın Tarihi",
+                    AppLocalizations.of(context)!.publishDate,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -327,7 +325,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Sayfa Sayısı",
+                  Text(AppLocalizations.of(context)!.pageCount,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -351,7 +349,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Dil",
+                  Text(AppLocalizations.of(context)!.language,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -414,8 +412,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               doesBookAlreadyExist[
                                       "doesBookExistOnFirestore"] ==
                                   true
-                          ? "Raftan çıkar"
-                          : "Rafa ekle",
+                          ? AppLocalizations.of(context)!.removeFromShelf
+                          : AppLocalizations.of(context)!.addToShelf,
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40)),
                 )
@@ -425,7 +423,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               : const SizedBox.shrink(),
           widget.isNavigatingFromLibrary == true
               ? ListTile(
-                  title: Text("Kitap durumunu değiştir",
+                  title: Text(AppLocalizations.of(context)!.changeBookStatus,
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40)),
                   shape: const RoundedRectangleBorder(
@@ -506,7 +504,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.edit_document,
                     size: 30,
                   ),
-                  title: Text("Kitabı düzenle",
+                  title: Text(AppLocalizations.of(context)!.editBook,
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40)),
                 )
@@ -526,7 +524,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               Icons.info_outline,
               size: 30,
             ),
-            title: Text("Bilgi",
+            title: Text(AppLocalizations.of(context)!.information,
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 40)),
           ),
@@ -545,8 +543,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       duration: const Duration(seconds: 2),
-                      content: const Text('Kitap başarıyla silindi.'),
-                      action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                      content: Text(AppLocalizations.of(context)!
+                          .bookSuccessfullyDeleted),
+                      action: SnackBarAction(
+                          label: AppLocalizations.of(context)!.okay,
+                          onPressed: () {}),
                       behavior: SnackBarBehavior.floating,
                     ));
                   },
@@ -554,7 +555,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     Icons.delete,
                     size: 30,
                   ),
-                  title: Text("Sil",
+                  title: Text(AppLocalizations.of(context)!.delete,
                       style: TextStyle(
                           fontSize: MediaQuery.of(context).size.height / 40)),
                 )
@@ -622,9 +623,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "Yeni kitap durumunu seçiniz.",
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .selectNewBookStatus,
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               ),
                               const SizedBox(
@@ -632,7 +634,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: const Text("Okumak istediklerim"),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.wantToRead),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.wantToRead;
                                   }),
@@ -649,7 +652,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: const Text("Şu an okuduklarım"),
+                                  child: Text(AppLocalizations.of(context)!
+                                      .currentlyReading),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.currentlyReading;
                                   }),
@@ -666,7 +670,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                               ),
                               ListTile(
                                 title: GestureDetector(
-                                  child: const Text("Okuduklarım"),
+                                  child: Text(AppLocalizations.of(context)!
+                                      .alreadyRead),
                                   onTap: () => setState(() {
                                     bookStatus = BookStatus.alreadyRead;
                                   }),
@@ -689,7 +694,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: const Text("Vazgeç")),
+                                      child: Text(AppLocalizations.of(context)!
+                                          .cancel)),
                                   TextButton(
                                       onPressed: () async {
                                         setState(() {
@@ -773,10 +779,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               .showSnackBar(SnackBar(
                                             duration:
                                                 const Duration(seconds: 3),
-                                            content: const Text(
-                                                'Kitap durumu başarıyla güncellendi.'),
+                                            content: Text(AppLocalizations.of(
+                                                    context)!
+                                                .bookStatusUpdatedSuccessfully),
                                             action: SnackBarAction(
-                                                label: 'Tamam',
+                                                label: AppLocalizations.of(
+                                                        context)!
+                                                    .okay,
                                                 onPressed: () {}),
                                             behavior: SnackBarBehavior.floating,
                                           ));
@@ -791,7 +800,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
 
                                         Navigator.pop(context, hasChangeMade);
                                       },
-                                      child: const Text("Onayla"))
+                                      child: Text(AppLocalizations.of(context)!
+                                          .confirm))
                                 ],
                               )
                             ],
@@ -871,8 +881,10 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             context)
         .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               duration: const Duration(seconds: 1),
-              content: const Text('Kitap başarıyla kitaplığına eklendi.'),
-              action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+              content: Text(
+                  AppLocalizations.of(context)!.bookSuccessfullyAddedToLibrary),
+              action: SnackBarAction(
+                  label: AppLocalizations.of(context)!.okay, onPressed: () {}),
               behavior: SnackBarBehavior.floating,
             )));
   }
@@ -938,14 +950,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       child: Scrollbar(
         thickness: 3,
         radius: const Radius.circular(20),
-        child: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          physics: const NeverScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Başlık",
+                AppLocalizations.of(context)!.title,
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: MediaQuery.of(context).size.height / 50,
@@ -968,7 +979,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       widget.editionInfo.authorsNames!.isNotEmpty) ||
                   authorsNames.isNotEmpty)
                 Text(
-                  "Yazarlar",
+                  AppLocalizations.of(context)!.authors,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -997,7 +1008,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.description != null)
                 Text(
-                  "Açıklama",
+                  AppLocalizations.of(context)!.description,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -1044,11 +1055,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         });
                       },
                       child: descriptionShowMore == false
-                          ? Text("Daha fazla göster",
+                          ? Text(AppLocalizations.of(context)!.showMore,
                               style: TextStyle(
                                   fontSize:
                                       MediaQuery.of(context).size.height / 60))
-                          : Text("Daha az göster",
+                          : Text(AppLocalizations.of(context)!.showLess,
                               style: TextStyle(
                                   fontSize: MediaQuery.of(context).size.height /
                                       60))),
@@ -1057,7 +1068,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.publishers != null)
                 Text(
-                  "Yayıncı",
+                  AppLocalizations.of(context)!.publisher,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -1078,7 +1089,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.physical_format != null)
                 Text(
-                  "Kitap formatı",
+                  AppLocalizations.of(context)!.bookFormat,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -1092,7 +1103,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                   child: widget.editionInfo.physical_format == "paperback" ||
                           widget.editionInfo.physical_format == "Paperback"
                       ? Text(
-                          "Ciltsiz",
+                          AppLocalizations.of(context)!.paperback,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: MediaQuery.of(context).size.height / 60,
@@ -1101,7 +1112,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       : widget.editionInfo.physical_format == "hardcover" ||
                               widget.editionInfo.physical_format == "Hardcover"
                           ? Text(
-                              "Ciltli",
+                              AppLocalizations.of(context)!.hardcover,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize:
@@ -1111,7 +1122,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           : widget.editionInfo.physical_format == "E-book" ||
                                   widget.editionInfo.physical_format == "Ebook"
                               ? Text(
-                                  "E-kitap",
+                                  AppLocalizations.of(context)!.ebook,
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize:
@@ -1173,7 +1184,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (widget.editionInfo.bookStatus != null)
                 Text(
-                  "Kitap durumu",
+                  AppLocalizations.of(context)!.bookStatus,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -1185,7 +1196,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 SizedBox(
                     width: MediaQuery.sizeOf(context).width - 40,
                     child: Text(
-                      bookStatusAsString,
+                      bookStatusAsString == "Okumak istediklerim"
+                          ? AppLocalizations.of(context)!.wantToRead
+                          : bookStatusAsString == "Şu an okuduklarım"
+                              ? AppLocalizations.of(context)!.currentlyReading
+                              : AppLocalizations.of(context)!.alreadyRead,
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: MediaQuery.of(context).size.height / 60),
@@ -1194,7 +1209,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                 const Divider(color: Colors.transparent, thickness: 0),
               if (notesList!.isEmpty != true)
                 Text(
-                  "Notlar",
+                  AppLocalizations.of(context)!.notes,
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: MediaQuery.of(context).size.height / 50,
@@ -1362,13 +1377,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       builder: (context) {
         return CustomAlertDialog(
             title: "VastReads",
-            description:
-                "Bu kitabı kitaplığınızdan silmek istediğinizden emin misiniz?",
-            firstButtonText: "Vazgeç",
+            description: AppLocalizations.of(context)!.confirmDeleteBook,
+            firstButtonText: AppLocalizations.of(context)!.close,
             firstButtonOnPressed: () {
               Navigator.pop(context);
             },
-            thirdButtonText: "Sil",
+            thirdButtonText: AppLocalizations.of(context)!.delete,
             thirdButtonOnPressed: () async {
               await deleteAuthorsFromSql(widget.editionInfo);
               await deleteNote(widget.editionInfo);
@@ -1379,8 +1393,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 duration: const Duration(seconds: 1),
-                content: const Text('Kitap başarıyla silindi.'),
-                action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+                content:
+                    Text(AppLocalizations.of(context)!.bookSuccessfullyDeleted),
+                action: SnackBarAction(
+                    label: AppLocalizations.of(context)!.okay,
+                    onPressed: () {}),
                 behavior: SnackBarBehavior.floating,
               ));
             });

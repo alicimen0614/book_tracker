@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 @override
 Center booksListError(
-  bool isNetworkError,
-  BuildContext context,
-  VoidCallback? onTryAgain, {
-  String title = 'Bir şeyler yanlış gitti.',
-  String? message = 'Uygulama bilinmeyen bir hatayla karşılaştı.\n'
-      'Lütfen daha sonra tekrar deneyin.',
-}) {
+    bool isNetworkError, BuildContext context, VoidCallback? onTryAgain,
+    {String title = '', String? message = ''}) {
   if (isNetworkError == true) {
-    title = "İnternete bağlanılamadı";
-    message = "Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.";
+    title = AppLocalizations.of(context)!.noInternetConnection;
+    message = AppLocalizations.of(context)!.checkInternetConnection;
+  } else {
+    title = AppLocalizations.of(context)!.somethingWentWrong;
+    message =
+        "${AppLocalizations.of(context)!.appEncounteredError} \n ${AppLocalizations.of(context)!.tryAgainLater}";
   }
 
   return Center(
@@ -61,9 +61,9 @@ Center booksListError(
                   Icons.refresh,
                   color: Colors.white,
                 ),
-                label: const Text(
-                  'Tekrar dene',
-                  style: TextStyle(
+                label: Text(
+                  AppLocalizations.of(context)!.retry,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white,
                   ),

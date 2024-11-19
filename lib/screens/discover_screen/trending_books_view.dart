@@ -7,6 +7,7 @@ import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TrendingBooksView extends ConsumerStatefulWidget {
   const TrendingBooksView({super.key, required this.date});
@@ -68,7 +69,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
         centerTitle: true,
         leadingWidth: 50,
         title: Text(
-          "Aylık Trend Kitaplar",
+          AppLocalizations.of(context)!.monthlyTrendingBooks,
           style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: MediaQuery.of(context).size.height / 40),

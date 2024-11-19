@@ -1,4 +1,5 @@
 import 'package:book_tracker/providers/connectivity_provider.dart';
+import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import '../screens/discover_screen/discover_screen_view.dart';
 import '../screens/home_screen/home_screen_view.dart';
 import '../screens/library_screen/library_screen_view.dart';
 import '../screens/user_screen/user_screen_view.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BottomNavigationBarController extends ConsumerStatefulWidget {
   const BottomNavigationBarController({super.key, this.searchValue = ""});
@@ -45,6 +48,7 @@ class _BottomNavigationBarControllerState
   @override
   void initState() {
     ref.read(connectivityProvider.notifier).isConnected;
+    ref.read(localeProvider).countryCode;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(bookStateProvider.notifier).getPageData();
     });
@@ -78,11 +82,11 @@ class _BottomNavigationBarControllerState
               final isExitWarning = difference >= const Duration(seconds: 2);
               timeBackPressed = DateTime.now();
               if (isExitWarning) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(
-                    "Uygulamadan çıkmak için bir daha basın.",
+                    AppLocalizations.of(context)!.pressAgainToExit,
                   ),
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
                 ));
                 return;
@@ -112,29 +116,29 @@ class _BottomNavigationBarControllerState
       },
       indicatorColor: Theme.of(context).primaryColor,
       selectedIndex: indexBottomNavbar,
-      destinations: const <Widget>[
+      destinations: <Widget>[
         NavigationDestination(
-          selectedIcon: Icon(Icons.home_outlined),
-          icon: Icon(Icons.home),
-          label: 'Anasayfa',
+          selectedIcon: const Icon(Icons.home_outlined),
+          icon: const Icon(Icons.home),
+          label: AppLocalizations.of(context)!.home,
         ),
         NavigationDestination(
-          selectedIcon: Icon(Icons.menu_book_outlined),
-          icon: Icon(Icons.menu_book_rounded),
-          label: 'Keşfet',
+          selectedIcon: const Icon(Icons.menu_book_outlined),
+          icon: const Icon(Icons.menu_book_rounded),
+          label: AppLocalizations.of(context)!.explore,
         ),
         NavigationDestination(
-          selectedIcon: Icon(Icons.shelves),
-          icon: Icon(
+          selectedIcon: const Icon(Icons.shelves),
+          icon: const Icon(
             Icons.shelves,
             size: 23,
           ),
-          label: 'Kitaplığım',
+          label: AppLocalizations.of(context)!.myLibrary,
         ),
         NavigationDestination(
-          selectedIcon: Icon(Icons.account_circle_outlined),
-          icon: Icon(Icons.account_circle_sharp),
-          label: 'Kullanıcı',
+          selectedIcon: const Icon(Icons.account_circle_outlined),
+          icon: const Icon(Icons.account_circle_sharp),
+          label: AppLocalizations.of(context)!.user,
         ),
       ],
     );

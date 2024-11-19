@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class CategoriesView extends ConsumerStatefulWidget {
   const CategoriesView({super.key});
 
@@ -24,6 +26,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
   bool isConnected = true;
   bool isLoading = true;
   List<TrendingBooksWorks?>? items = [];
+  List<String> mainCategoriesNames = [];
 
   final customCacheManager = CacheManager(
     Config("customCacheKey",
@@ -67,9 +70,9 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
 
   @override
   Widget build(BuildContext context) {
+    mainCategoriesNames = getMainCategoriesNames(context);
     return Expanded(
       child: CustomScrollView(
-        physics: const ClampingScrollPhysics(),
         slivers: <Widget>[
           scrollableTrendingBuilder(context),
           categoriesGridViewBuilder(),
@@ -101,7 +104,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                     builder: (context) {
                       return DetailedCategoriesView(
                         categoryKey: Const.mainCategories[index],
-                        categoryName: Const.mainCategoriesNames[index],
+                        categoryName: mainCategoriesNames[index],
                       );
                     },
                   ));
@@ -128,7 +131,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   Expanded(
                     flex: 4,
                     child: Text(
-                      Const.mainCategoriesNames[index],
+                      mainCategoriesNames[index],
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -159,7 +162,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Trendler",
+                    AppLocalizations.of(context)!.trendings,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.height / 40,
@@ -167,7 +170,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
                   ),
                   TextButton(
                       child: Text(
-                        "Daha fazla",
+                        AppLocalizations.of(context)!.more,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 60,
@@ -191,7 +194,7 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
             if (isLoading == false && isConnected == true)
               trendingBooksWidget(),
             Text(
-              "Kategoriler",
+              AppLocalizations.of(context)!.categories,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: MediaQuery.of(context).size.height / 40,
@@ -210,13 +213,13 @@ class _CategoriesViewState extends ConsumerState<CategoriesView> {
     return Center(
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-          "Bir hata meydana geldi.",
+          AppLocalizations.of(context)!.anErrorOccurred,
           style: TextStyle(
             fontSize: MediaQuery.of(context).size.height / 50,
           ),
         ),
         Text(
-          "Lütfen yenilemek için tıklayın.",
+          AppLocalizations.of(context)!.clickToRefresh,
           style: TextStyle(
             fontSize: MediaQuery.of(context).size.height / 50,
           ),

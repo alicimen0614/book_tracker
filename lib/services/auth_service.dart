@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthService {
   final _firebaseAuth = FirebaseAuth.instance;
@@ -25,7 +26,7 @@ class AuthService {
       await GoogleSignIn().signOut();
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Çıkış yapılırken bir hata meydana geldi");
+          infoMessage: AppLocalizations.of(context)!.errorWhileLoggingOut);
     }
   }
 
@@ -82,8 +83,9 @@ class AuthService {
         case 'weak-password':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('Parola en az 6 karakter içermelidir.'),
-            action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+            content: Text(AppLocalizations.of(context)!.passwordMinLength),
+            action: SnackBarAction(
+                label: AppLocalizations.of(context)!.okay, onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));
 
@@ -92,27 +94,27 @@ class AuthService {
         case 'email-already-in-use':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text(
-                'E-posta adresi zaten başka bir hesap tarafından kullanılıyor.'),
+            content: Text(AppLocalizations.of(context)!.emailAlreadyInUse),
             action: SnackBarAction(label: 'Tamam', onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));
           return null;
         case 'invalid-email':
           ScaffoldMessenger.of(context).clearSnackBars;
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('E-posta adresi geçersiz.')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.invalidEmailAddress)));
           return null;
         default:
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content:
-                  Text('Bilinmeyen bir hata meydana geldi: ${e.message}')));
+                  Text(AppLocalizations.of(context)!.appEncounteredError)));
           return null;
       }
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Hesap oluşturulurken bir hata meydana geldi");
+          infoMessage: AppLocalizations.of(context)!.errorCreatingAccount);
       return null;
     }
   }
@@ -128,8 +130,9 @@ class AuthService {
         case 'user-not-found':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('E-posta veya parola geçersiz.'),
-            action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+            content: Text(AppLocalizations.of(context)!.invalidEmailOrPassword),
+            action: SnackBarAction(
+                label: AppLocalizations.of(context)!.okay, onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));
 
@@ -137,33 +140,35 @@ class AuthService {
         case 'wrong-password':
           ScaffoldMessenger.of(context).clearSnackBars;
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: const Text('E-posta veya parola geçersiz.'),
-            action: SnackBarAction(label: 'Tamam', onPressed: () {}),
+            content: Text(AppLocalizations.of(context)!.invalidEmailOrPassword),
+            action: SnackBarAction(
+                label: AppLocalizations.of(context)!.okay, onPressed: () {}),
             behavior: SnackBarBehavior.floating,
           ));
           break;
         case 'invalid-email':
           ScaffoldMessenger.of(context).clearSnackBars;
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('E-posta adresi geçersiz.')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.invalidEmailAddress)));
           break;
 
         case 'user-disabled':
           ScaffoldMessenger.of(context).clearSnackBars;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text(
-                  'Bu e-posta adresine sahip kullanıcı devre dışı bırakılmış.')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context)!.userDisabled)));
           break;
         default:
           ScaffoldMessenger.of(context).clearSnackBars;
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Bilinmeyen bir hata meydana geldi')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.appEncounteredError)));
           break;
       }
       return null;
     } catch (e) {
       errorSnackBar(context, e.toString(),
-          infoMessage: "Giriş yapılırken bir hata meydana geldi");
+          infoMessage: AppLocalizations.of(context)!.errorDuringLogin);
       return null;
     }
   }
