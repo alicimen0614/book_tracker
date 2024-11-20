@@ -339,10 +339,19 @@ class QuoteWidget extends ConsumerWidget {
                         quoteId: quoteId,
                         quoteDate: quote.date ?? "",
                         initialQuoteValue: quote.quoteText ?? "",
-                        bookImage: quote.bookCover != null
-                            ? Image.network(
-                                "https://covers.openlibrary.org/b/id/${quote.bookCover}-M.jpg")
-                            : null,
+                        bookImage: quote.imageAsByte != null
+                            ? Image.memory(
+                                fit: BoxFit.fill,
+                                base64Decode(quote.imageAsByte!),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Image.asset(
+                                  "lib/assets/images/error.png",
+                                ),
+                              )
+                            : quote.bookCover != null
+                                ? Image.network(
+                                    "https://covers.openlibrary.org/b/id/${quote.bookCover}-M.jpg")
+                                : null,
                         showDeleteIcon: true,
                         bookInfo: BookWorkEditionsModelEntries(
                             title: quote.bookName,

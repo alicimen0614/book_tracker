@@ -92,7 +92,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -266,9 +266,9 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
             ),
             if (_banner != null)
               Center(
-                child: Container(
+                child: SizedBox(
                     width: Const.screenSize.width,
-                    height: Const.screenSize.height.floor() * 0.4,
+                    height: Const.screenSize.height.floor() * 0.3,
                     child: AdWidget(ad: _banner!)),
               )
           ],
@@ -362,8 +362,8 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
   void _createBannerAd() {
     _banner = BannerAd(
         size: AdSize.getInlineAdaptiveBannerAdSize(
-            Const.screenSize.width.floor() - 50,
-            Const.screenSize.height.floor() * 0.3.ceil()),
+            Const.screenSize.width.floor(),
+            (Const.screenSize.height * 0.3).floor()),
         adUnitId: 'ca-app-pub-1939809254312142/9271243251',
         listener: bannerAdListener,
         request: const AdRequest())
