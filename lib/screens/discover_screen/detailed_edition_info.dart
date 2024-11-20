@@ -931,7 +931,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     }
   }
 
-  Expanded editionInfoBodyBuilder(BuildContext context) {
+  Scrollbar editionInfoBodyBuilder(BuildContext context) {
     String? joinedText;
     if (widget.editionInfo.authorsNames != null && authorsNames.isEmpty) {
       joinedText = widget.editionInfo.authorsNames!.join("\n");
@@ -946,278 +946,305 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           ? widget.editionInfo.description!.replaceRange(0, 26, "")
           : widget.editionInfo.description!;
     }
-    return Expanded(
-      child: Scrollbar(
-        thickness: 3,
-        radius: const Radius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return Scrollbar(
+      thickness: 3,
+      radius: const Radius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.title,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: MediaQuery.of(context).size.height / 50,
+                  fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: Const.minSize,
+            ),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width - 40,
+              child: Text(
+                widget.editionInfo.title!,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 60),
+              ),
+            ),
+            if ((widget.editionInfo.authorsNames != null &&
+                    widget.editionInfo.authorsNames!.isNotEmpty) ||
+                authorsNames.isNotEmpty)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if ((widget.editionInfo.authorsNames != null &&
+                    widget.editionInfo.authorsNames!.isNotEmpty) ||
+                authorsNames.isNotEmpty)
               Text(
-                AppLocalizations.of(context)!.title,
+                AppLocalizations.of(context)!.authors,
                 style: TextStyle(
                     color: Colors.black,
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold),
               ),
-              const Divider(color: Colors.transparent, thickness: 0),
+            if ((widget.editionInfo.authorsNames != null &&
+                    widget.editionInfo.authorsNames!.isNotEmpty) ||
+                authorsNames.isNotEmpty)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.authorsNames == null &&
+                authorsNames.isNotEmpty)
+              Text(
+                joinedText!,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 60),
+              ),
+            if ((widget.editionInfo.authorsNames != null &&
+                    widget.editionInfo.authorsNames!.isNotEmpty) &&
+                authorsNames.isEmpty)
+              Text(
+                joinedText!,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 60),
+              ),
+            if (widget.editionInfo.description != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.description != null)
+              Text(
+                AppLocalizations.of(context)!.description,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.description != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.description != null)
               SizedBox(
                 width: MediaQuery.sizeOf(context).width - 40,
-                child: Text(
-                  widget.editionInfo.title!,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
-                ),
+                child: descriptionShowMore == false
+                    ? Text(
+                        widget.editionInfo.description!.startsWith("{")
+                            ? descriptionText.replaceRange(
+                                descriptionText.length - 1,
+                                descriptionText.length,
+                                "")
+                            : descriptionText,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height / 60),
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : Text(
+                        widget.editionInfo.description!.startsWith("{")
+                            ? descriptionText.replaceRange(
+                                descriptionText.length - 1,
+                                descriptionText.length,
+                                "")
+                            : descriptionText,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.height / 60),
+                      ),
               ),
-              if ((widget.editionInfo.authorsNames != null &&
-                      widget.editionInfo.authorsNames!.isNotEmpty) ||
-                  authorsNames.isNotEmpty)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if ((widget.editionInfo.authorsNames != null &&
-                      widget.editionInfo.authorsNames!.isNotEmpty) ||
-                  authorsNames.isNotEmpty)
-                Text(
-                  AppLocalizations.of(context)!.authors,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if ((widget.editionInfo.authorsNames != null &&
-                      widget.editionInfo.authorsNames!.isNotEmpty) ||
-                  authorsNames.isNotEmpty)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.authorsNames == null &&
-                  authorsNames.isNotEmpty)
-                Text(
-                  joinedText!,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
-                ),
-              if ((widget.editionInfo.authorsNames != null &&
-                      widget.editionInfo.authorsNames!.isNotEmpty) &&
-                  authorsNames.isEmpty)
-                Text(
-                  joinedText!,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
-                ),
-              if (widget.editionInfo.description != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.description != null)
-                Text(
-                  AppLocalizations.of(context)!.description,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.description != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.description != null)
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 40,
-                  child: descriptionShowMore == false
-                      ? Text(
-                          widget.editionInfo.description!.startsWith("{")
-                              ? descriptionText.replaceRange(
-                                  descriptionText.length - 1,
-                                  descriptionText.length,
-                                  "")
-                              : descriptionText,
-                          style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.height / 60),
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      : Text(
-                          widget.editionInfo.description!.startsWith("{")
-                              ? descriptionText.replaceRange(
-                                  descriptionText.length - 1,
-                                  descriptionText.length,
-                                  "")
-                              : descriptionText,
-                          style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.height / 60),
-                        ),
-                ),
-              if (widget.editionInfo.description != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                      onPressed: () {
-                        setState(() {
-                          descriptionShowMore = !descriptionShowMore;
-                        });
-                      },
-                      child: descriptionShowMore == false
-                          ? Text(AppLocalizations.of(context)!.showMore,
-                              style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 60))
-                          : Text(AppLocalizations.of(context)!.showLess,
-                              style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height /
-                                      60))),
-                ),
-              if (widget.editionInfo.publishers != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.publishers != null)
-                Text(
-                  AppLocalizations.of(context)!.publisher,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.publishers != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.publishers != null)
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 40,
-                    child: Text(
-                      widget.editionInfo.publishers!.first!,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.height / 60),
-                    )),
-              if (widget.editionInfo.physical_format != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.physical_format != null)
-                Text(
-                  AppLocalizations.of(context)!.bookFormat,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.physical_format != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.physical_format != null)
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width - 40,
-                  child: widget.editionInfo.physical_format == "paperback" ||
-                          widget.editionInfo.physical_format == "Paperback"
-                      ? Text(
-                          AppLocalizations.of(context)!.paperback,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(context).size.height / 60,
-                          ),
-                        )
-                      : widget.editionInfo.physical_format == "hardcover" ||
-                              widget.editionInfo.physical_format == "Hardcover"
-                          ? Text(
-                              AppLocalizations.of(context)!.hardcover,
-                              style: TextStyle(
-                                color: Colors.black,
+            if (widget.editionInfo.description != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        descriptionShowMore = !descriptionShowMore;
+                      });
+                    },
+                    child: descriptionShowMore == false
+                        ? Text(AppLocalizations.of(context)!.showMore,
+                            style: TextStyle(
                                 fontSize:
-                                    MediaQuery.of(context).size.height / 60,
-                              ),
-                            )
-                          : widget.editionInfo.physical_format == "E-book" ||
-                                  widget.editionInfo.physical_format == "Ebook"
-                              ? Text(
-                                  AppLocalizations.of(context)!.ebook,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize:
-                                        MediaQuery.of(context).size.height / 60,
-                                  ),
-                                )
-                              : Text(
-                                  widget.editionInfo.physical_format!,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize:
-                                        MediaQuery.of(context).size.height / 60,
-                                  ),
+                                    MediaQuery.of(context).size.height / 60))
+                        : Text(AppLocalizations.of(context)!.showLess,
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 60))),
+              ),
+            if (widget.editionInfo.publishers != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.publishers != null)
+              Text(
+                AppLocalizations.of(context)!.publisher,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.publishers != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.publishers != null)
+              SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: Text(
+                    widget.editionInfo.publishers!.first!,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                  )),
+            if (widget.editionInfo.physical_format != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.physical_format != null)
+              Text(
+                AppLocalizations.of(context)!.bookFormat,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.physical_format != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.physical_format != null)
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width - 40,
+                child: widget.editionInfo.physical_format == "paperback" ||
+                        widget.editionInfo.physical_format == "Paperback"
+                    ? Text(
+                        AppLocalizations.of(context)!.paperback,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: MediaQuery.of(context).size.height / 60,
+                        ),
+                      )
+                    : widget.editionInfo.physical_format == "hardcover" ||
+                            widget.editionInfo.physical_format == "Hardcover"
+                        ? Text(
+                            AppLocalizations.of(context)!.hardcover,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: MediaQuery.of(context).size.height / 60,
+                            ),
+                          )
+                        : widget.editionInfo.physical_format == "E-book" ||
+                                widget.editionInfo.physical_format == "Ebook"
+                            ? Text(
+                                AppLocalizations.of(context)!.ebook,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 60,
                                 ),
-                ),
-              if (widget.editionInfo.isbn_10 != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.isbn_10 != null)
-                Text(
-                  "Isbn 10",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.isbn_10 != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.isbn_10 != null)
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 40,
-                    child: Text(
-                      widget.editionInfo.isbn_10!.first!,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.height / 60),
-                    )),
-              if (widget.editionInfo.isbn_13 != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.isbn_13 != null)
-                Text(
-                  "Isbn 13",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.isbn_13 != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.isbn_13 != null)
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 40,
-                    child: Text(
-                      widget.editionInfo.isbn_13!.first!,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.height / 60),
-                    )),
-              if (widget.editionInfo.bookStatus != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.bookStatus != null)
-                Text(
-                  AppLocalizations.of(context)!.bookStatus,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (widget.editionInfo.bookStatus != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (widget.editionInfo.bookStatus != null)
-                SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 40,
-                    child: Text(
-                      bookStatusAsString == "Okumak istediklerim"
-                          ? AppLocalizations.of(context)!.wantToRead
-                          : bookStatusAsString == "Şu an okuduklarım"
-                              ? AppLocalizations.of(context)!.currentlyReading
-                              : AppLocalizations.of(context)!.alreadyRead,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: MediaQuery.of(context).size.height / 60),
-                    )),
-              if (notesList != null)
-                const Divider(color: Colors.transparent, thickness: 0),
-              if (notesList!.isEmpty != true)
-                Text(
-                  AppLocalizations.of(context)!.notes,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: MediaQuery.of(context).size.height / 50,
-                      fontWeight: FontWeight.bold),
-                ),
-              if (notesList!.isEmpty != true) notesBuilder()
-            ],
-          ),
+                              )
+                            : Text(
+                                widget.editionInfo.physical_format!,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 60,
+                                ),
+                              ),
+              ),
+            if (widget.editionInfo.isbn_10 != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.isbn_10 != null)
+              Text(
+                "Isbn 10",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.isbn_10 != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.isbn_10 != null)
+              SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: Text(
+                    widget.editionInfo.isbn_10!.first!,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                  )),
+            if (widget.editionInfo.isbn_13 != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.isbn_13 != null)
+              Text(
+                "Isbn 13",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.isbn_13 != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.isbn_13 != null)
+              SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: Text(
+                    widget.editionInfo.isbn_13!.first!,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                  )),
+            if (widget.editionInfo.bookStatus != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.bookStatus != null)
+              Text(
+                AppLocalizations.of(context)!.bookStatus,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (widget.editionInfo.bookStatus != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (widget.editionInfo.bookStatus != null)
+              SizedBox(
+                  width: MediaQuery.sizeOf(context).width - 40,
+                  child: Text(
+                    bookStatusAsString == "Okumak istediklerim"
+                        ? AppLocalizations.of(context)!.wantToRead
+                        : bookStatusAsString == "Şu an okuduklarım"
+                            ? AppLocalizations.of(context)!.currentlyReading
+                            : AppLocalizations.of(context)!.alreadyRead,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: MediaQuery.of(context).size.height / 60),
+                  )),
+            if (notesList != null)
+              SizedBox(
+                height: Const.minSize,
+              ),
+            if (notesList!.isEmpty != true)
+              Text(
+                AppLocalizations.of(context)!.notes,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 50,
+                    fontWeight: FontWeight.bold),
+              ),
+            if (notesList!.isEmpty != true) notesBuilder()
+          ],
         ),
       ),
     );
@@ -1249,8 +1276,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           (200 * notesList!.length).toDouble() + (15 * notesList!.length - 1),
       child: ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
-        separatorBuilder: (context, index) =>
-            const Divider(color: Colors.transparent, thickness: 0),
+        separatorBuilder: (context, index) => SizedBox(
+          height: Const.minSize,
+        ),
         itemCount: notesList!.length,
         itemBuilder: (context, index) => InkWell(
             customBorder:

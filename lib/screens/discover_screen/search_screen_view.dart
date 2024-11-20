@@ -7,7 +7,7 @@ import 'package:book_tracker/widgets/no_items_found_indicator_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/books_model.dart';
 
 class SearchScreenView extends ConsumerStatefulWidget {
@@ -86,8 +86,12 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: PagedGridView<int, BooksModelDocs?>(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+            "${AppLocalizations.of(context)!.searchResults} ${widget.searchValue}"),
+      ),
+      body: PagedGridView<int, BooksModelDocs?>(
           showNewPageProgressIndicatorAsGridChild: false,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

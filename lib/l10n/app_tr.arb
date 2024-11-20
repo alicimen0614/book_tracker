@@ -406,7 +406,9 @@
 "@errorAddingQuote": {},"errorUpdatingBookStatus": "Kitap durumu güncellenirken bir hata oluştu",
 "@errorUpdatingBookStatus": {},"errorAddingNote": "Not eklenirken bir hata oluştu",
 "@errorAddingNote": {},"errorFetchingBooks": "Kitaplar getirilirken bir hata oluştu.",
-"@errorFetchingBooks": {}
+"@errorFetchingBooks": {},"searchResults": "Arama sonuçları:",
+"@searchResults": {}
+
 
 
 

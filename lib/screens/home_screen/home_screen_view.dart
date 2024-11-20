@@ -10,7 +10,7 @@ import 'package:book_tracker/providers/quotes_state_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
-import 'package:book_tracker/screens/discover_screen/discover_screen_view.dart';
+import 'package:book_tracker/screens/discover_screen/search_screen_view.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/home_screen_shimmer.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/text_shimmer_effect.dart';
@@ -1000,7 +1000,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DiscoverScreenView(
+                      builder: (context) => SearchScreenView(
                           searchValue: _searchBarController.text),
                     ));
               }
@@ -1028,7 +1028,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DiscoverScreenView(
+                          builder: (context) => SearchScreenView(
                               searchValue: _searchBarController.text),
                         )).then((value) => _searchBarController.clear());
                   }

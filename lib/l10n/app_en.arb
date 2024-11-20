@@ -452,7 +452,9 @@
 "@errorAddingQuote": {},"errorUpdatingBookStatus": "An error occurred while updating the book status",
 "@errorUpdatingBookStatus": {},"errorAddingNote": "An error occurred while adding the note.",
 "@errorAddingNote": {},"errorFetchingBooks": "An error occurred while fetching the books.",
-"@errorFetchingBooks": {}
+"@errorFetchingBooks": {},"searchResults": "Search results:",
+"@searchResults": {}
+
 
 
 
