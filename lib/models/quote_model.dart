@@ -25,6 +25,38 @@ class Quote {
       this.date,
       this.likeCount,
       this.imageAsByte});
+
+  // copyWith metodu
+  Quote copyWith({
+    String? quoteText,
+    String? userName,
+    String? userPicture,
+    String? userId,
+    List<String?>? likes,
+    String? bookCover,
+    String? bookName,
+    String? bookAuthorName,
+    String? date,
+    List<String?>? comments,
+    int? likeCount,
+    String? imageAsByte,
+  }) {
+    return Quote(
+      quoteText: quoteText ?? this.quoteText,
+      userName: userName ?? this.userName,
+      userPicture: userPicture ?? this.userPicture,
+      userId: userId ?? this.userId,
+      likes: likes ?? this.likes,
+      bookCover: bookCover ?? this.bookCover,
+      bookName: bookName ?? this.bookName,
+      bookAuthorName: bookAuthorName ?? this.bookAuthorName,
+      date: date ?? this.date,
+      comments: comments ?? this.comments,
+      likeCount: likeCount ?? this.likeCount,
+      imageAsByte: imageAsByte ?? this.imageAsByte,
+    );
+  }
+
   Quote.fromJson(Map<String, dynamic> json) {
     quoteText = json['quoteText']?.toString();
     userName = json['userName']?.toString();

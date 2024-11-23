@@ -2,7 +2,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
-import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
@@ -246,6 +246,11 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     onTap: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ));
                       await _createInterstitialAd();
                     },
                     title: FittedBox(
@@ -398,7 +403,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                         const FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            "cimensoft@gmail.com",
+                            "alicimen0614@gmail.com",
                             style: TextStyle(color: Colors.grey),
                           ),
                         )
@@ -528,7 +533,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
           title: "VastReads",
           description: AppLocalizations.of(context)!.confirmLogout,
           thirdButtonOnPressed: () {
-            ref.read(quotesProvider.notifier).clearMyQuotes();
+            ref
+                .read(quotesProvider.notifier)
+                .currentUsersPagingController
+                .itemList = [];
             ref.read(bookStateProvider.notifier).clearBooks();
             ref.read(authProvider).signOut(context).whenComplete(() {
               setState(() {
@@ -571,24 +579,24 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
+            Navigator.pop(context);
             setState(() {
               _interstitialAd = ad;
-              print(ad);
 
               isInterstitialAdReady = true;
             });
             _showInterstitialAd();
           },
           onAdFailedToLoad: (error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Reklam yüklenemedi")));
             isInterstitialAdReady = false;
+            Navigator.pop(context);
           },
         ));
-    print(isInterstitialAdReady);
   }
 
   void _showInterstitialAd() {
-    print("show çalıştı");
-    print(isInterstitialAdReady);
     if (isInterstitialAdReady) {
       _interstitialAd!.show();
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(

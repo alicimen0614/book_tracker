@@ -1,7 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
-import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -128,9 +128,18 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                         .read(firestoreProvider)
                         .setQuoteData(context, quote: quote.toJson());
 
-                    ref.read(quotesProvider.notifier).fetchRecentQuotes();
-                    ref.read(quotesProvider.notifier).fetchTrendingQuotes();
-                    ref.read(quotesProvider.notifier).fetchCurrentUsersQuotes();
+                    ref
+                        .read(quotesProvider.notifier)
+                        .trendingPagingController
+                        .refresh();
+                    ref
+                        .read(quotesProvider.notifier)
+                        .recentPagingController
+                        .refresh();
+                    ref
+                        .read(quotesProvider.notifier)
+                        .currentUsersPagingController
+                        .refresh();
                     if (widget.isNavigatingFromDetailedEdition) {
                       Navigator.pop(context);
                     } else {

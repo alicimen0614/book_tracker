@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
-import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,18 +15,13 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
-import '../../models/quote_model.dart';
 
 class DetailedQuoteView extends ConsumerStatefulWidget {
-  final Quote quote;
-  final String quoteId;
+  final QuoteEntry quoteEntry;
   final bool? isTrendingQuotes;
 
   const DetailedQuoteView(
-      {super.key,
-      required this.quote,
-      required this.quoteId,
-      this.isTrendingQuotes});
+      {super.key, required this.quoteEntry, this.isTrendingQuotes});
 
   @override
   ConsumerState<DetailedQuoteView> createState() => _DetailedQuoteViewState();
@@ -64,27 +59,12 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
   @override
   Widget build(BuildContext context) {
     hasUserLikedQuote = FirebaseAuth.instance.currentUser != null
-        ? widget.isTrendingQuotes != null
-            ? widget.isTrendingQuotes!
-                ? ref
-                    .watch(quotesProvider)
-                    .trendingQuotes[widget.quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
-                : ref
-                    .watch(quotesProvider)
-                    .recentQuotes[widget.quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
-            : ref
-                    .watch(quotesProvider)
-                    .currentUsersQuotes[widget.quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
-                ? true
-                : false
+        ? widget.quoteEntry.quote.likes!
+                .contains(FirebaseAuth.instance.currentUser!.uid)
+            ? true
+            : false
         : false;
-    likeCount = widget.quote.likes!.length;
+    likeCount = widget.quoteEntry.quote.likes!.length;
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.quoteDetails),
@@ -92,15 +72,15 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                widget.quote.userPicture != null
+                widget.quoteEntry.quote.userPicture != null
                     ? CircleAvatar(
                         backgroundImage: NetworkImage(
-                          widget.quote.userPicture!,
+                          widget.quoteEntry.quote.userPicture!,
                         ),
                         radius: 25,
                       )
@@ -113,7 +93,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                   width: 16,
                 ),
                 Text(
-                  "${widget.quote.userName}",
+                  "${widget.quoteEntry.quote.userName}",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
                 )
@@ -126,7 +106,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  widget.quote.quoteText ?? '',
+                  widget.quoteEntry.quote.quoteText ?? '',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
@@ -135,26 +115,31 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
             const SizedBox(height: 16.0),
             Row(
               children: [
-                Expanded(
-                  flex: 4,
-                  child: widget.quote.imageAsByte != null
-                      ? ClipRRect(
+                widget.quoteEntry.quote.imageAsByte != null
+                    ? Expanded(
+                        flex: 3,
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.memory(
+                            height: Const.screenSize.height * 0.2,
                             fit: BoxFit.fill,
-                            base64Decode(widget.quote.imageAsByte!),
+                            base64Decode(widget.quoteEntry.quote.imageAsByte!),
                             errorBuilder: (context, error, stackTrace) =>
                                 Image.asset(
                               "lib/assets/images/error.png",
                             ),
                           ),
-                        )
-                      : widget.quote.bookCover != null
-                          ? ClipRRect(
+                        ),
+                      )
+                    : widget.quoteEntry.quote.bookCover != null
+                        ? Expanded(
+                            flex: 3,
+                            child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: CachedNetworkImage(
+                                height: Const.screenSize.height * 0.2,
                                 imageUrl:
-                                    "https://covers.openlibrary.org/b/id/${widget.quote.bookCover!}-M.jpg",
+                                    "https://covers.openlibrary.org/b/id/${widget.quoteEntry.quote.bookCover!}-M.jpg",
                                 fit: BoxFit.fill,
                                 errorWidget: (context, error, stackTrace) {
                                   return Image.asset(
@@ -163,49 +148,61 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                                   );
                                 },
                                 placeholder: (context, url) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.grey.shade400,
-                                        borderRadius:
-                                            BorderRadius.circular(15)),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        strokeAlign: -5,
+                                  return Expanded(
+                                    flex: 3,
+                                    child: Container(
+                                      height: Const.screenSize.height * 0.2,
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade400,
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          strokeAlign: -5,
+                                        ),
                                       ),
                                     ),
                                   );
                                 },
                               ),
-                            )
-                          : ClipRRect(
+                            ),
+                          )
+                        : Expanded(
+                            flex: 3,
+                            child: ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
+                                height: Const.screenSize.height * 0.2,
                                 "lib/assets/images/nocover.jpg",
                                 fit: BoxFit.fill,
                               ),
                             ),
-                ),
-                const Spacer(),
+                          ),
+                Spacer(),
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        widget.quote.bookName!,
-                        style: const TextStyle(fontSize: 16),
+                        widget.quoteEntry.quote.bookName!,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
-                      if (widget.quote.bookAuthorName != null)
+                      SizedBox(
+                        height: Const.minSize,
+                      ),
+                      if (widget.quoteEntry.quote.bookAuthorName != null)
                         Text(
-                          widget.quote.bookAuthorName!,
-                          style: const TextStyle(fontSize: 16),
+                          widget.quoteEntry.quote.bookAuthorName!,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         )
                     ],
                   ),
                 ),
-                const Spacer(
-                  flex: 10,
-                )
+                Spacer(),
               ],
             ),
             SizedBox(
@@ -238,10 +235,12 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                         size: 30),
                   ),
                   onPressed: () async {
-                    await likePost(widget.quoteId);
+                    await likePost(widget.quoteEntry);
+                    setState(() {
+                      hasUserLikedQuote;
+                    });
                   },
                 ),
-                Spacer(),
                 Text(hasUserLikedQuote && likeCount != 1
                     ? AppLocalizations.of(context)!
                         .likedByYouAndOneOther(likeCount - 1)
@@ -253,11 +252,9 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                                 ? AppLocalizations.of(context)!
                                     .peopleLiked(likeCount)
                                 : ""),
-                const Spacer(
-                  flex: 5,
-                ),
+                const Spacer(),
                 Text(
-                  timeAgo(widget.quote.date),
+                  timeAgo(widget.quoteEntry.quote.date),
                 ),
               ],
             ),
@@ -269,7 +266,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                 child: SizedBox(
                     width: Const.screenSize.width,
                     height: Const.screenSize.height.floor() * 0.3,
-                    child: AdWidget(ad: _banner!)),
+                    child: Center(child: AdWidget(ad: _banner!))),
               )
           ],
         ),
@@ -277,40 +274,26 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     );
   }
 
-  Future<void> likePost(String quoteId) async {
+  Future<void> likePost(QuoteEntry quoteEntry) async {
     if (FirebaseAuth.instance.currentUser != null) {
       // UI'yi anında güncelle
-      updateUILikeStatus(quoteId);
+      updateUILikeStatus(quoteEntry.id);
 
       // Son beğeni durumu kaydet
-      pendingLikeStatus[quoteId] = widget.isTrendingQuotes != null
-          ? widget.isTrendingQuotes == true
-              ? ref
-                  .read(quotesProvider)
-                  .trendingQuotes[quoteId]!
-                  .likes!
-                  .contains(FirebaseAuth.instance.currentUser!.uid)
-              : ref
-                  .read(quotesProvider)
-                  .recentQuotes[quoteId]!
-                  .likes!
-                  .contains(FirebaseAuth.instance.currentUser!.uid)
-          : ref
-              .read(quotesProvider)
-              .currentUsersQuotes[quoteId]!
-              .likes!
-              .contains(FirebaseAuth.instance.currentUser!.uid);
+      pendingLikeStatus[quoteEntry.id] = quoteEntry.quote.likes!
+          .contains(FirebaseAuth.instance.currentUser!.uid);
 
       // Eğer zaten bir zamanlayıcı varsa onu iptal et
-      debounceTimers[quoteId]?.cancel();
+      debounceTimers[quoteEntry.id]?.cancel();
 
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
-      debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () async {
-        await FirestoreDatabase()
-            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId], context);
+      debounceTimers[quoteEntry.id] =
+          Timer(const Duration(seconds: 3), () async {
+        await FirestoreDatabase().commitLikeToFirebase(
+            quoteEntry.id, pendingLikeStatus[quoteEntry.id], context);
 
-        debounceTimers.remove(quoteId);
-        pendingLikeStatus.remove(quoteId);
+        debounceTimers.remove(quoteEntry.id);
+        pendingLikeStatus.remove(quoteEntry.id);
       });
     } else {
       showSignUpDialog();
@@ -341,7 +324,11 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                 MaterialPageRoute(
                   builder: (context) =>
                       const AuthView(formStatusData: FormStatus.signIn),
-                ));
+                )).then(
+              (value) {
+                setState(() {});
+              },
+            );
           },
           thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {

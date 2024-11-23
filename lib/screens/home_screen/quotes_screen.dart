@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'package:book_tracker/databases/firestore_database.dart';
-import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
-import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/quote_widget_shimmer.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
+import 'package:book_tracker/widgets/no_items_found_indicator_builder.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class QuotesScreen extends ConsumerStatefulWidget {
   const QuotesScreen({super.key});
@@ -24,20 +26,6 @@ class QuotesScreen extends ConsumerStatefulWidget {
 class _QuotesScreenState extends ConsumerState<QuotesScreen> {
   Map<String, Timer?> debounceTimers = {}; // Her post için bir zamanlayıcı
   Map<String, bool> pendingLikeStatus = {}; // Son beğeni durumu (beğeni/yok)
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (ref.read(quotesProvider).trendingQuotes.isEmpty) {
-        ref.read(quotesProvider.notifier).fetchTrendingQuotes();
-      }
-      if (ref.read(quotesProvider).recentQuotes.isEmpty) {
-        ref.read(quotesProvider.notifier).fetchRecentQuotes();
-      }
-    });
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,109 +93,91 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
               ];
             },
             body: TabBarView(children: [
-              ref.watch(quotesProvider).trendingQuotes.isNotEmpty &&
-                      ref.watch(quotesProvider).isTrendingLoading == false
-                  ? quotesBuilder(true)
-                  : ref.watch(quotesProvider).trendingQuotes.isEmpty &&
-                          ref.watch(quotesProvider).isTrendingLoading == true
-                      ? quotesShimmerBuilder(true)
-                      : ref.read(connectivityProvider).isConnected == true
-                          ? booksListError(false, context, () {
-                              if (ref.read(connectivityProvider).isConnected ==
-                                  true) {
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchRecentQuotes();
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchTrendingQuotes();
-                              }
-                            })
-                          : booksListError(true, context, () {
-                              if (ref.read(connectivityProvider).isConnected ==
-                                  true) {
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchRecentQuotes();
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchTrendingQuotes();
-                              }
-                            }),
-              ref.watch(quotesProvider).recentQuotes.isNotEmpty &&
-                      ref.watch(quotesProvider).isRecentLoading == false
-                  ? quotesBuilder(false)
-                  : ref.watch(quotesProvider).recentQuotes.isEmpty &&
-                          ref.watch(quotesProvider).isRecentLoading == true
-                      ? quotesShimmerBuilder(true)
-                      : ref.read(connectivityProvider).isConnected == true
-                          ? booksListError(false, context, () {
-                              if (ref.read(connectivityProvider).isConnected ==
-                                  true) {
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchRecentQuotes();
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchTrendingQuotes();
-                              }
-                            })
-                          : booksListError(true, context, () {
-                              if (ref.read(connectivityProvider).isConnected ==
-                                  true) {
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchRecentQuotes();
-                                ref
-                                    .read(quotesProvider.notifier)
-                                    .fetchTrendingQuotes();
-                              }
-                            }),
+              quotesBuilder(true),
+              quotesBuilder(false),
             ])),
       ),
     );
   }
 
   RefreshIndicator quotesBuilder(bool isTrendingQuotes) {
-    Map<String, Quote> readQuotesList = isTrendingQuotes
-        ? ref.read(quotesProvider).trendingQuotes
-        : ref.read(quotesProvider).recentQuotes;
-    Map<String, Quote> watchQuotesList = isTrendingQuotes
-        ? ref.watch(quotesProvider).trendingQuotes
-        : ref.watch(quotesProvider).recentQuotes;
+    PagingController<DocumentSnapshot?, QuoteEntry> currentPagingController =
+        isTrendingQuotes
+            ? ref.read(quotesProvider.notifier).trendingPagingController
+            : ref.read(quotesProvider.notifier).recentPagingController;
     return RefreshIndicator(
-      onRefresh: () {
-        ref.read(quotesProvider.notifier).clearQuotes();
-        ref.read(quotesProvider.notifier).fetchTrendingQuotes();
-        return ref.read(quotesProvider.notifier).fetchRecentQuotes();
-      },
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        separatorBuilder: (context, index) => Divider(
-          color: Colors.grey.shade400,
-          endIndent: 10,
-          indent: 10,
-          height: 20,
-        ),
-        itemCount: watchQuotesList.length,
-        itemBuilder: (context, index) {
-          final quoteId = watchQuotesList.keys.toList()[index];
-          return QuoteWidget(
-              onDoubleTap: () {
-                likePost(quoteId, index, isTrendingQuotes);
-              },
-              quote: readQuotesList[quoteId]!,
-              quoteId: quoteId,
-              isTrendingQuotes: isTrendingQuotes,
-              onPressedLikeButton: () {
-                likePost(quoteId, index, isTrendingQuotes);
-              });
+        onRefresh: () async {
+          ref.read(quotesProvider.notifier).recentPagingController.refresh();
+          return ref
+              .read(quotesProvider.notifier)
+              .trendingPagingController
+              .refresh();
         },
-      ),
-    );
+        child: PagedListView.separated(
+          pagingController: currentPagingController,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          separatorBuilder: (context, index) => Divider(
+            color: Colors.grey.shade400,
+            endIndent: 10,
+            indent: 10,
+            height: 20,
+          ),
+          builderDelegate: PagedChildBuilderDelegate(
+            noItemsFoundIndicatorBuilder: (context) {
+              return noItemsFoundIndicatorBuilder(
+                  MediaQuery.of(context).size.width, context);
+            },
+            firstPageErrorIndicatorBuilder: (context) {
+              if (!ref.read(connectivityProvider).isConnected) {
+                return booksListError(
+                  true,
+                  context,
+                  () {
+                    currentPagingController.retryLastFailedRequest();
+                  },
+                );
+              } else {
+                return booksListError(false, context, () {
+                  currentPagingController.retryLastFailedRequest();
+                });
+              }
+            },
+            firstPageProgressIndicatorBuilder: (context) {
+              return Column(
+                children: List.generate(
+                  5,
+                  (index) => Column(
+                    children: [
+                      quoteWidgetShimmer(context),
+                      if (index != 4)
+                        Divider(
+                          color: Colors.grey.shade400,
+                          endIndent: 10,
+                          indent: 10,
+                          height: 20,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            itemBuilder: (context, QuoteEntry quoteEntry, index) {
+              return QuoteWidget(
+                  onDoubleTap: () {
+                    likePost(quoteEntry, index, isTrendingQuotes);
+                  },
+                  quote: quoteEntry.quote,
+                  quoteId: quoteEntry.id,
+                  isTrendingQuotes: isTrendingQuotes,
+                  onPressedLikeButton: () {
+                    likePost(quoteEntry, index, isTrendingQuotes);
+                  });
+            },
+          ),
+        ));
   }
 
-  ListView quotesShimmerBuilder(bool isTrendingQuotes) {
+  ListView quotesShimmerBuilder() {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 10),
       separatorBuilder: (context, index) => Divider(
@@ -223,34 +193,26 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
     );
   }
 
-  void likePost(String quoteId, int index, bool isTrendingQuotes) {
+  void likePost(QuoteEntry quoteEntry, int index, bool isTrendingQuotes) {
     if (FirebaseAuth.instance.currentUser != null) {
       // UI'yi anında güncelle
-      updateUILikeStatus(quoteId, index, isTrendingQuotes);
+      updateUILikeStatus(quoteEntry.id, index, isTrendingQuotes);
 
       // Son beğeni durumu kaydet
-      pendingLikeStatus[quoteId] = isTrendingQuotes
-          ? ref
-              .read(quotesProvider)
-              .trendingQuotes[quoteId]!
-              .likes!
-              .contains(FirebaseAuth.instance.currentUser!.uid)
-          : ref
-              .read(quotesProvider)
-              .recentQuotes[quoteId]!
-              .likes!
+      pendingLikeStatus[quoteEntry.id] = pendingLikeStatus[quoteEntry.id] =
+          quoteEntry.quote.likes!
               .contains(FirebaseAuth.instance.currentUser!.uid);
 
       // Eğer zaten bir zamanlayıcı varsa onu iptal et
-      debounceTimers[quoteId]?.cancel();
+      debounceTimers[quoteEntry.id]?.cancel();
 
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
-      debounceTimers[quoteId] = Timer(const Duration(seconds: 3), () {
-        FirestoreDatabase()
-            .commitLikeToFirebase(quoteId, pendingLikeStatus[quoteId], context);
+      debounceTimers[quoteEntry.id] = Timer(const Duration(seconds: 3), () {
+        FirestoreDatabase().commitLikeToFirebase(
+            quoteEntry.id, pendingLikeStatus[quoteEntry.id], context);
 
-        debounceTimers.remove(quoteId);
-        pendingLikeStatus.remove(quoteId);
+        debounceTimers.remove(quoteEntry.id);
+        pendingLikeStatus.remove(quoteEntry.id);
       });
     } else {
       showSignUpDialog();
@@ -287,7 +249,11 @@ class _QuotesScreenState extends ConsumerState<QuotesScreen> {
                 MaterialPageRoute(
                   builder: (context) =>
                       const AuthView(formStatusData: FormStatus.signIn),
-                ));
+                )).then(
+              (value) {
+                setState(() {});
+              },
+            );
           },
           thirdButtonText: AppLocalizations.of(context)!.signIn,
           firstButtonOnPressed: () {

@@ -4,7 +4,7 @@ import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
-import 'package:book_tracker/providers/quotes_state_provider.dart';
+import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
@@ -33,33 +33,17 @@ class QuoteWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     int likeCount = isTrendingQuotes != null
         ? isTrendingQuotes!
-            ? ref.watch(quotesProvider).trendingQuotes[quoteId]!.likes!.length
-            : ref.watch(quotesProvider).recentQuotes[quoteId]!.likes!.length
+            ? quote.likes!.length
+            : quote.likes!.length
         : FirebaseAuth.instance.currentUser != null
-            ? ref
-                .watch(quotesProvider)
-                .currentUsersQuotes[quoteId]!
-                .likes!
-                .length
+            ? quote.likes!.length
             : 0;
     bool isUserLikedQuote = FirebaseAuth.instance.currentUser != null
         ? isTrendingQuotes != null
             ? isTrendingQuotes!
-                ? ref
-                    .watch(quotesProvider)
-                    .trendingQuotes[quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
-                : ref
-                    .watch(quotesProvider)
-                    .recentQuotes[quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
-            : ref
-                    .watch(quotesProvider)
-                    .currentUsersQuotes[quoteId]!
-                    .likes!
-                    .contains(FirebaseAuth.instance.currentUser!.uid)
+                ? quote.likes!.contains(FirebaseAuth.instance.currentUser!.uid)
+                : quote.likes!.contains(FirebaseAuth.instance.currentUser!.uid)
+            : quote.likes!.contains(FirebaseAuth.instance.currentUser!.uid)
                 ? true
                 : false
         : false;
@@ -77,8 +61,7 @@ class QuoteWidget extends ConsumerWidget {
             context,
             MaterialPageRoute(
               builder: (context) => DetailedQuoteView(
-                quote: quote,
-                quoteId: quoteId,
+                quoteEntry: QuoteEntry(id: quoteId, quote: quote),
                 isTrendingQuotes: isTrendingQuotes,
               ),
             ));
@@ -171,7 +154,7 @@ class QuoteWidget extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(
-                    flex: 8,
+                    flex: 2,
                     child: SizedBox(
                       height: Const.screenSize.height * 0.15,
                       child: Container(
@@ -230,19 +213,24 @@ class QuoteWidget extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Expanded(
-                    flex: 10,
+                    flex: 4,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(quote.bookName!),
+                        Text(quote.bookName!,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500)),
+                        SizedBox(
+                          height: Const.minSize,
+                        ),
                         if (quote.bookAuthorName != null)
-                          Text(quote.bookAuthorName!)
+                          Text(quote.bookAuthorName!,
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold))
                       ],
                     ),
                   ),
-                  const Spacer(
-                    flex: 20,
-                  )
+                  Spacer(),
                 ],
               ),
             ),

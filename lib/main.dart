@@ -37,8 +37,7 @@ class MyApp extends ConsumerWidget {
           seedColor: const Color(0xFF1B7695),
         ),
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor:
-              WidgetStateProperty.all(const Color.fromRGBO(195, 129, 84, 1)),
+          thumbColor: WidgetStateProperty.all(const Color(0xFF1B7695)),
           minThumbLength: 100,
         ),
         primarySwatch: mainAppColor,
