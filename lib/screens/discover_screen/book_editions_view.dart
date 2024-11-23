@@ -12,10 +12,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookEditionsView extends ConsumerStatefulWidget {
   const BookEditionsView(
-      {super.key, required this.workId, required this.title});
+      {super.key,
+      required this.workId,
+      required this.title,
+      this.toAddBook = false});
 
   final String workId;
-
+  final bool toAddBook;
   final String title;
 
   @override
@@ -62,11 +65,15 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
       appBar: AppBar(
         centerTitle: true,
         leadingWidth: 50,
-        title: Text(
-          AppLocalizations.of(context)!.bookEditions(widget.title),
-          style: TextStyle(
+        title: FittedBox(
+          child: Text(
+            widget.toAddBook != true
+                ? AppLocalizations.of(context)!.bookEditions(widget.title)
+                : AppLocalizations.of(context)!.selectAnEdition,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: MediaQuery.of(context).size.height / 40),
+            ),
+          ),
         ),
         leading: IconButton(
             splashRadius: 25,

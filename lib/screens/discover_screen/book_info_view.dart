@@ -63,7 +63,25 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   },
                   icon: Image.asset("lib/assets/images/openlibrary.png",
                       height: 30),
-                  splashRadius: 25)
+                  splashRadius: 25),
+            IconButton(
+                tooltip: AppLocalizations.of(context)!.addToShelf,
+                splashRadius: 25,
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return BookEditionsView(
+                        workId: mainBook.key,
+                        title: mainBook!.title!,
+                        toAddBook: true,
+                      );
+                    },
+                  ));
+                },
+                icon: const Icon(
+                  Icons.add_circle,
+                  size: 35,
+                ))
           ],
           leadingWidth: 50,
           title: Text(

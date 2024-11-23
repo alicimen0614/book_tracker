@@ -93,9 +93,25 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         return Future(() => true);
       },
       child: Scaffold(
+          floatingActionButton: widget.isNavigatingFromLibrary == false
+              ? FloatingActionButton(
+                  onPressed: () async {
+                    await bookStatusDialog(context, toUpdate: false);
+                  },
+                  backgroundColor: const Color(0xFF1B7695),
+                  tooltip: AppLocalizations.of(context)!.addToShelf,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50)),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                )
+              : null,
           bottomNavigationBar: _banner == null
               ? Container()
-              : Container(
+              : SizedBox(
                   height: 52,
                   child: AdWidget(ad: _banner!),
                 ),
@@ -400,7 +416,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       await alertDialogForDeletionBuilder(context);
                     } else {
                       Navigator.pop(context);
-                      await bookStatusDialog(context);
+                      await bookStatusDialog(context, toUpdate: false);
                     }
                   },
                   leading: const Icon(
@@ -443,7 +459,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                             : widget.editionInfo.bookStatus ==
                                     "Şu an okuduklarım"
                                 ? BookStatus.currentlyReading
-                                : BookStatus.alreadyRead);
+                                : BookStatus.alreadyRead,
+                        toUpdate: true);
                     if (hasChangeMade == true) {
                       setState(() {
                         bookStatusAsString = bookStatus == BookStatus.wantToRead
@@ -598,7 +615,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   }
 
   Future<dynamic> bookStatusDialog(BuildContext mainContext,
-      {BookStatus? initialBookStatus}) {
+      {BookStatus? initialBookStatus, required bool toUpdate}) {
     if (initialBookStatus != null) {
       if (initialBookStatus != bookStatus) {
       } else {
@@ -621,13 +638,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                       ? Padding(
                           padding: const EdgeInsets.all(15),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!
-                                    .selectNewBookStatus,
+                                toUpdate == true
+                                    ? AppLocalizations.of(context)!
+                                        .selectNewBookStatus
+                                    : AppLocalizations.of(context)!
+                                        .selectStatusForBook,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
+                                textAlign: TextAlign.center,
                               ),
                               const SizedBox(
                                 height: 15,

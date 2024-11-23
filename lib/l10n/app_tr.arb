@@ -407,7 +407,11 @@
 "@errorUpdatingBookStatus": {},"errorAddingNote": "Not eklenirken bir hata oluştu",
 "@errorAddingNote": {},"errorFetchingBooks": "Kitaplar getirilirken bir hata oluştu.",
 "@errorFetchingBooks": {},"searchResults": "Arama sonuçları:",
-"@searchResults": {}
+"@searchResults": {},"selectAnEdition": "Rafınıza eklemek için bir baskı seçin",
+"@selectAnEdition": {},"selectStatusForBook": "Eklemek istediğiniz kitabın durumunu seçiniz.",
+"@selectStatusForBook": {}
+
+
 
 
 

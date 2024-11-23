@@ -109,16 +109,6 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                 splashRadius: 25,
                 onPressed: () {
                   modalBottomSheetBuilderForAddIcon(context);
-
-                  /* Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddBookView(),
-                      )).then((value) async {
-                    if (value == true) {
-                      await ref.watch(bookStateProvider.notifier).getPageData();
-                    }
-                  }); */
                 },
                 icon: const Icon(
                   Icons.add_circle,

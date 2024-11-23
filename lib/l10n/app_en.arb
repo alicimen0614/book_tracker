@@ -453,7 +453,11 @@
 "@errorUpdatingBookStatus": {},"errorAddingNote": "An error occurred while adding the note.",
 "@errorAddingNote": {},"errorFetchingBooks": "An error occurred while fetching the books.",
 "@errorFetchingBooks": {},"searchResults": "Search results:",
-"@searchResults": {}
+"@searchResults": {},"selectAnEdition": "Choose an edition to add to your shelf",
+"@selectAnEdition": {},"selectStatusForBook": "Select the status for the book you want to add.",
+"@selectStatusForBook": {}
+
+
 
 
 
