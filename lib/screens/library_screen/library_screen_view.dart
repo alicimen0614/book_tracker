@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
@@ -7,6 +8,7 @@ import 'package:book_tracker/screens/home_screen/my_quotes_view.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/notes_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:book_tracker/databases/sql_helper.dart';
@@ -24,7 +26,8 @@ class LibraryScreenView extends ConsumerStatefulWidget {
   ConsumerState<LibraryScreenView> createState() => _LibraryScreenViewState();
 }
 
-class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
+class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
+    with RouteAware {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -34,6 +37,27 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
     });
 
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "LibraryScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   @override
@@ -225,6 +249,10 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView> {
                     customBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     onTap: () async {
+                      AnalyticsService().logEvent("click_book_edition", {
+                        "edition_id":
+                            uniqueIdCreater(listOfTheCurrentBookStatus[index])
+                      });
                       final result = await Navigator.push(
                           context,
                           MaterialPageRoute(

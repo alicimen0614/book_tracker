@@ -35,11 +35,11 @@ Center booksListError(
             textAlign: TextAlign.center,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
-          if (message != null)
+          if (message != '')
             const SizedBox(
               height: 16,
             ),
-          if (message != null)
+          if (message != '')
             Text(
               message,
               textAlign: TextAlign.center,

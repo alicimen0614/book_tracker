@@ -1,6 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 
 import 'package:book_tracker/widgets/animated_button.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
@@ -36,8 +37,21 @@ class _AuthViewState extends ConsumerState<AuthView> {
     // ignore: unused_local_variable
 
     await ref.read(authProvider).signInWithGoogle(context).then(
-      (value) {
-        if (value != null) {}
+      (value) async {
+        if (value != null) {
+          AnalyticsService().firebaseAnalytics.logLogin(loginMethod: "Google");
+
+          if (FirebaseAuth.instance.currentUser != null) {
+            await FirebaseAuth.instance.currentUser!.reload();
+
+            AnalyticsService()
+                .firebaseAnalytics
+                .setUserId(id: FirebaseAuth.instance.currentUser!.uid);
+          }
+          ref.read(bookStateProvider.notifier).getPageData();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context)!.loginSuccessful)));
+        } else {}
       },
     );
   }
@@ -223,8 +237,17 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                 signInEmailController.text,
                                 signInPasswordController.text,
                                 context)
-                            .then((value) {
+                            .then((value) async {
                           if (value != null) {
+                            AnalyticsService()
+                                .firebaseAnalytics
+                                .logLogin(loginMethod: "E-mail");
+                            if (FirebaseAuth.instance.currentUser != null) {
+                              await FirebaseAuth.instance.currentUser!.reload();
+
+                              AnalyticsService().firebaseAnalytics.setUserId(
+                                  id: FirebaseAuth.instance.currentUser!.uid);
+                            }
                             ref.read(bookStateProvider.notifier).getPageData();
                             ref
                                 .read(indexBottomNavbarProvider.notifier)
@@ -236,6 +259,9 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                       const BottomNavigationBarController(),
                                 ),
                                 (route) => false);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppLocalizations.of(context)!
+                                    .loginSuccessful)));
                           } else {
                             return;
                           }
@@ -390,9 +416,16 @@ class _AuthViewState extends ConsumerState<AuthView> {
                           .then(
                         (value) async {
                           if (value != null) {
+                            AnalyticsService()
+                                .firebaseAnalytics
+                                .logSignUp(signUpMethod: "E-mail");
                             await FirebaseAuth.instance.currentUser!
                                 .updateDisplayName(registerNameController.text);
                             await FirebaseAuth.instance.currentUser!.reload();
+                            if (FirebaseAuth.instance.currentUser != null) {
+                              AnalyticsService().firebaseAnalytics.setUserId(
+                                  id: FirebaseAuth.instance.currentUser!.uid);
+                            }
 
                             ref
                                 .read(indexBottomNavbarProvider.notifier)
@@ -404,6 +437,10 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                       const BottomNavigationBarController(),
                                 ),
                                 (route) => false);
+
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(AppLocalizations.of(context)!
+                                    .createAccountSuccessful)));
                           } else {
                             return;
                           }

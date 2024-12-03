@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
@@ -16,6 +16,7 @@ import 'package:book_tracker/screens/home_screen/home_screen_shimmer/home_screen
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/text_shimmer_effect.dart';
 import 'package:book_tracker/screens/home_screen/quotes_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -35,7 +36,8 @@ class HomeScreenView extends ConsumerStatefulWidget {
   ConsumerState<HomeScreenView> createState() => _HomeScreenViewState();
 }
 
-class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
+class _HomeScreenViewState extends ConsumerState<HomeScreenView>
+    with RouteAware {
   final _scrollControllerCurrReading = ScrollController();
   final _scrollControllerWantToRead = ScrollController();
   final _scrollControllerAlrRead = ScrollController();
@@ -71,7 +73,23 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "HomeScreen",
+        );
+  }
+
+  @override
   Future<void> dispose() async {
+    routeObserver.unsubscribe(this);
     _scrollControllerAlrRead.dispose();
     _scrollControllerCurrReading.dispose();
     _scrollControllerWantToRead.dispose();
@@ -243,6 +261,9 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                     isTrendingQuotes: true,
                                   ),
                                 ));
+
+                            AnalyticsService().logEvent(
+                                "click_quote", {"quote_id": quoteEntry.id});
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -647,6 +668,11 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView> {
                                         if (searchBarFocus.hasFocus) {
                                           searchBarFocus.unfocus();
                                         }
+                                        AnalyticsService().logEvent(
+                                            "click_book_edition", {
+                                          "edition_id":
+                                              uniqueIdCreater(books[index])
+                                        });
                                         var data = await Navigator.push(
                                             context,
                                             MaterialPageRoute(

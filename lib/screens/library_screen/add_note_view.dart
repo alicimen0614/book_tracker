@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -117,6 +118,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   if (widget.initialNoteValue != noteFieldController.text &&
                       widget.initialNoteValue != "" &&
                       noteFieldController.text != "") {
+                    AnalyticsService().logEvent(
+                        "update_note", {"note_id": widget.noteId ?? ""});
                     FocusScope.of(context).unfocus();
                     //deleting the old note from sql if there is any
                     if (widget.noteId != null) {
@@ -161,6 +164,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
                   //new note condition
                   else if (widget.initialNoteValue == "" &&
                       noteFieldController.text != "") {
+                    AnalyticsService().logEvent("add_note", {});
                     FocusScope.of(context).unfocus();
                     //inserting the note to sql and inserting the book to sql if it isn't already
                     await ref.read(sqlProvider).insertNoteToBook(
@@ -313,6 +317,8 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
             },
             thirdButtonText: AppLocalizations.of(context)!.delete,
             thirdButtonOnPressed: () async {
+              AnalyticsService()
+                  .logEvent("delete_note", {"note_id": widget.noteId ?? ""});
               await ref.read(sqlProvider).deleteNote(widget.noteId!, context);
               if (ref.read(authProvider).currentUser != null) {
                 await ref.read(firestoreProvider).deleteNote(context,

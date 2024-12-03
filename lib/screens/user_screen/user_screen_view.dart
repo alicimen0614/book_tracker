@@ -1,10 +1,12 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
@@ -24,7 +26,8 @@ class UserScreenView extends ConsumerStatefulWidget {
   ConsumerState<UserScreenView> createState() => _UserScreenViewState();
 }
 
-class _UserScreenViewState extends ConsumerState<UserScreenView> {
+class _UserScreenViewState extends ConsumerState<UserScreenView>
+    with RouteAware {
   String contactMail = "cimensoft@gmail.com";
   List<BookWorkEditionsModelEntries>? listOfBooksFromSql = [];
   List<BookWorkEditionsModelEntries>? listOfBooksFromFirebase = [];
@@ -38,98 +41,24 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   late bool isUserLoggedIn =
       ref.read(authProvider).currentUser != null ? true : false;
 
-  User? getCurrentUser(WidgetRef ref) {
-    return ref.read(authProvider).currentUser;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
   }
 
-  Widget getUserProfileImage(
-    WidgetRef ref,
-    double size,
-  ) {
-    if (ref.watch(authProvider).currentUser == null) {
-      return Icon(
-        Icons.account_circle_sharp,
-        size: size,
-        color: Colors.white,
-      );
-    } else {
-      if (FirebaseAuth.instance.currentUser != null &&
-          FirebaseAuth.instance.currentUser!.photoURL != null) {
-        return ClipOval(
-          child: CachedNetworkImage(
-            fit: BoxFit.cover,
-            imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-            placeholder: (context, url) => const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [CircularProgressIndicator()]),
-            errorWidget: (context, url, error) => const Icon(Icons.circle),
-          ),
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "UserScreen",
         );
-      } else if (getCurrentUser(ref)!.photoURL != null) {
-        return ClipOval(
-          child: CachedNetworkImage(
-            fit: BoxFit.cover,
-            imageUrl: getCurrentUser(ref)!.photoURL!,
-            placeholder: (context, url) => const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [CircularProgressIndicator()]),
-            errorWidget: (context, url, error) => const Icon(Icons.circle),
-          ),
-        );
-      } else {
-        return Icon(
-          Icons.account_circle_sharp,
-          size: size,
-        );
-      }
-    }
-  }
-
-  Widget getUserName(WidgetRef ref) {
-    if (isLoading = true && getCurrentUser(ref)!.displayName != null) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          getCurrentUser(ref)!.displayName!,
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: MediaQuery.of(context).size.height / 30),
-        ),
-      );
-    } else if (isLoading == true && getCurrentUser(ref)!.displayName == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    } else if (isLoading == false && userName != "") {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          userName,
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: MediaQuery.of(context).size.height / 30),
-        ),
-      );
-    } else {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          AppLocalizations.of(context)!.visitor,
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: MediaQuery.of(context).size.height / 30),
-        ),
-      );
-    }
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _interstitialAd?.dispose();
     super.dispose();
   }
@@ -332,6 +261,8 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                                     await ref
                                         .read(localeProvider.notifier)
                                         .changeLocale("tr");
+                                    AnalyticsService()
+                                        .logUserProperty("language", "tr");
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
@@ -348,6 +279,8 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                                       await ref
                                           .read(localeProvider.notifier)
                                           .changeLocale("en");
+                                      AnalyticsService()
+                                          .logUserProperty("language", "en");
                                       Navigator.pop(context);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
@@ -538,7 +471,10 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
                 .currentUsersPagingController
                 .itemList = [];
             ref.read(bookStateProvider.notifier).clearBooks();
-            ref.read(authProvider).signOut(context).whenComplete(() {
+            ref.read(authProvider).signOut(context).whenComplete(() async {
+              AnalyticsService().logEvent("sign_out", {});
+              AnalyticsService().firebaseAnalytics.setUserId(id: null);
+
               setState(() {
                 isUserLoggedIn = false;
               });
@@ -588,8 +524,8 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
             _showInterstitialAd();
           },
           onAdFailedToLoad: (error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Reklam yüklenemedi")));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(AppLocalizations.of(context)!.adFailedToLoad)));
             isInterstitialAdReady = false;
             Navigator.pop(context);
           },
@@ -599,6 +535,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
   void _showInterstitialAd() {
     if (isInterstitialAdReady) {
       _interstitialAd!.show();
+      AnalyticsService().logAdImpression("InterstitialAd");
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) async {
           ad.dispose();
@@ -606,6 +543,96 @@ class _UserScreenViewState extends ConsumerState<UserScreenView> {
         onAdFailedToShowFullScreenContent: (ad, error) async {
           ad.dispose();
         },
+      );
+    }
+  }
+
+  User? getCurrentUser(WidgetRef ref) {
+    return ref.read(authProvider).currentUser;
+  }
+
+  Widget getUserProfileImage(
+    WidgetRef ref,
+    double size,
+  ) {
+    if (ref.watch(authProvider).currentUser == null) {
+      return Icon(
+        Icons.account_circle_sharp,
+        size: size,
+        color: Colors.white,
+      );
+    } else {
+      if (FirebaseAuth.instance.currentUser != null &&
+          FirebaseAuth.instance.currentUser!.photoURL != null) {
+        return ClipOval(
+          child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+            placeholder: (context, url) => const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [CircularProgressIndicator()]),
+            errorWidget: (context, url, error) => const Icon(Icons.circle),
+          ),
+        );
+      } else if (getCurrentUser(ref)!.photoURL != null) {
+        return ClipOval(
+          child: CachedNetworkImage(
+            fit: BoxFit.cover,
+            imageUrl: getCurrentUser(ref)!.photoURL!,
+            placeholder: (context, url) => const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [CircularProgressIndicator()]),
+            errorWidget: (context, url, error) => const Icon(Icons.circle),
+          ),
+        );
+      } else {
+        return Icon(
+          Icons.account_circle_sharp,
+          size: size,
+        );
+      }
+    }
+  }
+
+  Widget getUserName(WidgetRef ref) {
+    if (isLoading = true && getCurrentUser(ref)!.displayName != null) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          getCurrentUser(ref)!.displayName!,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
+        ),
+      );
+    } else if (isLoading == true && getCurrentUser(ref)!.displayName == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (isLoading == false && userName != "") {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          userName,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
+        ),
+      );
+    } else {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          AppLocalizations.of(context)!.visitor,
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: MediaQuery.of(context).size.height / 30),
+        ),
       );
     }
   }

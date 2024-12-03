@@ -1,8 +1,9 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Internet bağlantı durumunu kontrol etmek için bir ChangeNotifier sınıfı
 class ConnectivityNotifier extends ChangeNotifier {
   final Connectivity _connectivity = Connectivity();
   bool _isConnected = false;
@@ -11,13 +12,14 @@ class ConnectivityNotifier extends ChangeNotifier {
 
   ConnectivityNotifier() {
     _checkConnection();
-    // İnternet bağlantısı durumundaki değişiklikleri dinler
-    _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      _updateConnectionStatus(result);
-    });
+    // listen to changes on internet connection
+    _connectivity.onConnectivityChanged.listen(
+      (event) {
+        _updateConnectionStatus(event);
+      },
+    );
   }
 
-  /// Başlangıçta internet bağlantısını kontrol eder
   Future<void> _checkConnection() async {
     final result = await _connectivity.checkConnectivity();
 
@@ -25,9 +27,9 @@ class ConnectivityNotifier extends ChangeNotifier {
   }
 
   /// Bağlantı durumunu günceller ve değişiklik varsa dinleyicileri bilgilendirir
-  void _updateConnectionStatus(ConnectivityResult result) {
-    final connected =
-        result != ConnectivityResult.none && result != ConnectivityResult.vpn;
+  void _updateConnectionStatus(List<ConnectivityResult> result) {
+    final connected = result.contains(ConnectivityResult.none) == false;
+    log(connected.toString());
     if (_isConnected != connected) {
       _isConnected = connected;
       notifyListeners();

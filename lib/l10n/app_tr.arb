@@ -409,7 +409,13 @@
 "@errorFetchingBooks": {},"searchResults": "Arama sonuçları:",
 "@searchResults": {},"selectAnEdition": "Rafınıza eklemek için bir baskı seçin",
 "@selectAnEdition": {},"selectStatusForBook": "Eklemek istediğiniz kitabın durumunu seçiniz.",
-"@selectStatusForBook": {}
+"@selectStatusForBook": {},"adFailedToLoad": "Reklam yüklenemedi.",
+"@adFailedToLoad": {}
+,"loginSuccessful": "Başarıyla giriş yapıldı.",
+"@loginSuccessful": {},"createAccountSuccessful": "Hesap başarıyla oluşturuldu.",
+"@createAccountSuccessful": {}
+
+
 
 
 

@@ -1,7 +1,9 @@
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +23,8 @@ class DetailedCategoriesView extends ConsumerStatefulWidget {
       _DetailedCategoriesViewState();
 }
 
-class _DetailedCategoriesViewState
-    extends ConsumerState<DetailedCategoriesView> {
+class _DetailedCategoriesViewState extends ConsumerState<DetailedCategoriesView>
+    with RouteAware {
   bool isConnected = false;
   ImageProvider<Object> getBookCover(BooksModelDocs? doc) {
     if (doc!.coverI != null) {
@@ -43,6 +45,27 @@ class _DetailedCategoriesViewState
       fetchData(pageKey);
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "DetailedCategoryScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   void fetchData(int pageKey) async {
@@ -127,6 +150,8 @@ class _DetailedCategoriesViewState
                         MaterialPageRoute(
                           builder: (context) => BookInfoView(searchBook: item),
                         ));
+                    AnalyticsService()
+                        .logEvent("click_book", {"OLBookKey": item.key ?? ""});
                   },
                   child: Column(children: [
                     Expanded(

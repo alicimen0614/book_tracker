@@ -1,6 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,10 +10,14 @@ import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-void main() async {
+final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  MobileAds.instance.initialize();
+  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+
+  await MobileAds.instance.initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -28,6 +33,7 @@ class MyApp extends ConsumerWidget {
     Intl.defaultLocale = ref.watch(localeProvider).languageCode;
     Const.init(context);
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       title: 'Book Tracker',
       locale: Locale(ref.watch(localeProvider).languageCode),
       localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -7,6 +7,7 @@ import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,6 +66,7 @@ class QuoteWidget extends ConsumerWidget {
                 isTrendingQuotes: isTrendingQuotes,
               ),
             ));
+        AnalyticsService().logEvent("click_quote", {"quote_id": quoteId});
       },
       child: Container(
         color: Colors.transparent,
@@ -387,6 +389,8 @@ class QuoteWidget extends ConsumerWidget {
             var result =
                 await ref.read(quotesProvider.notifier).deleteQuote(quoteId);
             if (result == true) {
+              AnalyticsService()
+                  .logEvent("delete_quote", {"quote_id": quoteId});
               Navigator.pop(context);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(

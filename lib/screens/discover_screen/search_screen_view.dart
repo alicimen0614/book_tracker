@@ -1,7 +1,9 @@
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:book_tracker/widgets/no_items_found_indicator_builder.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,8 @@ class SearchScreenView extends ConsumerStatefulWidget {
   ConsumerState<SearchScreenView> createState() => _SearchScreenViewState();
 }
 
-class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
+class _SearchScreenViewState extends ConsumerState<SearchScreenView>
+    with RouteAware {
   ImageProvider getBookCover(BooksModelDocs? item) {
     if (item?.coverI != null) {
       return NetworkImage(
@@ -40,6 +43,27 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
       fetchBooks(pageKey);
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "SearchScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   @override
@@ -147,6 +171,9 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView> {
                   MaterialPageRoute(
                     builder: (context) => BookInfoView(searchBook: item),
                   ));
+
+              AnalyticsService()
+                  .logEvent("click_book", {"OLBookKey": item.key ?? ""});
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,

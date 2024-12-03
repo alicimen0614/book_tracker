@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -307,11 +308,24 @@ class _AddBookViewState extends ConsumerState<AddBookView> {
                         },
                         userId: ref.read(authProvider).currentUser!.uid);
                   }
+                  AnalyticsService().logEvent('add_to_shelf', {
+                    'book_isbn': isbnFieldController.text != ""
+                        ? isbnFieldController.text
+                        : "",
+                    'shelf': '$bookStatus'
+                  });
                   if (ref.read(indexBottomNavbarProvider) == 0) {
                     Navigator.pop(context, isSaved);
                     Navigator.pop(context);
                   } else {
                     if (widget.toUpdate) {
+                      AnalyticsService().logEvent('change_status', {
+                        'book_isbn': isbnFieldController.text != ""
+                            ? isbnFieldController.text
+                            : "",
+                        'old_status': widget.bookStatus,
+                        'new_status': '$bookStatus'
+                      });
                       Navigator.pop(context, isSaved);
                       Navigator.pop(context);
                     } else {

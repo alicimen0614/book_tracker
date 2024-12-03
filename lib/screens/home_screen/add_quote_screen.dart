@@ -3,6 +3,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -104,9 +105,9 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                     //updating the quote section
                     alertDialogForUpdateBuilder(context);
                   } else {
-                    print(widget.bookInfo.authorsNames);
+                    AnalyticsService().logEvent("add_quote", {});
                     //adding the new quote section
-                    print(widget.bookInfo.imageAsByte);
+
                     Quote quote = Quote(
                         bookAuthorName: widget.bookInfo.authorsNames != null &&
                                 widget.bookInfo.authorsNames!.isNotEmpty
@@ -245,6 +246,8 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                 .read(quotesProvider.notifier)
                 .deleteQuote(widget.quoteId);
             if (result == true) {
+              AnalyticsService()
+                  .logEvent("delete_quote", {"quote_id": widget.quoteId});
               Navigator.pop(context);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -280,6 +283,8 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                 child: Text(AppLocalizations.of(context)!.cancel)),
             TextButton(
                 onPressed: () async {
+                  AnalyticsService()
+                      .logEvent("update_quote", {"quote_id": widget.quoteId});
                   ref.read(firestoreProvider).setQuoteData(context,
                       quote: {
                         "quoteText": quoteFieldController.text,

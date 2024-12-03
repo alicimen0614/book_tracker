@@ -455,7 +455,13 @@
 "@errorFetchingBooks": {},"searchResults": "Search results:",
 "@searchResults": {},"selectAnEdition": "Choose an edition to add to your shelf",
 "@selectAnEdition": {},"selectStatusForBook": "Select the status for the book you want to add.",
-"@selectStatusForBook": {}
+"@selectStatusForBook": {},"adFailedToLoad": "Ad failed to load.",
+"@adFailedToLoad": {},"loginSuccessful": "Successfully logged in.",
+"@loginSuccessful": {},"createAccountSuccessful": "Account successfully created.",
+"@createAccountSuccessful": {}
+
+
+
 
 
 

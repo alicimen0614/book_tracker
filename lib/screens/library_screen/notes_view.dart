@@ -1,12 +1,14 @@
 import 'dart:convert';
 
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
 import 'package:book_tracker/screens/library_screen/shimmer_effects/notes_view_shimmer.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -24,7 +26,7 @@ class NotesView extends ConsumerStatefulWidget {
   ConsumerState<NotesView> createState() => _NotesViewState();
 }
 
-class _NotesViewState extends ConsumerState<NotesView> {
+class _NotesViewState extends ConsumerState<NotesView> with RouteAware {
   List<BookWorkEditionsModelEntries>? bookListToShow;
   List<int> BookIdsListFromSql = [];
   List<int> BookIdsListToShow = [];
@@ -40,6 +42,27 @@ class _NotesViewState extends ConsumerState<NotesView> {
   void initState() {
     getPageData();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "NotesScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   @override
@@ -106,6 +129,8 @@ class _NotesViewState extends ConsumerState<NotesView> {
                             customBorder: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(25)),
                             onTap: () {
+                              AnalyticsService().logEvent("click_note",
+                                  {"note_id": notesToShow[index]['id']});
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

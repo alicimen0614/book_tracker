@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:book_tracker/databases/firestore_database.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/home_screen/home_screen_shimmer/quote_widget_shimmer.dart';
 import 'package:book_tracker/screens/library_screen/books_list_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/quote_widget.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,9 +21,30 @@ class MyQuotesView extends ConsumerStatefulWidget {
   ConsumerState<MyQuotesView> createState() => _QuotesViewState();
 }
 
-class _QuotesViewState extends ConsumerState<MyQuotesView> {
+class _QuotesViewState extends ConsumerState<MyQuotesView> with RouteAware {
   Map<String, Timer?> debounceTimers = {}; // Her post için bir zamanlayıcı
   Map<String, bool> pendingLikeStatus = {}; // Son beğeni durumu (beğeni/yok)
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "MyQuotesScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

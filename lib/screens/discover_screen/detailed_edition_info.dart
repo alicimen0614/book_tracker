@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
@@ -10,6 +8,7 @@ import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +48,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
   bool doesBookAlreadyExistOnSql = false;
   bool doesBookAlreadyExistOnFirestore = false;
   bool isBookBeingInserted = false;
-
   List<Map<String, dynamic>>? notesList = [];
   bool? didStatusChanged;
   String bookStatusAsString = "";
@@ -550,6 +548,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
               ? ListTile(
                   visualDensity: const VisualDensity(vertical: 3),
                   onTap: () async {
+                    AnalyticsService().logEvent("delete_book",
+                        {"book_id": uniqueIdCreater(widget.editionInfo)});
                     hasChangeMade = true;
                     await deleteAuthorsFromSql(widget.editionInfo);
                     await deleteNote(widget.editionInfo);
@@ -745,6 +745,16 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                                         "doesBookExistOnFirestore"] ==
                                                     false) &&
                                             didStatusChanged == null) {
+                                          AnalyticsService()
+                                              .logEvent('add_to_shelf', {
+                                            'book_isbn': widget.editionInfo
+                                                    .isbn_10?.first ??
+                                                widget.editionInfo.isbn_13
+                                                    ?.first ??
+                                                "",
+                                            'shelf': '$bookStatus'
+                                          });
+
                                           Uint8List? base64AsString =
                                               await readNetworkImage(
                                                   "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg");
@@ -769,6 +779,15 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                                         "doesBookExistOnFirestore"] ==
                                                     false) &&
                                             didStatusChanged == null) {
+                                          AnalyticsService()
+                                              .logEvent('add_to_shelf', {
+                                            'book_isbn': widget.editionInfo
+                                                    .isbn_10?.first ??
+                                                widget.editionInfo.isbn_13
+                                                    ?.first ??
+                                                "",
+                                            'shelf': '$bookStatus'
+                                          });
                                           await insertToSqlDatabase(
                                               null, context);
                                           if (ref
@@ -787,8 +806,18 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                                         "doesBookExistOnFirestore"] ==
                                                     true) &&
                                             didStatusChanged == true) {
-                                          log(bookStatusAsString);
-                                          log(bookStatus.toString());
+                                          AnalyticsService()
+                                              .logEvent('change_status', {
+                                            'book_isbn': widget.editionInfo
+                                                    .isbn_10?.first ??
+                                                widget.editionInfo.isbn_13
+                                                    ?.first ??
+                                                "",
+                                            'old_status':
+                                                widget.editionInfo.bookStatus ??
+                                                    "",
+                                            'new_status': '$bookStatus'
+                                          });
                                           hasChangeMade = true;
                                           updateBookStatus(
                                               uniqueIdCreater(
@@ -1434,6 +1463,12 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             },
             thirdButtonText: AppLocalizations.of(context)!.delete,
             thirdButtonOnPressed: () async {
+              AnalyticsService().logEvent('remove_from_shelf', {
+                'book_isbn': widget.editionInfo.isbn_10?.first ??
+                    widget.editionInfo.isbn_13?.first ??
+                    "",
+                'shelf': '$bookStatus'
+              });
               await deleteAuthorsFromSql(widget.editionInfo);
               await deleteNote(widget.editionInfo);
               deleteBook(widget.editionInfo);
@@ -1463,6 +1498,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         listener: bannerAdListener,
         request: const AdRequest())
       ..load();
+    AnalyticsService().logAdImpression("bannerAd");
   }
 
   void _createInterstitialAd() {
@@ -1489,6 +1525,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         },
       );
       _interstitialAd!.show();
+      AnalyticsService().logAdImpression("InterstitialAd");
 
       _interstitialAd = null;
     }

@@ -1,8 +1,10 @@
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/books_list_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +20,8 @@ class TrendingBooksView extends ConsumerStatefulWidget {
   ConsumerState<TrendingBooksView> createState() => _TrendingBooksViewState();
 }
 
-class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
+class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
+    with RouteAware {
   List<TrendingBooksWorks?>? itemList = [];
   bool isConnected = false;
 
@@ -43,23 +46,25 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
     super.initState();
   }
 
-  void fetchData(int pageKey) async {
-    isConnected = ref.read(connectivityProvider).isConnected;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
 
-    try {
-      List<TrendingBooksWorks?>? list = await ref
-          .read(booksProvider)
-          .getTrendingBooks(widget.date, pageKey, context);
-      final isLastPage = list!.length < 10;
-      if (isLastPage) {
-        pagingController.appendLastPage(list);
-      } else {
-        final nextPageKey = pageKey + 1;
-        pagingController.appendPage(list, nextPageKey);
-      }
-    } catch (e) {
-      pagingController.error = e;
-    }
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "TrendingBooksScreen",
+        );
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   @override
@@ -117,6 +122,8 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                             trendingBook: item,
                           ),
                         ));
+                    AnalyticsService()
+                        .logEvent("click_book", {"OLBookKey": item.key ?? ""});
                   },
                   child: Column(children: [
                     Expanded(
@@ -161,5 +168,24 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView> {
                   MediaQuery.of(context).size.width > 500 ? 75 : 25,
               mainAxisSpacing: 25)),
     );
+  }
+
+  void fetchData(int pageKey) async {
+    isConnected = ref.read(connectivityProvider).isConnected;
+
+    try {
+      List<TrendingBooksWorks?>? list = await ref
+          .read(booksProvider)
+          .getTrendingBooks(widget.date, pageKey, context);
+      final isLastPage = list!.length < 10;
+      if (isLastPage) {
+        pagingController.appendLastPage(list);
+      } else {
+        final nextPageKey = pageKey + 1;
+        pagingController.appendPage(list, nextPageKey);
+      }
+    } catch (e) {
+      pagingController.error = e;
+    }
   }
 }

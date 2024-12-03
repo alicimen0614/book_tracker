@@ -1,4 +1,5 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -7,6 +8,7 @@ import 'package:book_tracker/screens/discover_screen/categories_view.dart';
 import 'package:book_tracker/screens/discover_screen/search_screen_view.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/categories_view_shimmer.dart';
 import 'package:book_tracker/screens/discover_screen/trending_books_view.dart';
+import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -23,7 +25,7 @@ class DiscoverScreenView extends ConsumerStatefulWidget {
 }
 
 class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
-    with AutomaticKeepAliveClientMixin<DiscoverScreenView> {
+    with AutomaticKeepAliveClientMixin<DiscoverScreenView>, RouteAware {
   @override
   bool get wantKeepAlive => true;
   TextEditingController searchBarController = TextEditingController();
@@ -41,6 +43,21 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
     });
 
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+    super.didPush();
+    // Log when the screen is pushed
+    AnalyticsService().firebaseAnalytics.logScreenView(
+          screenName: "DiscoverScreen",
+        );
   }
 
   Future<void> getTrendingBooks() async {
@@ -72,6 +89,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     searchBarController.dispose();
     super.dispose();
   }
