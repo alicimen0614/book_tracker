@@ -1,6 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
+import 'package:book_tracker/screens/auth_screen/verify_email_view.dart';
 import 'package:book_tracker/services/analytics_service.dart';
 
 import 'package:book_tracker/widgets/animated_button.dart';
@@ -248,20 +249,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
                               AnalyticsService().firebaseAnalytics.setUserId(
                                   id: FirebaseAuth.instance.currentUser!.uid);
                             }
-                            ref.read(bookStateProvider.notifier).getPageData();
-                            ref
-                                .read(indexBottomNavbarProvider.notifier)
-                                .update((state) => 0);
-                            Navigator.pushAndRemoveUntil(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const BottomNavigationBarController(),
-                                ),
-                                (route) => false);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(AppLocalizations.of(context)!
-                                    .loginSuccessful)));
+                                  builder: (context) => const VerifyEmailView(
+                                    isSignInAction: true,
+                                  ),
+                                ));
                           } else {
                             return;
                           }
@@ -427,20 +421,13 @@ class _AuthViewState extends ConsumerState<AuthView> {
                                   id: FirebaseAuth.instance.currentUser!.uid);
                             }
 
-                            ref
-                                .read(indexBottomNavbarProvider.notifier)
-                                .update((state) => 0);
-                            Navigator.pushAndRemoveUntil(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const BottomNavigationBarController(),
-                                ),
-                                (route) => false);
-
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(AppLocalizations.of(context)!
-                                    .createAccountSuccessful)));
+                                  builder: (context) => const VerifyEmailView(
+                                    isSignInAction: false,
+                                  ),
+                                ));
                           } else {
                             return;
                           }
