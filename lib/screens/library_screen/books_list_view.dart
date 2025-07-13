@@ -8,7 +8,7 @@ import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 
 class BooksListView extends ConsumerStatefulWidget {
   const BooksListView({super.key, required this.isNotes});

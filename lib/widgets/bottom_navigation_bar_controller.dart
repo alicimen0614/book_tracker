@@ -9,8 +9,7 @@ import '../screens/discover_screen/discover_screen_view.dart';
 import '../screens/home_screen/home_screen_view.dart';
 import '../screens/library_screen/library_screen_view.dart';
 import '../screens/user_screen/user_screen_view.dart';
-
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 
 class BottomNavigationBarController extends ConsumerStatefulWidget {
   const BottomNavigationBarController({super.key, this.searchValue = ""});

@@ -7,7 +7,7 @@ import 'package:book_tracker/services/auth_service.dart';
 import 'package:book_tracker/widgets/animated_percent_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import '../databases/firestore_database.dart';
 
 enum CurrentProcess { InsertingToFirebase, InsertingToSql }

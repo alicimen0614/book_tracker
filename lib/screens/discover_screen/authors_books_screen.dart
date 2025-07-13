@@ -1,3 +1,4 @@
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
@@ -5,7 +6,6 @@ import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/gri
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthorsBooksScreen extends ConsumerStatefulWidget {
   const AuthorsBooksScreen(

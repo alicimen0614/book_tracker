@@ -12,7 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -179,7 +179,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                               ),
                             ),
                           ),
-                Spacer(),
+                const Spacer(),
                 Expanded(
                   flex: 4,
                   child: Column(
@@ -202,7 +202,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                     ],
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
               ],
             ),
             SizedBox(
@@ -254,7 +254,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                                 : ""),
                 const Spacer(),
                 Text(
-                  timeAgo(widget.quoteEntry.quote.date),
+                  timeAgo(widget.quoteEntry.quote.date), 
                 ),
               ],
             ),
@@ -265,7 +265,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
               Center(
                 child: SizedBox(
                     width: Const.screenSize.width,
-                    height: Const.screenSize.height.floor() * 0.3,
+                    height: Const.screenSize.height * 0.3,
                     child: Center(child: AdWidget(ad: _banner!))),
               )
           ],
@@ -288,11 +288,8 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
 
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
       debounceTimers[quoteEntry.id] =
-          Timer(const Duration(seconds: 3), () async {
-        await FirestoreDatabase().commitLikeToFirebase(
-            quoteEntry.id, pendingLikeStatus[quoteEntry.id], context);
-
-        debounceTimers.remove(quoteEntry.id);
+          Timer(const Duration(seconds: 3), () {
+             _commitLikeSafely(quoteEntry.id);
         pendingLikeStatus.remove(quoteEntry.id);
       });
     } else {
@@ -349,7 +346,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
   void _createBannerAd() {
     _banner = BannerAd(
         size: AdSize.getInlineAdaptiveBannerAdSize(
-            Const.screenSize.width.floor(),
+            (Const.screenSize.width*0.9).floor(),
             (Const.screenSize.height * 0.3).floor()),
         adUnitId: 'ca-app-pub-1939809254312142/9271243251',
         listener: bannerAdListener,
@@ -366,4 +363,14 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     },
     onAdOpened: (ad) => debugPrint("ad opened"),
   );
+  
+   Future<void> _commitLikeSafely(String quoteId) async {
+  await FirestoreDatabase().commitLikeToFirebase(
+      quoteId, pendingLikeStatus[quoteId]);
+
+
+
+  debounceTimers.remove(quoteId);
+  pendingLikeStatus.remove(quoteId);
+}
 }

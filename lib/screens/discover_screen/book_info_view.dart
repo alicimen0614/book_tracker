@@ -1,3 +1,4 @@
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'shimmer_effect_builders/book_info_view_shimmer.dart';
 
 class BookInfoView extends ConsumerStatefulWidget {
@@ -111,8 +111,14 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
   }
 
   Expanded bookInfoBodyBuilder() {
-    bool isThereMoreEditionsThanFive = editionsList!.length > 5;
-    int itemCount = editionsList!.length;
+     bool isThereMoreEditionsThanFive=false;
+     int itemCount=0;
+    if(editionsList!=null){
+      isThereMoreEditionsThanFive=editionsList!.length > 5;
+      itemCount = editionsList!.length;
+    }
+   
+    
     return Expanded(
       child: Scrollbar(
         thickness: 3,

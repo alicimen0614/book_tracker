@@ -26,7 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'home_screen_shimmer/quote_widget_shimmer.dart';
 
 class HomeScreenView extends ConsumerStatefulWidget {
@@ -1121,12 +1121,8 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
       debounceTimers[quoteEntry.id]?.cancel();
 
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
-      debounceTimers[quoteEntry.id] = Timer(const Duration(seconds: 3), () {
-        FirestoreDatabase().commitLikeToFirebase(
-            quoteEntry.id, pendingLikeStatus[quoteEntry.id], context);
-
-        debounceTimers.remove(quoteEntry.id);
-        pendingLikeStatus.remove(quoteEntry.id);
+      debounceTimers[quoteEntry.id] = Timer(const Duration(seconds: 3), () async{
+         _commitLikeSafely(quoteEntry.id);
       });
     } else {
       showSignUpDialog();
@@ -1222,4 +1218,14 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
       curve: Curves.easeInOut, // Animasyon eğrisi
     );
   }
+  
+ Future<void> _commitLikeSafely(String quoteId) async {
+   await FirestoreDatabase().commitLikeToFirebase(
+      quoteId, pendingLikeStatus[quoteId]);
+
+
+  debounceTimers.remove(quoteId);
+  pendingLikeStatus.remove(quoteId);
+}
+
 }

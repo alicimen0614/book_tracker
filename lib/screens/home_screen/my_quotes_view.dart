@@ -11,7 +11,7 @@ import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class MyQuotesView extends ConsumerStatefulWidget {
@@ -191,11 +191,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> with RouteAware {
 
       // Yeni bir zamanlayıcı başlat (örneğin 3 saniye sonra Firebase'e gönder)
       debounceTimers[quoteEntry.id] = Timer(const Duration(seconds: 3), () {
-        FirestoreDatabase().commitLikeToFirebase(
-            quoteEntry.id, pendingLikeStatus[quoteEntry.id], context);
-
-        debounceTimers.remove(quoteEntry.id);
-        pendingLikeStatus.remove(quoteEntry.id);
+        _commitLikeSafely(quoteEntry.id);
       });
     } else {
       showSignUpDialog();
@@ -245,4 +241,13 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> with RouteAware {
       },
     );
   }
+  
+   Future<void> _commitLikeSafely(String quoteId) async {
+  await FirestoreDatabase().commitLikeToFirebase(
+      quoteId, pendingLikeStatus[quoteId]);
+
+
+  debounceTimers.remove(quoteId);
+  pendingLikeStatus.remove(quoteId);
+} 
 }

@@ -15,7 +15,7 @@ import 'package:book_tracker/databases/sql_helper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'shimmer_effects/library_screen_shimmer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 
 SqlHelper _sqlHelper = SqlHelper();
 

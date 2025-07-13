@@ -1,3 +1,4 @@
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/main.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -9,7 +10,6 @@ import 'package:book_tracker/widgets/no_items_found_indicator_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../models/books_model.dart';
 
 class SearchScreenView extends ConsumerStatefulWidget {

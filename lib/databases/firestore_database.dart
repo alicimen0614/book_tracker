@@ -1,11 +1,13 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+
 
 class FirestoreDatabase extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -178,60 +180,55 @@ class FirestoreDatabase extends ChangeNotifier {
     }
   }
 
-  Future<void> commitLikeToFirebase(
-      String quoteId, bool? isLikedOnLocal, BuildContext context) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
+  Future<bool> commitLikeToFirebase(String quoteId, bool? isLikedOnLocal) async {
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser == null || isLikedOnLocal == null) {
+    return false;
+  }
 
-    if (currentUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
+  final currentUserId = currentUser.uid;
+  final quoteDocRef =
+      FirebaseFirestore.instance.collection('quotes').doc(quoteId);
 
-      return;
-    }
-
-    final currentUserId = currentUser.uid;
-
-    // Firestore'daki quote belgesinin referansı
-    DocumentReference quoteDocRef =
-        FirebaseFirestore.instance.collection('quotes').doc(quoteId);
-
-    // Transaction başlat
-    FirebaseFirestore.instance.runTransaction((transaction) async {
-      // Belgeyi transaction ile alıyoruz
-      DocumentSnapshot snapshot = await transaction.get(quoteDocRef);
+  try {
+    final result = await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(quoteDocRef);
 
       if (!snapshot.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
-        return;
+        return false;
       }
 
-      // Firestore'dan aldığımız veriyi map formatında elde ediyoruz
       List<dynamic> likes = snapshot.get('likes') as List<dynamic>;
-      int likeCount = snapshot.get('likeCount');
+      int likeCount = snapshot.get('likeCount') as int;
 
-      // Kullanıcı beğenmiş mi kontrol et
-      bool isLiked = likes.contains(currentUserId);
+      final isLiked = likes.contains(currentUserId);
 
-      if (isLiked && isLikedOnLocal == false) {
+      if (isLiked && !isLikedOnLocal) {
         likes.remove(currentUserId);
-        likeCount = likeCount - 1;
-      }
-      if (isLiked == false && isLikedOnLocal == true) {
+        likeCount--;
+      } else if (!isLiked && isLikedOnLocal) {
         likes.add(currentUserId);
-        likeCount = likeCount + 1;
+        likeCount++;
+      } else {
+        return true; // Durum zaten aynı, işlem yapılmadan başarıyla çık
       }
 
-      // Güncellenen beğeni listesini Firebase'e yazalım
-      transaction.update(quoteDocRef, {'likes': likes, 'likeCount': likeCount});
-    }).then((_) {
-      print("Transaction success!");
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context)!.somethingWentWrong)));
-      print("Transaction failed: $error");
+      transaction.update(quoteDocRef, {
+        'likes': likes,
+        'likeCount': likeCount,
+      });
+
+      return true;
     });
+
+    debugPrint("Transaction success!");
+    return result;
+  } catch (error) {
+    debugPrint("Transaction failed: $error");
+    return false;
   }
+}
+
 
   Future<void> updateBookStatus(BuildContext context,
       {required String collectionPath,

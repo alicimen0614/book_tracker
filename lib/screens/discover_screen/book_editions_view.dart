@@ -1,4 +1,5 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
@@ -8,7 +9,6 @@ import 'package:book_tracker/widgets/new_page_error_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BookEditionsView extends ConsumerStatefulWidget {
   const BookEditionsView(

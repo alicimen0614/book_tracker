@@ -2,7 +2,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:flutter/material.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 List<String> getMainCategoriesNames(BuildContext context) {
   return [

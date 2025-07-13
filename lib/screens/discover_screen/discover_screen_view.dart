@@ -1,4 +1,5 @@
 import 'package:book_tracker/const.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/main.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
@@ -15,7 +16,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DiscoverScreenView extends ConsumerStatefulWidget {
   const DiscoverScreenView({super.key});

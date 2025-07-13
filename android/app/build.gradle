@@ -27,6 +27,7 @@ if (flutterVersionName == null) {
 android {
     compileSdkVersion 33
     ndkVersion flutter.ndkVersion
+    namespace "com.example.book_tracker"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

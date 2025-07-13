@@ -7,7 +7,7 @@ import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/app_localizations.dart';
 
 class AddNoteView extends ConsumerStatefulWidget {
   const AddNoteView(

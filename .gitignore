@@ -35,6 +35,16 @@ migrate_working_dir/
 # Symbolication related
 app.*.symbols
 
+#Secrets
+.env
+
+# Firebase related
+/android/app/google-services.json
+firebase.json
+firebase_options.dart
+
+
+
 # Obfuscation related
 app.*.map.json
 
