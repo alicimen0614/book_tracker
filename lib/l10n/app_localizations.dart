@@ -1413,6 +1413,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account successfully created.'**
   String get createAccountSuccessful;
+
+  /// No description provided for @quoteContainsForbiddenWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Please avoid using offensive words in your quote.'**
+  String get quoteContainsForbiddenWords;
+
+  /// No description provided for @reportQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportQuote;
+
+  /// No description provided for @reportQuoteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this post due to inappropriate content.'**
+  String get reportQuoteDescription;
+
+  /// No description provided for @errorReportingQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while reporting. Please try again.'**
+  String get errorReportingQuote;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @quoteSuccessfullyReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote reported successfully. Thank you.'**
+  String get quoteSuccessfullyReported;
+
+  /// No description provided for @reportReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Reason:'**
+  String get reportReason;
+
+  /// No description provided for @inappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate Content'**
+  String get inappropriate;
+
+  /// No description provided for @spam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get spam;
+
+  /// No description provided for @copyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Copyright Infringement'**
+  String get copyright;
+
+  /// No description provided for @misleading.
+  ///
+  /// In en, this message translates to:
+  /// **'Misleading Information'**
+  String get misleading;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// No description provided for @reportingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (Optional):'**
+  String get reportingNote;
+
+  /// No description provided for @annotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Add additional explanation...'**
+  String get annotation;
 }
 
 class _AppLocalizationsDelegate

@@ -413,7 +413,41 @@
 "@adFailedToLoad": {}
 ,"loginSuccessful": "Başarıyla giriş yapıldı.",
 "@loginSuccessful": {},"createAccountSuccessful": "Hesap başarıyla oluşturuldu.",
-"@createAccountSuccessful": {}
+"@createAccountSuccessful": {},
+"quoteContainsForbiddenWords": "Lütfen metninizde küfür veya uygunsuz kelimeler kullanmayın.",
+  "@quoteContainsForbiddenWords": {},
+  "reportQuote": "Bildir",
+  "@reportQuote": {},
+  "reportQuoteDescription": "Bu paylaşımı uygunsuz içerik nedeniyle bildir.",
+  "@reportQuoteDescription": {},
+   "errorReportingQuote": "Bildirirken bir hata oluştu. Lütfen tekrar deneyin.",
+  "@errorReportingQuote": {},
+   "submit": "Gönder",
+  "@submit": {},
+  "quoteSuccessfullyReported": "Alıntı başarıyla bildirildi. Teşekkür ederiz.",
+  "@quoteSuccessfullyReported": {},
+  "reportReason": "Rapor Nedeni:",
+  "@reportReason": {},
+  "inappropriate": "Uygunsuz İçerik",
+  "@inappropriate": {},
+  "spam": "Spam",
+  "@spam": {},
+  "copyright": "Telif Hakkı İhlali",
+  "@copyright": {},
+  "misleading": "Yanıltıcı Bilgi",
+  "@misleading": {},
+  "other": "Diğer",
+  "@other": {},
+  "reportingNote": "Not (İsteğe Bağlı):",
+  "@reportingNote": {},
+  "annotation": "Ek açıklama yazınız...",
+  "@annotation": {}
+
+  
+
+  
+
+
 
 
 

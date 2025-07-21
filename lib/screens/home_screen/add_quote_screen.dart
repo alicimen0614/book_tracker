@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
@@ -40,11 +42,13 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
 
   @override
   void initState() {
+    super.initState();
     date = DateFormat("dd MMMM yyy H.m").format(DateTime.now());
 
     quoteFieldController.text = widget.initialQuoteValue;
 
-    super.initState();
+
+    
   }
 
   @override
@@ -52,6 +56,29 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
     quoteFieldController.dispose();
     super.dispose();
   }
+
+  Future<List<String>> loadForbiddenWords() async {
+    String jsonString = await DefaultAssetBundle.of(context).loadString('lib/assets/karaliste.json');
+    final jsonData = jsonDecode(jsonString);
+    return List<String>.from(jsonData['blacklist']);
+  }
+
+  Future<bool> doesContainForbiddenWords(String text) async{
+    List<String> blacklist= await loadForbiddenWords();
+   for (String word in blacklist) {
+      RegExp regex = RegExp(r'\b' + RegExp.escape(word) + r'\b', caseSensitive: false);
+      if (regex.hasMatch(text)) {
+        return true;
+      }
+    }
+   
+    RegExp extraRegex = RegExp(r'\b[sS][ıiI1][çcC][aA][yY][ıiI1][mM]\b', caseSensitive: false);
+    if (extraRegex.hasMatch(text)) {
+      return true;
+    }
+    return false;
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +130,14 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                           widget.initialQuoteValue &&
                       widget.initialQuoteValue != "") {
                     //updating the quote section
+                     AnalyticsService().logEvent("update_quote", {
+                     "new_content": quoteFieldController.text,"old_content":widget.initialQuoteValue
+                    });
                     alertDialogForUpdateBuilder(context);
                   } else {
-                    AnalyticsService().logEvent("add_quote", {});
+                    AnalyticsService().logEvent("add_quote", {
+                     "content": quoteFieldController.text
+                    });
                     //adding the new quote section
 
                     Quote quote = Quote(
@@ -125,6 +157,21 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                         userPicture:
                             FirebaseAuth.instance.currentUser?.photoURL,
                         likeCount: 0);
+
+                        if(await doesContainForbiddenWords(quoteFieldController.text)){
+                          showSnackBar(context, AppLocalizations.of(context)!.quoteContainsForbiddenWords);
+                          AnalyticsService().logEvent("quote_forbidden_word", {
+                     "content": quoteFieldController.text,
+                     "isbn_info": widget.bookInfo.isbn_10?.first ?? widget.bookInfo.isbn_13?.first??"",
+                     "user_info": {
+                       "user_id": ref.read(authProvider).currentUser!.uid,
+                       "user_name": FirebaseAuth.instance.currentUser?.displayName,
+                       "user_picture": FirebaseAuth.instance.currentUser?.photoURL
+                     }
+
+                    });
+                          return;
+                        }
                     ref
                         .read(firestoreProvider)
                         .setQuoteData(context, quote: quote.toJson());

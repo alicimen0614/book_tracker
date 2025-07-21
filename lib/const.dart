@@ -206,3 +206,61 @@ double calculateTextHeight(String text, TextStyle style, double maxWidth) {
 
   return textPainter.size.height;
 }
+
+enum ReportReason {
+  inappropriate,
+  spam,
+  copyright,
+  misleading,
+  other;
+
+
+  String get value {
+    switch (this) {
+      case ReportReason.inappropriate:
+        return 'inappropriate';
+      case ReportReason.spam:
+        return 'spam';
+      case ReportReason.copyright:
+        return 'copyright';
+      case ReportReason.misleading:
+        return 'misleading';
+      case ReportReason.other:
+        return 'other';
+    }
+  }
+
+
+  String getDisplayText(BuildContext context) {
+    switch (this) {
+      case ReportReason.inappropriate:
+        return AppLocalizations.of(context)!.inappropriate;
+      case ReportReason.spam:
+        return AppLocalizations.of(context)!.spam;
+      case ReportReason.copyright:
+        return AppLocalizations.of(context)!.copyright;
+      case ReportReason.misleading:
+        return AppLocalizations.of(context)!.misleading;
+      case ReportReason.other:
+        return AppLocalizations.of(context)!.other;
+    }
+  }
+
+
+  static ReportReason fromString(String value) {
+    switch (value) {
+      case 'inappropriate':
+        return ReportReason.inappropriate;
+      case 'spam':
+        return ReportReason.spam;
+      case 'copyright':
+        return ReportReason.copyright;
+      case 'misleading':
+        return ReportReason.misleading;
+      case 'other':
+        return ReportReason.other;
+      default:
+        return ReportReason.inappropriate;
+    }
+  }
+}

@@ -706,4 +706,50 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get createAccountSuccessful => 'Hesap başarıyla oluşturuldu.';
+
+  @override
+  String get quoteContainsForbiddenWords =>
+      'Lütfen metninizde küfür veya uygunsuz kelimeler kullanmayın.';
+
+  @override
+  String get reportQuote => 'Bildir';
+
+  @override
+  String get reportQuoteDescription =>
+      'Bu paylaşımı uygunsuz içerik nedeniyle bildir.';
+
+  @override
+  String get errorReportingQuote =>
+      'Bildirirken bir hata oluştu. Lütfen tekrar deneyin.';
+
+  @override
+  String get submit => 'Gönder';
+
+  @override
+  String get quoteSuccessfullyReported =>
+      'Alıntı başarıyla bildirildi. Teşekkür ederiz.';
+
+  @override
+  String get reportReason => 'Rapor Nedeni:';
+
+  @override
+  String get inappropriate => 'Uygunsuz İçerik';
+
+  @override
+  String get spam => 'Spam';
+
+  @override
+  String get copyright => 'Telif Hakkı İhlali';
+
+  @override
+  String get misleading => 'Yanıltıcı Bilgi';
+
+  @override
+  String get other => 'Diğer';
+
+  @override
+  String get reportingNote => 'Not (İsteğe Bağlı):';
+
+  @override
+  String get annotation => 'Ek açıklama yazınız...';
 }

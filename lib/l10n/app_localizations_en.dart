@@ -708,4 +708,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createAccountSuccessful => 'Account successfully created.';
+
+  @override
+  String get quoteContainsForbiddenWords =>
+      'Please avoid using offensive words in your quote.';
+
+  @override
+  String get reportQuote => 'Report';
+
+  @override
+  String get reportQuoteDescription =>
+      'Report this post due to inappropriate content.';
+
+  @override
+  String get errorReportingQuote =>
+      'An error occurred while reporting. Please try again.';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get quoteSuccessfullyReported =>
+      'Quote reported successfully. Thank you.';
+
+  @override
+  String get reportReason => 'Report Reason:';
+
+  @override
+  String get inappropriate => 'Inappropriate Content';
+
+  @override
+  String get spam => 'Spam';
+
+  @override
+  String get copyright => 'Copyright Infringement';
+
+  @override
+  String get misleading => 'Misleading Information';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get reportingNote => 'Note (Optional):';
+
+  @override
+  String get annotation => 'Add additional explanation...';
 }

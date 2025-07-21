@@ -5,6 +5,7 @@ import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/quote_model.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
+import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
 import 'package:book_tracker/screens/home_screen/detailed_quote_view.dart';
 import 'package:book_tracker/services/analytics_service.dart';
@@ -100,8 +101,7 @@ class QuoteWidget extends ConsumerWidget {
                         fontSize: MediaQuery.of(context).size.height / 50,
                       )),
                   const Spacer(),
-                  if (FirebaseAuth.instance.currentUser != null &&
-                      quote.userId == FirebaseAuth.instance.currentUser!.uid)
+                  
                     IconButton(
                         onPressed: () =>
                             modalBottomSheetBuilderForPopUpMenu(context, ref),
@@ -232,7 +232,7 @@ class QuoteWidget extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
             ),
@@ -318,7 +318,8 @@ class QuoteWidget extends ConsumerWidget {
       context: pageContext,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
-          ListTile(
+          if (FirebaseAuth.instance.currentUser != null &&
+                      quote.userId == FirebaseAuth.instance.currentUser!.uid) ListTile(
             visualDensity: const VisualDensity(vertical: 3),
             onTap: () {
               Navigator.push(
@@ -361,10 +362,11 @@ class QuoteWidget extends ConsumerWidget {
                 style: const TextStyle(fontSize: 20)),
           ),
           const Divider(height: 0),
-          ListTile(
+          if (FirebaseAuth.instance.currentUser != null &&
+                      quote.userId == FirebaseAuth.instance.currentUser!.uid) ListTile(
             visualDensity: const VisualDensity(vertical: 3),
             onTap: () async {
-              alertDialogBuilder(context, ref);
+              alertDialogBuilderForDeleting(context, ref);
             },
             leading: const Icon(
               Icons.delete,
@@ -372,13 +374,26 @@ class QuoteWidget extends ConsumerWidget {
             ),
             title: Text(AppLocalizations.of(context)!.deleteQuote,
                 style: const TextStyle(fontSize: 20)),
+          ),
+          const Divider(height: 0),
+          ListTile(
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () async {
+              alertDialogForReporting(context, ref);
+            },
+            leading: const Icon(
+              Icons.report_sharp,
+              size: 30,
+            ),
+            title: Text(AppLocalizations.of(context)!.reportQuote,
+                style: const TextStyle(fontSize: 20)),
           )
         ]);
       },
     );
   }
 
-  Future<dynamic> alertDialogBuilder(BuildContext context, WidgetRef ref) {
+  Future<dynamic> alertDialogBuilderForDeleting(BuildContext context, WidgetRef ref) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -413,4 +428,144 @@ class QuoteWidget extends ConsumerWidget {
       },
     );
   }
+
+Future<dynamic> alertDialogForReporting(BuildContext context, WidgetRef ref) {
+  String selectedReason = ReportReason.inappropriate.value;
+  TextEditingController noteController = TextEditingController();
+  
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: Text(AppLocalizations.of(context)!.reportQuote),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppLocalizations.of(context)!.reportQuoteDescription),
+                  const SizedBox(height: 16),
+                   Text(
+                    AppLocalizations.of(context)!.reportReason,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  RadioListTile<String>(
+                    title:  Text(ReportReason.inappropriate.getDisplayText(context)),
+                    value: ReportReason.inappropriate.value,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReason = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Text(ReportReason.spam.getDisplayText(context)),
+                    value: ReportReason.spam.value,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReason = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Text(ReportReason.copyright.getDisplayText(context)),
+                    value: ReportReason.copyright.value,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReason = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Text(ReportReason.misleading.getDisplayText(context)),
+                    value: ReportReason.misleading.value,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReason = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: Text(ReportReason.other.getDisplayText(context)),
+                    value: ReportReason.other.value,
+                    groupValue: selectedReason,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReason = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                   Text(
+                    AppLocalizations.of(context)!.reportingNote,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: noteController,
+                    decoration:  InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText:  AppLocalizations.of(context)!.annotation,
+                    ),
+                    maxLines: 3,
+                    maxLength: 200,
+                  ),
+                ],
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  var result = await ref.read(firestoreProvider).insertReport(
+                    context,
+                    reason: selectedReason,
+                    note: noteController.text.trim(),
+                    reporterUserId: FirebaseAuth.instance.currentUser?.uid ?? "Visitor",
+                    ownerUserId: quote.userId ?? "",
+                    quoteText: quote.quoteText ?? "",
+                    reporterEmail: FirebaseAuth.instance.currentUser?.email ?? "Visitor",
+                    quoteId: quoteId,
+                  );
+
+                  if (result == true) {
+                    AnalyticsService().logEvent("report_quote", {"quote_id": quoteId});
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(AppLocalizations.of(context)!.quoteSuccessfullyReported),
+                    ));
+                  } else {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(AppLocalizations.of(context)!.errorReportingQuote),
+                    ));
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.submit),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+  
+
+  
 }

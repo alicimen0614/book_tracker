@@ -37,6 +37,7 @@ app.*.symbols
 
 #Secrets
 .env
+karaliste.json
 
 # Firebase related
 /android/app/google-services.json

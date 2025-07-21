@@ -10,7 +10,6 @@ import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:book_tracker/widgets/progress_dialog.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -564,27 +563,19 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
     } else {
       if (FirebaseAuth.instance.currentUser != null &&
           FirebaseAuth.instance.currentUser!.photoURL != null) {
+            final photoUrl = FirebaseAuth.instance.currentUser?.photoURL;
         return ClipOval(
-          child: CachedNetworkImage(
-            fit: BoxFit.cover,
-            imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-            placeholder: (context, url) => const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [CircularProgressIndicator()]),
-            errorWidget: (context, url, error) => const Icon(Icons.circle),
+          child: Image.network(photoUrl!,
+             fit: BoxFit.cover,
+           
+            
+           
           ),
         );
       } else if (getCurrentUser(ref)!.photoURL != null) {
         return ClipOval(
-          child: CachedNetworkImage(
+          child: Image.network(getCurrentUser(ref)!.photoURL!,
             fit: BoxFit.cover,
-            imageUrl: getCurrentUser(ref)!.photoURL!,
-            placeholder: (context, url) => const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [CircularProgressIndicator()]),
-            errorWidget: (context, url, error) => const Icon(Icons.circle),
           ),
         );
       } else {

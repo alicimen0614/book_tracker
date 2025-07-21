@@ -458,8 +458,35 @@
 "@selectStatusForBook": {},"adFailedToLoad": "Ad failed to load.",
 "@adFailedToLoad": {},"loginSuccessful": "Successfully logged in.",
 "@loginSuccessful": {},"createAccountSuccessful": "Account successfully created.",
-"@createAccountSuccessful": {}
-
+"@createAccountSuccessful": {},
+"quoteContainsForbiddenWords": "Please avoid using offensive words in your quote.",
+  "@quoteContainsForbiddenWords": {},
+  "reportQuote": "Report",
+  "@reportQuote": {},
+   "reportQuoteDescription": "Report this post due to inappropriate content.",
+  "@reportQuoteDescription": {},
+  "errorReportingQuote": "An error occurred while reporting. Please try again.",
+  "@errorReportingQuote": {},
+  "submit": "Submit",
+  "@submit": {},
+   "quoteSuccessfullyReported": "Quote reported successfully. Thank you.",
+  "@quoteSuccessfullyReported": {},
+  "reportReason": "Report Reason:",
+  "@reportReason": {},
+   "inappropriate": "Inappropriate Content",
+  "@inappropriate": {},
+  "spam": "Spam",
+  "@spam": {},
+  "copyright": "Copyright Infringement",
+  "@copyright": {},
+  "misleading": "Misleading Information",
+  "@misleading": {},
+  "other": "Other",
+  "@other": {},
+  "reportingNote": "Note (Optional):",
+"@reportingNote": {},
+"annotation": "Add additional explanation...",
+"@annotation": {}
 
 
 

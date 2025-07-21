@@ -276,6 +276,38 @@ class FirestoreDatabase extends ChangeNotifier {
           infoMessage: AppLocalizations.of(context)!.errorAddingNote);
     }
   }
+
+
+   Future<bool> insertReport(BuildContext context,
+      {collectionPath="reportedQuotes",
+      required String reason,
+      required String note,
+      required String reporterUserId,
+      required String ownerUserId,
+      required String quoteText,
+      required String reporterEmail,
+      required String quoteId}) async {
+    try {
+      await _firestore
+          .collection(collectionPath)
+          .doc(quoteId)
+          .set({
+        'reason': reason,
+        'note': note,
+        'reporterUserId': reporterUserId,
+        'ownerUserId': ownerUserId,
+        'quoteText': quoteText,
+        'reporterEmail': reporterEmail,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } catch (e) {
+      errorSnackBar(context, e.toString(),
+          infoMessage: AppLocalizations.of(context)!.errorReportingQuote);
+      return false;
+    }
+  }
   //update data
 }
 
