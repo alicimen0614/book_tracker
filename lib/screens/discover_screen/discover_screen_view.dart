@@ -1,7 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/main.dart';
-import 'package:book_tracker/models/trendingbooks_model.dart';
+import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/book_info_view.dart';
@@ -29,7 +29,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
   @override
   bool get wantKeepAlive => true;
   TextEditingController searchBarController = TextEditingController();
-  List<TrendingBooksWorks?>? items = [];
+  List<BooksModelDocs?>? items = [];
   bool isConnected = true;
   bool isLoading = true;
   final customCacheManager = CacheManager(
@@ -66,25 +66,34 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
     setState(() {
       isLoading = true;
     });
+    int pageKey = 1;
     try {
-      if (isConnected == true) {
-        items = await ref
-            .read(booksProvider)
-            .getTrendingBooks("monthly", 1, context)
-            .whenComplete(() {
-          if (mounted) {
+       if (isConnected == true){
+           Map<String, dynamic>? trendingBooksModelAsJson = await ref
+          .read(booksProvider)
+          .getTrendingBooks(pageKey,context);
+      if (trendingBooksModelAsJson != null) {
+        
+        BooksModel trendingBooks =
+          BooksModel.fromJson(trendingBooksModelAsJson);
+
+        
+        items = trendingBooks.docs;
+        
+         if (mounted) {
             setState(() {
               isLoading = false;
-            });
-          }
-        });
-      } else {
+            });  } }       
+      }
+      else {
         items = [];
         internetConnectionErrorDialog(context, false);
-      }
-    } catch (e) {
+       }
+    }
+      catch (e) {
       if (mounted) errorSnackBar(context, e.toString());
     }
+
   }
 
   @override
@@ -226,7 +235,6 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return const TrendingBooksView(
-                              date: "Monthly",
                             );
                           },
                         ));
@@ -302,7 +310,7 @@ class _DiscoverScreenViewState extends ConsumerState<DiscoverScreenView>
                       if (items != null) {
                         Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
-                            return BookInfoView(trendingBook: items?[index]);
+                            return BookInfoView(searchBook: items?[index]);
                           },
                         ));
                       }

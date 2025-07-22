@@ -619,7 +619,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthlyTrendingBooks.
   ///
   /// In en, this message translates to:
-  /// **'Monthly Trending Books'**
+  /// **'Trending Books'**
   String get monthlyTrendingBooks;
 
   /// No description provided for @bookDetail.

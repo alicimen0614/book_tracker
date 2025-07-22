@@ -1,5 +1,6 @@
 import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/main.dart';
+import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -12,9 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class TrendingBooksView extends ConsumerStatefulWidget {
-  const TrendingBooksView({super.key, required this.date});
+  const TrendingBooksView({super.key});
 
-  final String date;
 
   @override
   ConsumerState<TrendingBooksView> createState() => _TrendingBooksViewState();
@@ -25,7 +25,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
   List<TrendingBooksWorks?>? itemList = [];
   bool isConnected = false;
 
-  ImageProvider<Object> getBookCover(TrendingBooksWorks? work) {
+  ImageProvider<Object> getBookCover(BooksModelDocs? work) {
     if (work!.coverI != null) {
       return NetworkImage(
         "https://covers.openlibrary.org/b/id/${work.coverI}-M.jpg",
@@ -35,7 +35,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
     }
   }
 
-  final PagingController<int, TrendingBooksWorks?> pagingController =
+  final PagingController<int, BooksModelDocs?> pagingController =
       PagingController(firstPageKey: 1);
 
   @override
@@ -88,12 +88,12 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
         automaticallyImplyLeading: false,
         elevation: 5,
       ),
-      body: PagedGridView<int, TrendingBooksWorks?>(
+      body: PagedGridView<int, BooksModelDocs?>(
           physics: const ClampingScrollPhysics(),
           showNewPageProgressIndicatorAsGridChild: false,
           showNoMoreItemsIndicatorAsGridChild: false,
           pagingController: pagingController,
-          builderDelegate: PagedChildBuilderDelegate<TrendingBooksWorks?>(
+          builderDelegate: PagedChildBuilderDelegate<BooksModelDocs?>(
             firstPageProgressIndicatorBuilder: (context) {
               return gridViewBooksShimmerEffectBuilder();
             },
@@ -119,7 +119,7 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
                         context,
                         MaterialPageRoute(
                           builder: (context) => BookInfoView(
-                            trendingBook: item,
+                            searchBook: item,
                           ),
                         ));
                     AnalyticsService()
@@ -174,9 +174,17 @@ class _TrendingBooksViewState extends ConsumerState<TrendingBooksView>
     isConnected = ref.read(connectivityProvider).isConnected;
 
     try {
-      List<TrendingBooksWorks?>? list = await ref
+      Map<String, dynamic> trendingBooksModelAsJson = await ref
           .read(booksProvider)
-          .getTrendingBooks(widget.date, pageKey, context);
+          .getTrendingBooks(pageKey, context);
+
+          BooksModel? trendingBooks =
+          BooksModel.fromJson(trendingBooksModelAsJson);
+
+    List<BooksModelDocs?>? list = trendingBooks.docs;
+        
+
+      
       final isLastPage = list!.length < 10;
       if (isLastPage) {
         pagingController.appendLastPage(list);

@@ -90,7 +90,7 @@ class _SearchScreenViewState extends ConsumerState<SearchScreenView>
     try {
       var searchModelAsJson = await ref
           .read(booksProvider)
-          .getBooksFromApi(widget.searchValue, pageKey, "q", context);
+          .getBooksFromApi(widget.searchValue, pageKey, "title", context);
 
       var searchModel = BooksModel.fromJson(searchModelAsJson);
 

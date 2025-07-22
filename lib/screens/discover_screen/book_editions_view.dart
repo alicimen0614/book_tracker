@@ -1,6 +1,7 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
+import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart';
 import 'package:book_tracker/screens/discover_screen/shimmer_effect_builders/grid_view_books_shimmer.dart';
@@ -15,11 +16,13 @@ class BookEditionsView extends ConsumerStatefulWidget {
       {super.key,
       required this.workId,
       required this.title,
-      this.toAddBook = false});
+      this.toAddBook = false,
+      this.countryCode = ""});
 
   final String workId;
   final bool toAddBook;
   final String title;
+  final String countryCode;
 
   @override
   ConsumerState<BookEditionsView> createState() => _BookEditionsViewState();
@@ -40,11 +43,24 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
 
   void fetchData(int pageKey) async {
     try {
+      isConnected = ref.read(connectivityProvider).isConnected;
+
       BookWorkEditionsModel editionsModel = await ref
           .read(booksProvider)
-          .getBookWorkEditions(widget.workId, pageKey, context, 50);
+          .getBookWorkEditions(widget.workId, pageKey, context,widget.countryCode==""?50:10000);
+      List<BookWorkEditionsModelEntries?>? list;
+      if(widget.countryCode==""){
+        list=editionsModel.entries;
+      }
+      else{
+         list = editionsModel.entries?.where((element) =>
+          element?.languages != null &&
+          (widget.countryCode == "" ||
+              element!.languages!.first!.key!.contains(widget.countryCode)))
+        .toList();
+      }
 
-      var list = editionsModel.entries;
+      
       final isLastPage = list!.length < 50;
       if (isLastPage) {
         pagingController.appendLastPage(list);
@@ -65,14 +81,12 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
       appBar: AppBar(
         centerTitle: true,
         leadingWidth: 50,
-        title: FittedBox(
-          child: Text(
-            widget.toAddBook != true
-                ? AppLocalizations.of(context)!.bookEditions(widget.title)
-                : AppLocalizations.of(context)!.selectAnEdition,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+        title: Text(
+          widget.toAddBook != true
+              ? AppLocalizations.of(context)!.bookEditions(widget.title)
+              : AppLocalizations.of(context)!.selectAnEdition,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,fontSize: 18
           ),
         ),
         leading: IconButton(

@@ -3,9 +3,9 @@ import 'dart:developer';
 
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
+import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/models/bookswork_model.dart';
-import 'package:book_tracker/models/trendingbooks_model.dart';
 import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,20 +16,23 @@ class BooksService {
       "fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject";
   Future<dynamic> getBooksFromApi(
       String item, int page, String apiName, BuildContext context) async {
+        log( "$baseUrl/search.json?$apiName=${item.toLowerCase()}&$fields&limit=10&page=$page&sort=trending");
     var response = await http.get(Uri.parse(
-        "$baseUrl/search.json?$apiName=${item.toLowerCase()}&$fields&limit=10&page=$page"));
+        "$baseUrl/search.json?$apiName=${item.toLowerCase()}&$fields&limit=10&page=$page&sort=trending"));
 
     return jsonDecode(response.body);
   }
 
   Future<dynamic> getTrendingBooks(
-      String date, int pageKey, BuildContext context) async {
-    log("$baseUrl/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey");
+      int pageKey, BuildContext context) async {
+        String fields =
+      "fields=key,title,edition_count,first_publish_year,cover_i,first_sentence,language,author_key,author_name,subject";
+    log("$baseUrl/search.json?q=trending_score_hourly_sum:[1%20TO%20*]&$fields&mode=everything&sort=readinglog&lang=tr&limit=10&page=$pageKey");
     try {
       var response = await http.get(Uri.parse(
-          "$baseUrl/trending/${date.toLowerCase()}.json?limit=10&page=$pageKey"));
-      var result = TrendingBooks.fromJson(jsonDecode(response.body));
-      return result.works;
+          "$baseUrl/search.json?q=trending_score_hourly_sum:[1%20TO%20*]&$fields&mode=everything&sort=readinglog&lang=tr&limit=10&page=$pageKey"));
+      var result=jsonDecode(response.body);
+      return result;
     } catch (e) {
       errorSnackBar(context, e.toString());
     }
@@ -49,6 +52,7 @@ class BooksService {
   Future<dynamic> getBookWorkEditions(
       String key, int offset, BuildContext context, int limit) async {
     try {
+      log("$baseUrl$key/editions.json?offset=$offset&limit=$limit");
       var response = await http.get(
           Uri.parse("$baseUrl$key/editions.json?offset=$offset&limit=$limit"));
 

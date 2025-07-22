@@ -186,7 +186,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
           height: 10,
         ),
         SizedBox(
-          height: 20,
+          height: 30,
           width: double.infinity,
           child: ListView.separated(
             physics: const ClampingScrollPhysics(),
@@ -210,23 +210,69 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                   mainBook!.language![index]!.toUpperCase() as String,
                 )!
                     .name;
-                return Text(
-                  country,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
+                return TextButton(onPressed: () {
+                   Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return BookEditionsView(
+                        workId: mainBook.key,
+                        title: mainBook!.title!,
+                        countryCode: mainBook!.language![index]!,
+                      );
+                    },
+                  ));
+                    
+                  },style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    padding: const EdgeInsets.all(0),
+                    fixedSize: Size(
+                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
+                  ),child: Text(country,style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
+                  
                 );
               } else if (indexOfBibliographicCode != -1) {
-                return Text(
-                  NaturalLanguage.list[indexOfBibliographicCode].name,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
+                return TextButton(onPressed: () {
+                   Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return BookEditionsView(
+                        workId: mainBook.key,
+                        title: mainBook!.title!,
+                         countryCode: mainBook!.language![index]!,
+                      );
+                    },
+                  ));
+                    
+                  },style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    padding: const EdgeInsets.all(0),
+                    fixedSize: Size(
+                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
+                  ),child: Text(NaturalLanguage.list[indexOfBibliographicCode].name,style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
+                  
                 );
               } else {
-                return Text(
-                  mainBook!.language![index]!,
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60),
+                return TextButton(onPressed: () {
+                   Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return BookEditionsView(
+                        workId: mainBook.key,
+                        title: mainBook!.title!,
+                         countryCode: mainBook!.language![index]!,
+                      );
+                    },
+                  ));
+                    
+                  },style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    padding: const EdgeInsets.all(0),
+                    fixedSize: Size(
+                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
+                  ),child: Text(mainBook!.language![index]!,style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
+                  
                 );
+              
               }
             },
           ),
@@ -543,17 +589,15 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(10),
-                        child: FittedBox(
-                          child: Text(
-                            mainBook!.title!,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 3,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: MediaQuery.of(context).size.height / 40,
-                            ),
+                        child: Text(
+                          mainBook!.title!,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: MediaQuery.of(context).size.height / 40,
                           ),
                         ),
                       ),

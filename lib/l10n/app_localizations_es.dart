@@ -270,7 +270,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get monthlyTrendingBooks => 'Monthly Trending Books';
+  String get monthlyTrendingBooks => 'Trending Books';
 
   @override
   String get bookDetail => 'Book Detail';

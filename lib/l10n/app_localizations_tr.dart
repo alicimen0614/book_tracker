@@ -270,7 +270,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get close => 'Kapat';
 
   @override
-  String get monthlyTrendingBooks => 'Aylık Trend Kitaplar';
+  String get monthlyTrendingBooks => 'Trend Kitaplar';
 
   @override
   String get bookDetail => 'Kitap Detayı';
