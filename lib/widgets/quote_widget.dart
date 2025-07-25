@@ -398,7 +398,7 @@ class QuoteWidget extends ConsumerWidget {
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-          title: "VastReads",
+          title:  Const.appName,
           description: AppLocalizations.of(context)!.confirmDeleteQuote,
           thirdButtonOnPressed: () async {
             var result =

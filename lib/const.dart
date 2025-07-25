@@ -44,6 +44,7 @@ List<String> getMainCategoriesNames(BuildContext context) {
 class Const {
   static late Size screenSize;
   static late double minSize;
+  static const String appName="VastRead";
 
   static void init(BuildContext context) {
     screenSize = MediaQuery.of(context).size;

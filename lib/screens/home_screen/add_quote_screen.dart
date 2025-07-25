@@ -281,7 +281,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-          title: "VastReads",
+          title:  Const.appName,
           description: AppLocalizations.of(context)!.confirmDeleteQuote,
           firstButtonText: AppLocalizations.of(context)!.cancel,
           firstButtonOnPressed: () async {
@@ -320,7 +320,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Text("VastReads"),
+          title: const Text( Const.appName),
           content: Text(AppLocalizations.of(context)!.confirmSaveQuote),
           actions: [
             TextButton(

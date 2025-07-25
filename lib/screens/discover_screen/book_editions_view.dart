@@ -50,13 +50,13 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
           .getBookWorkEditions(widget.workId, pageKey, context,widget.countryCode==""?50:10000);
       List<BookWorkEditionsModelEntries?>? list;
       if(widget.countryCode==""){
-        list=editionsModel.entries;
+        list=editionsModel.entries?.where((book)=>book?.title !=null).toList();
       }
       else{
          list = editionsModel.entries?.where((element) =>
           element?.languages != null &&
           (widget.countryCode == "" ||
-              element!.languages!.first!.key!.contains(widget.countryCode)))
+              element!.languages!.first!.key!.contains(widget.countryCode))&&element?.title !=null)
         .toList();
       }
 
@@ -191,7 +191,7 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                           child: Text(
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            item.title!,
+                            item.title??"",
                             style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,

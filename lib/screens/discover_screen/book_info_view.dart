@@ -370,7 +370,7 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                     child: SizedBox(
                       width: 80,
                       child: Text(
-                        editionsList![index]!.title!,
+                        editionsList![index]!.title??"",
                         style: TextStyle(
                             fontSize: MediaQuery.of(context).size.height / 60),
                         maxLines: 2,
@@ -713,11 +713,11 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
 
     editionsModel = await ref
         .read(booksProvider)
-        .getBookWorkEditions(mainBook!.key, 0, context, 5);
+        .getBookWorkEditions(mainBook!.key, 0, context, 10);
 
     if (editionsModel == null) {}
 
-    editionsList = editionsModel?.entries;
+    editionsList = editionsModel?.entries?.where((book)=>book?.title !=null).toList();
 
     bookEditionsSize = editionsModel?.size;
   }

@@ -309,7 +309,7 @@ class _AddNoteViewState extends ConsumerState<AddNoteView> {
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-            title: "VastReads",
+            title:  Const.appName,
             description: AppLocalizations.of(context)!.confirmDeleteNote,
             firstButtonText: AppLocalizations.of(context)!.cancel,
             firstButtonOnPressed: () {

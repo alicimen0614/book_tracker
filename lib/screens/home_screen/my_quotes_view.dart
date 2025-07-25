@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:book_tracker/const.dart';
 import 'package:book_tracker/databases/firestore_database.dart';
 import 'package:book_tracker/main.dart';
 import 'package:book_tracker/providers/quotes_provider.dart';
@@ -207,7 +208,7 @@ class _QuotesViewState extends ConsumerState<MyQuotesView> with RouteAware {
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-          title: "VastReads",
+          title:  Const.appName,
           description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             Navigator.pop(context);

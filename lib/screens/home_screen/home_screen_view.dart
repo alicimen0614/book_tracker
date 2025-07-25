@@ -1138,7 +1138,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-          title: "VastReads",
+          title:  Const.appName,
           description: AppLocalizations.of(context)!.loginToLikePost,
           secondButtonOnPressed: () {
             if (searchBarFocus.hasFocus) {

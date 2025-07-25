@@ -462,7 +462,7 @@ class _UserScreenViewState extends ConsumerState<UserScreenView>
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-          title: "VastReads",
+          title:  Const.appName,
           description: AppLocalizations.of(context)!.confirmLogout,
           thirdButtonOnPressed: () {
             ref

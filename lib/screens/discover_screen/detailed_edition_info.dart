@@ -71,6 +71,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     getPageData();
     _createBannerAd();
     _createInterstitialAd();
+    doesBookAlreadyExist =
+        checkIfAlreadyExist(uniqueIdCreater(widget.editionInfo));
 
     super.initState();
   }
@@ -91,10 +93,19 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         return Future(() => true);
       },
       child: Scaffold(
-          floatingActionButton: widget.isNavigatingFromLibrary == false
+          floatingActionButton: widget.isNavigatingFromLibrary == false &&  (doesBookAlreadyExist["doesBookExistOnSql"] == false ||
+                              doesBookAlreadyExist[
+                                      "doesBookExistOnFirestore"] ==
+                                  false)
               ? FloatingActionButton(
                   onPressed: () async {
-                    await bookStatusDialog(context, toUpdate: false);
+                    doesBookAlreadyExist =
+        checkIfAlreadyExist(uniqueIdCreater(widget.editionInfo));
+                    await bookStatusDialog(context, toUpdate:  (doesBookAlreadyExist["doesBookExistOnSql"] == false ||
+                              doesBookAlreadyExist[
+                                      "doesBookExistOnFirestore"] ==
+                                  false)?false:true);
+                    
                   },
                   backgroundColor: const Color(0xFF1B7695),
                   tooltip: AppLocalizations.of(context)!.addToShelf,
@@ -623,6 +634,9 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       }
     }
 
+    doesBookAlreadyExist =
+        checkIfAlreadyExist(uniqueIdCreater(widget.editionInfo));
+
     return showDialog(
       context: context,
       builder: (context) {
@@ -738,13 +752,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                         }
 
                                         if (widget.editionInfo.covers != null &&
-                                            (doesBookAlreadyExist[
-                                                        "doesBookExistOnSql"] ==
-                                                    false ||
-                                                doesBookAlreadyExist[
-                                                        "doesBookExistOnFirestore"] ==
-                                                    false) &&
-                                            didStatusChanged == null) {
+                                          toUpdate==false) {
                                           AnalyticsService()
                                               .logEvent('add_to_shelf', {
                                             'book_isbn': widget.editionInfo
@@ -770,15 +778,20 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                           ref
                                               .read(bookStateProvider.notifier)
                                               .getPageData();
+                                          
+                                          setState(() {
+                                            bookStatusAsString = bookStatus ==
+                                                BookStatus.wantToRead
+                                                ? "Okumak istediklerim"
+                                                : bookStatus ==
+                                                        BookStatus
+                                                            .currentlyReading
+                                                    ? "Şu an okuduklarım"
+                                                    : "Okuduklarım";
+                                          });
                                         } else if (widget.editionInfo.covers ==
                                                 null &&
-                                            (doesBookAlreadyExist[
-                                                        "doesBookExistOnSql"] ==
-                                                    false ||
-                                                doesBookAlreadyExist[
-                                                        "doesBookExistOnFirestore"] ==
-                                                    false) &&
-                                            didStatusChanged == null) {
+                                            toUpdate==false) {
                                           AnalyticsService()
                                               .logEvent('add_to_shelf', {
                                             'book_isbn': widget.editionInfo
@@ -799,13 +812,17 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                           ref
                                               .read(bookStateProvider.notifier)
                                               .getPageData();
-                                        } else if ((doesBookAlreadyExist[
-                                                        "doesBookExistOnSql"] ==
-                                                    true ||
-                                                doesBookAlreadyExist[
-                                                        "doesBookExistOnFirestore"] ==
-                                                    true) &&
-                                            didStatusChanged == true) {
+                                               setState(() {
+                                            bookStatusAsString = bookStatus ==
+                                                BookStatus.wantToRead
+                                                ? "Okumak istediklerim"
+                                                : bookStatus ==
+                                                        BookStatus
+                                                            .currentlyReading
+                                                    ? "Şu an okuduklarım"
+                                                    : "Okuduklarım";
+                                          });
+                                        } else if ( toUpdate==true) {
                                           AnalyticsService()
                                               .logEvent('change_status', {
                                             'book_isbn': widget.editionInfo
@@ -825,6 +842,17 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                               bookStatus!,
                                               doesBookAlreadyExistOnFirestore,
                                               doesBookAlreadyExistOnSql);
+                                            
+                                          setState(() {
+                                            bookStatusAsString = bookStatus ==
+                                                BookStatus.wantToRead
+                                                ? "Okumak istediklerim"
+                                                : bookStatus ==
+                                                        BookStatus
+                                                            .currentlyReading
+                                                    ? "Şu an okuduklarım"
+                                                    : "Okuduklarım";
+                                          });
 
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
@@ -848,7 +876,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                         setState(() {
                                           onProgress = false;
                                         });
-
+                                        
                                         Navigator.pop(context, hasChangeMade);
                                       },
                                       child: Text(AppLocalizations.of(context)!
@@ -1253,11 +1281,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                         color: Colors.black,
                         fontSize: MediaQuery.of(context).size.height / 60),
                   )),
-            if (widget.editionInfo.bookStatus != null)
+            if (widget.editionInfo.bookStatus != null ||(doesBookAlreadyExist["doesBookExistOnSql"] == true ||doesBookAlreadyExist["doesBookExistOnFirestore"] == true))
               SizedBox(
                 height: Const.minSize,
               ),
-            if (widget.editionInfo.bookStatus != null)
+            if (widget.editionInfo.bookStatus != null ||(doesBookAlreadyExist["doesBookExistOnSql"] == true ||doesBookAlreadyExist["doesBookExistOnFirestore"] == true))
               Text(
                 AppLocalizations.of(context)!.bookStatus,
                 style: TextStyle(
@@ -1265,11 +1293,11 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                     fontSize: MediaQuery.of(context).size.height / 50,
                     fontWeight: FontWeight.bold),
               ),
-            if (widget.editionInfo.bookStatus != null)
+            if (widget.editionInfo.bookStatus != null ||(doesBookAlreadyExist["doesBookExistOnSql"] == true ||doesBookAlreadyExist["doesBookExistOnFirestore"] == true))
               SizedBox(
                 height: Const.minSize,
               ),
-            if (widget.editionInfo.bookStatus != null)
+            if (widget.editionInfo.bookStatus != null ||(doesBookAlreadyExist["doesBookExistOnSql"] == true ||doesBookAlreadyExist["doesBookExistOnFirestore"] == true))
               SizedBox(
                   width: MediaQuery.sizeOf(context).width - 40,
                   child: Text(
@@ -1409,8 +1437,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
         ref.read(bookStateProvider).listOfBooksFromFirestore;
     List<int>? bookIdsFromFirestore = [];
 
-    print(booksListFromFirestore);
-    print(booksListFromSql);
 
     if (ref.read(authProvider).currentUser != null &&
         booksListFromFirestore != []) {
@@ -1455,7 +1481,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
       context: context,
       builder: (context) {
         return CustomAlertDialog(
-            title: "VastReads",
+            title: Const.appName,
             description: AppLocalizations.of(context)!.confirmDeleteBook,
             firstButtonText: AppLocalizations.of(context)!.close,
             firstButtonOnPressed: () {
