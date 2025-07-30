@@ -37,6 +37,7 @@ class BooksService {
       errorSnackBar(context, e.toString());
     }
   }
+  
 
   Future<dynamic> getWorkDetail(String key, BuildContext context) async {
     try {
@@ -61,6 +62,22 @@ class BooksService {
       return result;
     } catch (e) {
       errorSnackBar(context, e.toString());
+    }
+  }
+
+  Future<BookWorkEditionsModelEntries?> getSingleEditionInfo(
+      BuildContext context,String? isbn) async {
+    try {
+      log("$baseUrl/isbn/$isbn.json");
+      var response = await http.get(
+          Uri.parse("$baseUrl/isbn/$isbn.json"));
+
+      var result = BookWorkEditionsModelEntries.fromJson(jsonDecode(response.body));
+
+      return result;
+    } catch (e) {
+      errorSnackBar(context, e.toString());
+      return null;
     }
   }
 
@@ -92,4 +109,6 @@ class BooksService {
       errorSnackBar(context, e.toString());
     }
   }
+
+  
 }

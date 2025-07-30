@@ -1497,6 +1497,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add additional explanation...'**
   String get annotation;
+
+  /// No description provided for @bookAlreadyExistsInLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'This book already exists in your library!'**
+  String get bookAlreadyExistsInLibrary;
+
+  /// No description provided for @addBookToLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this book to your library'**
+  String get addBookToLibrary;
 }
 
 class _AppLocalizationsDelegate

@@ -855,7 +855,7 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
                                           Expanded(
                                             flex: 3,
                                             child: Text(
-                                              books[index].title!,
+                                              books[index].title??"",
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 2,
                                               textAlign: TextAlign.center,

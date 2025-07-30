@@ -13,6 +13,7 @@ import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:book_tracker/l10n/app_localizations.dart';
@@ -318,6 +319,75 @@ class QuoteWidget extends ConsumerWidget {
       context: pageContext,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
+          const Divider(height: 0),
+          if (quote.isbnData!=null || quote.isbnData!="") ListTile(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30))),
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () async {
+              bool isBookAlreadyExists = await checkIfBookAlreadyExists(quote.isbnData, context,ref);
+              if(isBookAlreadyExists) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .bookAlreadyExistsInLibrary)));
+                return;
+              }
+              showDialog(
+                          context: context,
+                          builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ));
+              BookWorkEditionsModelEntries? editionInfo;
+              if(quote.isbnData == null || quote.isbnData == "") {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .errorAddingBook)));
+                return;
+              }
+              else{
+                 editionInfo= await getBookInfoFromIsbn(context,
+               quote.isbnData,ref
+              );
+                
+              }
+             
+              if (editionInfo == null) {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .errorAddingBook)));
+                return;}
+               Uint8List? base64AsString =
+                                              await readNetworkImage(
+                                                  "https://covers.openlibrary.org/b/id/${editionInfo.covers?.first}-M.jpg");
+                                          await insertToSqlDatabase(
+                                              base64AsString, context,ref,editionInfo);
+                                          if (ref
+                                                  .read(authProvider)
+                                                  .currentUser !=
+                                              null) {
+                                            await insertToFirestore(editionInfo,ref,context);
+                                          }
+                                           Navigator.pop(context);
+                                           Navigator.pop(context);
+                                          ref
+                                              .read(bookStateProvider.notifier)
+                                              .getPageData();
+                                             
+            },
+            leading: const Icon(
+              Icons.add_circle_sharp,
+              size: 30,
+            ),
+            title: Text(AppLocalizations.of(context)!.addBookToLibrary,
+                style: const TextStyle(fontSize: 20)),
+          ),const Divider(height: 0),
           if (FirebaseAuth.instance.currentUser != null &&
                       quote.userId == FirebaseAuth.instance.currentUser!.uid) ListTile(
             visualDensity: const VisualDensity(vertical: 3),
@@ -565,7 +635,91 @@ Future<dynamic> alertDialogForReporting(BuildContext context, WidgetRef ref) {
     },
   );
 }
+
+  Future<BookWorkEditionsModelEntries?> getBookInfoFromIsbn(BuildContext context,String? isbnData,WidgetRef ref) async {
+    BookWorkEditionsModelEntries? bookInfo;
+         bookInfo= await ref.read(booksProvider).getSingleEditionInfo(context,isbnData);
+         return bookInfo;
+  }
+
+Future<Uint8List?> readNetworkImage(String imageUrl) async {
+    try {
+      final ByteData data =
+          await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl);
+      final Uint8List bytes = data.buffer.asUint8List();
+      return bytes;
+    } catch (e) {
+      return null;
+    }
+  }  
+
   
+  Future<void> insertToFirestore(BookWorkEditionsModelEntries editionInfo,WidgetRef ref,BuildContext context) async {
+
+    List<int?>? coverList = [];
+    editionInfo.covers != null
+        ? coverList = [editionInfo.covers!.first]
+        : coverList = null;
+
+    return await ref.read(firestoreProvider).setBookData(
+          context,
+          collectionPath: "usersBooks",
+          bookAsMap: {
+            "title": editionInfo.title,
+            "number_of_pages": editionInfo.number_of_pages,
+            "covers": editionInfo.covers != null ? coverList : null,
+            "bookStatus": "Okumak istediklerim",
+            "publishers": editionInfo.publishers,
+            "physical_format": editionInfo.physical_format,
+            "publish_date": editionInfo.publish_date,
+            "isbn_10": editionInfo.isbn_10,
+            "isbn_13": editionInfo.isbn_13,
+            "description": editionInfo.description,
+            "languages": editionInfo.languages?.first?.key
+          },
+          userId: ref.read(authProvider).currentUser!.uid,
+        );
+  }
+
+  Future<void> insertToSqlDatabase(
+      Uint8List? imageAsByte, BuildContext context,WidgetRef ref,BookWorkEditionsModelEntries editionInfo) async {
+   
+
+    await ref
+        .read(sqlProvider)
+        .insertBook(
+           editionInfo,"Okumak istediklerim",
+            imageAsByte,
+            context)
+        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              duration: const Duration(seconds: 1),
+              content: Text(
+                  AppLocalizations.of(context)!.bookSuccessfullyAddedToLibrary),
+              action: SnackBarAction(
+                  label: AppLocalizations.of(context)!.okay, onPressed: () {}),
+              behavior: SnackBarBehavior.floating,
+            )));
+  }
+
+Future<bool> checkIfBookAlreadyExists(String? isbnData, BuildContext context, WidgetRef ref) async {
+  if (isbnData == null) return false;
+
+  final firestoreBooks = ref.read(bookStateProvider).listOfBooksFromFirestore;
+  final sqlBooks = ref.read(bookStateProvider).listOfBooksFromSql;
+
+  bool checkIsbn(List<String?>? isbns) => isbns?.isNotEmpty == true && isbns!.first == isbnData;
+
+  final existsInFirestore = firestoreBooks.any(
+    (book) => checkIsbn(book.isbn_10) || checkIsbn(book.isbn_13),
+  );
+
+  final existsInSql = sqlBooks.any(
+    (book) => checkIsbn(book.isbn_10) || checkIsbn(book.isbn_13),
+  );
+
+  return existsInFirestore || existsInSql;
+}
+
 
   
 }

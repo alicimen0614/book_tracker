@@ -752,4 +752,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get annotation => 'Ek açıklama yazınız...';
+
+  @override
+  String get bookAlreadyExistsInLibrary =>
+      'Bu kitap zaten kütüphanenizde bulunuyor!';
+
+  @override
+  String get addBookToLibrary => 'Bu kitabı kütüphanene ekle';
 }

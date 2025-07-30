@@ -11,6 +11,7 @@ class Quote {
   List<String?>? comments;
   int? likeCount;
   String? imageAsByte;
+  String? isbnData;
 
   Quote(
       {this.quoteText,
@@ -24,7 +25,7 @@ class Quote {
       this.userId,
       this.date,
       this.likeCount,
-      this.imageAsByte});
+      this.imageAsByte,this.isbnData});
 
   // copyWith metodu
   Quote copyWith({
@@ -40,6 +41,7 @@ class Quote {
     List<String?>? comments,
     int? likeCount,
     String? imageAsByte,
+    String? isbnData,
   }) {
     return Quote(
       quoteText: quoteText ?? this.quoteText,
@@ -54,6 +56,7 @@ class Quote {
       comments: comments ?? this.comments,
       likeCount: likeCount ?? this.likeCount,
       imageAsByte: imageAsByte ?? this.imageAsByte,
+      isbnData: isbnData ?? this.isbnData,
     );
   }
 
@@ -67,8 +70,8 @@ class Quote {
     userId = json['userId']?.toString();
     date = json['date']?.toString();
     imageAsByte = json['imageAsByte']?.toString();
-
     likeCount = int.tryParse(json['likeCount'].toString());
+    isbnData = json['isbnData']?.toString();
 
     if (json['comments'] != null) {
       final v = json['comments'];
@@ -99,6 +102,7 @@ class Quote {
     data['date'] = date;
     data['imageAsByte'] = imageAsByte;
     data['likeCount'] = likeCount;
+    data['isbnData'] = isbnData;
 
     if (comments != null) {
       final v = comments;

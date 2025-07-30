@@ -486,7 +486,11 @@
   "reportingNote": "Note (Optional):",
 "@reportingNote": {},
 "annotation": "Add additional explanation...",
-"@annotation": {}
+"@annotation": {},
+ "bookAlreadyExistsInLibrary": "This book already exists in your library!",
+  "@bookAlreadyExistsInLibrary": {},
+  "addBookToLibrary": "Add this book to your library",
+  "@addBookToLibrary": {}
 
 
 

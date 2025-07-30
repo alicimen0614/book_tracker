@@ -156,7 +156,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                             FirebaseAuth.instance.currentUser?.displayName,
                         userPicture:
                             FirebaseAuth.instance.currentUser?.photoURL,
-                        likeCount: 0);
+                        likeCount: 0,isbnData: widget.bookInfo.isbn_13?.first ?? widget.bookInfo.isbn_10?.first??"");
 
                         if(await doesContainForbiddenWords(quoteFieldController.text)){
                           showSnackBar(context, AppLocalizations.of(context)!.quoteContainsForbiddenWords);

@@ -417,7 +417,7 @@ class _LibraryScreenViewState extends ConsumerState<LibraryScreenView>
                         child: SizedBox(
                           width: 200,
                           child: Text(
-                            listOfTheCurrentBookStatus[index].title!,
+                            listOfTheCurrentBookStatus[index].title??"",
                             style: const TextStyle(
                                 fontSize: 12, fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,

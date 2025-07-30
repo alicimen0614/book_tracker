@@ -441,7 +441,12 @@
   "reportingNote": "Not (İsteğe Bağlı):",
   "@reportingNote": {},
   "annotation": "Ek açıklama yazınız...",
-  "@annotation": {}
+  "@annotation": {},
+   "bookAlreadyExistsInLibrary": "Bu kitap zaten kütüphanenizde bulunuyor!",
+  "@bookAlreadyExistsInLibrary": {},
+  "addBookToLibrary": "Bu kitabı kütüphanene ekle",
+  "@addBookToLibrary": {}
+
 
   
 

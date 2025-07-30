@@ -1046,7 +1046,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
             SizedBox(
               width: MediaQuery.sizeOf(context).width - 40,
               child: Text(
-                widget.editionInfo.title!,
+                widget.editionInfo.title??"",
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height / 60),
               ),

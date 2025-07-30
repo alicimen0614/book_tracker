@@ -754,4 +754,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get annotation => 'Add additional explanation...';
+
+  @override
+  String get bookAlreadyExistsInLibrary =>
+      'This book already exists in your library!';
+
+  @override
+  String get addBookToLibrary => 'Add this book to your library';
 }
