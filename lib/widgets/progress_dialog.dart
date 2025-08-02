@@ -136,7 +136,7 @@ class _ProgressDialogState extends State<ProgressDialog> {
             setState(() {
               percentage =
                   ((i + 1) * (100 / listOfBooksFromFirestore.length) / 100);
-              currentBookName = listOfBooksFromFirestore[i].title!;
+              currentBookName = listOfBooksFromFirestore[i].title??"";
               currentCount = i + 1;
             });
           }

@@ -33,13 +33,14 @@ class BookNotifier extends StateNotifier<BookState> {
   }
 
   Future<void> getFirestoreBookList() async {
+    
     var data = await ref
         .read(firestoreProvider)
         .getBooks("usersBooks", ref.read(authProvider).currentUser!.uid);
 
     if (data != null) {
       var listOfBooksFromFirestore = data.docs
-          .map((e) => BookWorkEditionsModelEntries.fromJson(e.data()))
+          .map((e) => BookWorkEditionsModelEntries.fromJson(e.data())).where((book) => book.title != null && book.title!.isNotEmpty)
           .toList();
 
       if (listOfBooksFromFirestore.length > state.listOfBooksFromSql.length) {
@@ -58,6 +59,9 @@ class BookNotifier extends StateNotifier<BookState> {
 
     if (listOfBooksFromSql != null) {
       for (var element in listOfBooksFromSql) {
+        if(element.title == null || element.title!.isEmpty) {
+          continue; // Skip if title is null or empty
+        }
         var authorData = await ref.read(sqlProvider).getAuthors(
               uniqueIdCreater(element),
             );
@@ -92,6 +96,9 @@ class BookNotifier extends StateNotifier<BookState> {
     List<BookWorkEditionsModelEntries> wantToReadList = [];
 
     for (var element in listOfBooksToShow) {
+      if(element.title == null || element.title!.isEmpty) {
+          continue; // Skip if title is null or empty
+        }
       if (element.bookStatus == "Şu an okuduklarım") {
         currentlyReadingList.add(element);
       } else if (element.bookStatus == "Okumak istediklerim") {
