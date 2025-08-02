@@ -759,4 +759,601 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get addBookToLibrary => 'Bu kitabı kütüphanene ekle';
+
+  @override
+  String get aar => 'Afar';
+
+  @override
+  String get abk => 'Abhazca';
+
+  @override
+  String get afr => 'Afrikanca';
+
+  @override
+  String get aka => 'Akan';
+
+  @override
+  String get amh => 'Amharca';
+
+  @override
+  String get ara => 'Arapça';
+
+  @override
+  String get arg => 'Aragonca';
+
+  @override
+  String get asm => 'Asamca';
+
+  @override
+  String get ava => 'Avarca';
+
+  @override
+  String get ave => 'Avesanca';
+
+  @override
+  String get aym => 'Aymaraca';
+
+  @override
+  String get aze => 'Azerice';
+
+  @override
+  String get bak => 'Başkurtça';
+
+  @override
+  String get bam => 'Bambara';
+
+  @override
+  String get bel => 'Beyaz Rusça';
+
+  @override
+  String get ben => 'Bengalce';
+
+  @override
+  String get bih => 'Biharca';
+
+  @override
+  String get bis => 'Bislama';
+
+  @override
+  String get bod => 'Tibetçe';
+
+  @override
+  String get tib => 'Tibetçe';
+
+  @override
+  String get bos => 'Boşnakça';
+
+  @override
+  String get bre => 'Bretonca';
+
+  @override
+  String get bul => 'Bulgarca';
+
+  @override
+  String get cat => 'Katalanca';
+
+  @override
+  String get ces => 'Çekçe';
+
+  @override
+  String get cze => 'Çekçe';
+
+  @override
+  String get cha => 'Çamorro';
+
+  @override
+  String get che => 'Çeçence';
+
+  @override
+  String get chu => 'Eski Slavca';
+
+  @override
+  String get chv => 'Çuvaşça';
+
+  @override
+  String get cor => 'Kornikçe';
+
+  @override
+  String get cos => 'Korsikaca';
+
+  @override
+  String get cre => 'Kri Dili';
+
+  @override
+  String get cym => 'Galce';
+
+  @override
+  String get wel => 'Galce';
+
+  @override
+  String get dan => 'Danca';
+
+  @override
+  String get deu => 'Almanca';
+
+  @override
+  String get ger => 'Almanca';
+
+  @override
+  String get div => 'Divehice (Maldivce)';
+
+  @override
+  String get dzo => 'Dzongkaca';
+
+  @override
+  String get ell => 'Yunanca';
+
+  @override
+  String get gre => 'Yunanca';
+
+  @override
+  String get grc => 'Antik Yunanca';
+
+  @override
+  String get eng => 'İngilizce';
+
+  @override
+  String get epo => 'Esperanto';
+
+  @override
+  String get est => 'Estonca';
+
+  @override
+  String get eus => 'Baskça';
+
+  @override
+  String get ewe => 'Evece';
+
+  @override
+  String get fao => 'Faroece';
+
+  @override
+  String get fas => 'Farsça';
+
+  @override
+  String get per => 'Farsça';
+
+  @override
+  String get fij => 'Fijice';
+
+  @override
+  String get fin => 'Fince';
+
+  @override
+  String get fra => 'Fransızca';
+
+  @override
+  String get fre => 'Fransızca';
+
+  @override
+  String get fry => 'Batı Frizce';
+
+  @override
+  String get ful => 'Fulahça';
+
+  @override
+  String get gla => 'İskoç Galcesi';
+
+  @override
+  String get gle => 'İrlandaca';
+
+  @override
+  String get glg => 'Galiçyaca';
+
+  @override
+  String get glv => 'Man Adası Dili';
+
+  @override
+  String get grn => 'Guaranice';
+
+  @override
+  String get guj => 'Gucaratça';
+
+  @override
+  String get hat => 'Haitice';
+
+  @override
+  String get hau => 'Hausa Dili';
+
+  @override
+  String get heb => 'İbranice';
+
+  @override
+  String get her => 'Herero Dili';
+
+  @override
+  String get hin => 'Hintçe';
+
+  @override
+  String get hmo => 'Hiri Motu';
+
+  @override
+  String get hrv => 'Hırvatça';
+
+  @override
+  String get hun => 'Macarca';
+
+  @override
+  String get hye => 'Ermenice';
+
+  @override
+  String get arm => 'Ermenice';
+
+  @override
+  String get ibo => 'İboca';
+
+  @override
+  String get ido => 'İdo Dili';
+
+  @override
+  String get iii => 'Sichuan Yi Dili';
+
+  @override
+  String get iku => 'İnuktitut';
+
+  @override
+  String get ile => 'Interlingue';
+
+  @override
+  String get ina => 'Interlingua';
+
+  @override
+  String get ind => 'Endonezce';
+
+  @override
+  String get ipk => 'İnupiakça';
+
+  @override
+  String get isl => 'İzlandaca';
+
+  @override
+  String get ice => 'İzlandaca';
+
+  @override
+  String get ita => 'İtalyanca';
+
+  @override
+  String get jav => 'Cava Dili';
+
+  @override
+  String get jpn => 'Japonca';
+
+  @override
+  String get kal => 'Kalaallisut (Grönlandca)';
+
+  @override
+  String get kan => 'Kannada';
+
+  @override
+  String get kas => 'Keşmirce';
+
+  @override
+  String get kat => 'Gürcüce';
+
+  @override
+  String get kau => 'Kanurice';
+
+  @override
+  String get kaz => 'Kazakça';
+
+  @override
+  String get khm => 'Kmerce';
+
+  @override
+  String get kik => 'Kikuyu';
+
+  @override
+  String get kin => 'Kinyarwanda';
+
+  @override
+  String get kir => 'Kırgızca';
+
+  @override
+  String get kom => 'Komi Dili';
+
+  @override
+  String get kon => 'Kongo Dili';
+
+  @override
+  String get kor => 'Korece';
+
+  @override
+  String get kua => 'Kuanyama';
+
+  @override
+  String get kur => 'Kürtçe';
+
+  @override
+  String get lao => 'Laoca';
+
+  @override
+  String get lat => 'Latince';
+
+  @override
+  String get lav => 'Letonca';
+
+  @override
+  String get lim => 'Limburgca';
+
+  @override
+  String get lin => 'Lingalaca';
+
+  @override
+  String get lit => 'Litvanca';
+
+  @override
+  String get ltz => 'Lüksemburgca';
+
+  @override
+  String get lub => 'Luba-Katanga';
+
+  @override
+  String get lug => 'Gandaca';
+
+  @override
+  String get mah => 'Marşalcaca';
+
+  @override
+  String get mal => 'Malayalamca';
+
+  @override
+  String get mar => 'Maratice';
+
+  @override
+  String get mkd => 'Makedonca';
+
+  @override
+  String get mlg => 'Malgaşça';
+
+  @override
+  String get mlt => 'Maltaca';
+
+  @override
+  String get mon => 'Moğolca';
+
+  @override
+  String get mri => 'Maorice';
+
+  @override
+  String get msa => 'Malayca';
+
+  @override
+  String get mya => 'Burmaca (Myanmar)';
+
+  @override
+  String get nau => 'Nauruca';
+
+  @override
+  String get nav => 'Navajoca';
+
+  @override
+  String get nbl => 'Güney Ndebele Dili';
+
+  @override
+  String get nde => 'Kuzey Ndebele Dili';
+
+  @override
+  String get ndo => 'Ndongaca';
+
+  @override
+  String get nep => 'Nepalce';
+
+  @override
+  String get nld => 'Felemenkçe';
+
+  @override
+  String get dut => 'Felemenkçe';
+
+  @override
+  String get nno => 'Norveççe';
+
+  @override
+  String get nob => 'Norveççe';
+
+  @override
+  String get nor => 'Norveççe';
+
+  @override
+  String get nya => 'Nyancaca';
+
+  @override
+  String get oci => 'Oksitanca';
+
+  @override
+  String get oji => 'Ojibvaca';
+
+  @override
+  String get ori => 'Oriya';
+
+  @override
+  String get orm => 'Oromo';
+
+  @override
+  String get oss => 'Osetçe';
+
+  @override
+  String get pan => 'Pencapça';
+
+  @override
+  String get pli => 'Pali';
+
+  @override
+  String get pol => 'Lehçe';
+
+  @override
+  String get por => 'Portekizce';
+
+  @override
+  String get pus => 'Peştuca';
+
+  @override
+  String get que => 'Keçuva';
+
+  @override
+  String get roh => 'Romanşça';
+
+  @override
+  String get ron => 'Rumence';
+
+  @override
+  String get rum => 'Rumence';
+
+  @override
+  String get run => 'Rundice';
+
+  @override
+  String get rus => 'Rusça';
+
+  @override
+  String get sag => 'Sango Dili';
+
+  @override
+  String get san => 'Sanskritçe';
+
+  @override
+  String get sin => 'Seylanca (Singalaca)';
+
+  @override
+  String get slk => 'Slovakça';
+
+  @override
+  String get slv => 'Slovence';
+
+  @override
+  String get sme => 'Kuzey Samice';
+
+  @override
+  String get smo => 'Samoaca';
+
+  @override
+  String get sna => 'Şona Dili';
+
+  @override
+  String get snd => 'Sindhi';
+
+  @override
+  String get som => 'Somalice';
+
+  @override
+  String get sot => 'Güney Soto Dili';
+
+  @override
+  String get spa => 'İspanyolca';
+
+  @override
+  String get sqi => 'Arnavutça';
+
+  @override
+  String get alb => 'Arnavutça';
+
+  @override
+  String get srd => 'Sardunya Dili';
+
+  @override
+  String get srp => 'Sırpça';
+
+  @override
+  String get ssw => 'Sisvatice';
+
+  @override
+  String get sun => 'Sundaca';
+
+  @override
+  String get swa => 'Svahili';
+
+  @override
+  String get swe => 'İsveççe';
+
+  @override
+  String get tah => 'Tahitice';
+
+  @override
+  String get tam => 'Tamilce';
+
+  @override
+  String get tat => 'Tatarca';
+
+  @override
+  String get tel => 'Telugu';
+
+  @override
+  String get tgk => 'Tacikçe';
+
+  @override
+  String get tgl => 'Tagalogca';
+
+  @override
+  String get tha => 'Tayca';
+
+  @override
+  String get tir => 'Tigrinya';
+
+  @override
+  String get ton => 'Tongaca';
+
+  @override
+  String get tsn => 'Tswanaca';
+
+  @override
+  String get tso => 'Tsonga Dili';
+
+  @override
+  String get tuk => 'Türkmence';
+
+  @override
+  String get tur => 'Türkçe';
+
+  @override
+  String get twi => 'Tvi Dili';
+
+  @override
+  String get uig => 'Uygurca';
+
+  @override
+  String get ukr => 'Ukraynaca';
+
+  @override
+  String get urd => 'Urduca';
+
+  @override
+  String get uzb => 'Özbekçe';
+
+  @override
+  String get ven => 'Venda';
+
+  @override
+  String get vie => 'Vietnamca';
+
+  @override
+  String get vol => 'Volapük';
+
+  @override
+  String get wln => 'Valonca';
+
+  @override
+  String get wol => 'Wolof Dili';
+
+  @override
+  String get xho => 'Zosa Dili';
+
+  @override
+  String get yid => 'Yidiş';
+
+  @override
+  String get yor => 'Yorubaca';
+
+  @override
+  String get zha => 'Cuang Dili';
+
+  @override
+  String get zho => 'Çince';
+
+  @override
+  String get chi => 'Çince';
+
+  @override
+  String get zul => 'Zuluca';
+
+  @override
+  String get und => 'Bilinmeyen';
 }

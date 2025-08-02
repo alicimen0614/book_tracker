@@ -1,5 +1,6 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/l10_helper.dart';
 import 'package:book_tracker/models/authors_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
@@ -381,9 +382,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                           fontWeight: FontWeight.bold,
                           fontSize: MediaQuery.of(context).size.height / 50)),
                   Text(
-                    widget.editionInfo.languages != null
-                        ? countryNameCreater(widget.editionInfo)
-                        : "-",
+                    widget.editionInfo.languages != null?widget.editionInfo.languages!.first != null?widget.editionInfo.languages!.first?.key != null?
+                    AppLocalizations.of(context)!.getLanguageName(getCountryCode(widget.editionInfo.languages!.first!.key!)) : "-":"-":"-",
                     style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height / 60),
                     maxLines: 1,

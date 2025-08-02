@@ -1,5 +1,6 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/l10_helper.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
 import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
@@ -205,7 +206,8 @@ class _BookEditionsViewState extends ConsumerState<BookEditionsView> {
                             child: Text(
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              countryNameCreater(item),
+                              item.languages?.first != null?item.languages?.first?.key != null?
+                    AppLocalizations.of(context)!.getLanguageName(getCountryCode(item.languages!.first!.key!)) : "-":"-",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 14,

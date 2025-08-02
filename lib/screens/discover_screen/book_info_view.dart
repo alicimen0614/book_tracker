@@ -1,4 +1,5 @@
 import 'package:book_tracker/l10n/app_localizations.dart';
+import 'package:book_tracker/l10n/l10_helper.dart';
 import 'package:book_tracker/models/authors_works_model.dart';
 import 'package:book_tracker/models/books_model.dart';
 import 'package:book_tracker/models/bookswork_editions_model.dart';
@@ -13,7 +14,6 @@ import 'package:book_tracker/screens/discover_screen/detailed_edition_info.dart'
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sealed_languages/sealed_languages.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'shimmer_effect_builders/book_info_view_shimmer.dart';
@@ -196,20 +196,10 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
             scrollDirection: Axis.horizontal,
             itemCount: mainBook!.language!.length,
             itemBuilder: (context, index) {
-              /* Some of the language codes coming from the api didn't match with the codes in the package but they matched with the bibliographiccode
-                      so ı've searched within the list of languages that matches the language code coming from api and the package's bibliographiccode */
-              int indexOfBibliographicCode = NaturalLanguage.list.indexWhere(
-                  (element) =>
-                      mainBook!.language![index]!.toUpperCase() ==
-                      element.bibliographicCode);
-
-              if (NaturalLanguage.maybeFromValue(
-                      mainBook!.language![index]!.toUpperCase() as String) !=
-                  null) {
-                String country = NaturalLanguage.maybeFromValue(
-                  mainBook!.language![index]!.toUpperCase() as String,
-                )!
-                    .name;
+             
+                    String countryCode =  mainBook!.language![index]!.toUpperCase() as String;
+                String country = AppLocalizations.of(context)!.getLanguageName(countryCode);
+ 
                 return TextButton(onPressed: () {
                    Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
@@ -223,57 +213,11 @@ class _BookInfoViewState extends ConsumerState<BookInfoView> {
                     
                   },style: TextButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.all(0),
-                    fixedSize: Size(
-                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
-                  ),child: Text(country,style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
-                  
-                );
-              } else if (indexOfBibliographicCode != -1) {
-                return TextButton(onPressed: () {
-                   Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return BookEditionsView(
-                        workId: mainBook.key,
-                        title: mainBook!.title!,
-                         countryCode: mainBook!.language![index]!,
-                      );
-                    },
-                  ));
-                    
-                  },style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.all(0),
-                    fixedSize: Size(
-                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
-                  ),child: Text(NaturalLanguage.list[indexOfBibliographicCode].name,style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
-                  
-                );
-              } else {
-                return TextButton(onPressed: () {
-                   Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return BookEditionsView(
-                        workId: mainBook.key,
-                        title: mainBook!.title!,
-                         countryCode: mainBook!.language![index]!,
-                      );
-                    },
-                  ));
-                    
-                  },style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.all(0),
-                    fixedSize: Size(
-                        MediaQuery.of(context).size.width > 500 ? 100 : 85, 30),
-                  ),child: Text(mainBook!.language![index]!,style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 60,color: Colors.white),textAlign: TextAlign.center,),
+                    padding: const EdgeInsets.all(5),
+                  ),child: Text(country,style: const TextStyle(color: Colors.white,),textAlign: TextAlign.center,),
                   
                 );
               
-              }
             },
           ),
         ),

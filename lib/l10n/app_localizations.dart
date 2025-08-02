@@ -1509,6 +1509,1200 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add this book to your library'**
   String get addBookToLibrary;
+
+  /// No description provided for @aar.
+  ///
+  /// In en, this message translates to:
+  /// **'Afar'**
+  String get aar;
+
+  /// No description provided for @abk.
+  ///
+  /// In en, this message translates to:
+  /// **'Abkhazian'**
+  String get abk;
+
+  /// No description provided for @afr.
+  ///
+  /// In en, this message translates to:
+  /// **'Afrikaans'**
+  String get afr;
+
+  /// No description provided for @aka.
+  ///
+  /// In en, this message translates to:
+  /// **'Akan'**
+  String get aka;
+
+  /// No description provided for @amh.
+  ///
+  /// In en, this message translates to:
+  /// **'Amharic'**
+  String get amh;
+
+  /// No description provided for @ara.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get ara;
+
+  /// No description provided for @arg.
+  ///
+  /// In en, this message translates to:
+  /// **'Aragonese'**
+  String get arg;
+
+  /// No description provided for @asm.
+  ///
+  /// In en, this message translates to:
+  /// **'Assamese'**
+  String get asm;
+
+  /// No description provided for @ava.
+  ///
+  /// In en, this message translates to:
+  /// **'Avaric'**
+  String get ava;
+
+  /// No description provided for @ave.
+  ///
+  /// In en, this message translates to:
+  /// **'Avestan'**
+  String get ave;
+
+  /// No description provided for @aym.
+  ///
+  /// In en, this message translates to:
+  /// **'Aymara'**
+  String get aym;
+
+  /// No description provided for @aze.
+  ///
+  /// In en, this message translates to:
+  /// **'Azerbaijani'**
+  String get aze;
+
+  /// No description provided for @bak.
+  ///
+  /// In en, this message translates to:
+  /// **'Bashkir'**
+  String get bak;
+
+  /// No description provided for @bam.
+  ///
+  /// In en, this message translates to:
+  /// **'Bambara'**
+  String get bam;
+
+  /// No description provided for @bel.
+  ///
+  /// In en, this message translates to:
+  /// **'Belarusian'**
+  String get bel;
+
+  /// No description provided for @ben.
+  ///
+  /// In en, this message translates to:
+  /// **'Bengali'**
+  String get ben;
+
+  /// No description provided for @bih.
+  ///
+  /// In en, this message translates to:
+  /// **'Bihari'**
+  String get bih;
+
+  /// No description provided for @bis.
+  ///
+  /// In en, this message translates to:
+  /// **'Bislama'**
+  String get bis;
+
+  /// No description provided for @bod.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibetan'**
+  String get bod;
+
+  /// No description provided for @tib.
+  ///
+  /// In en, this message translates to:
+  /// **'Tibetan'**
+  String get tib;
+
+  /// No description provided for @bos.
+  ///
+  /// In en, this message translates to:
+  /// **'Bosnian'**
+  String get bos;
+
+  /// No description provided for @bre.
+  ///
+  /// In en, this message translates to:
+  /// **'Breton'**
+  String get bre;
+
+  /// No description provided for @bul.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulgarian'**
+  String get bul;
+
+  /// No description provided for @cat.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalan'**
+  String get cat;
+
+  /// No description provided for @ces.
+  ///
+  /// In en, this message translates to:
+  /// **'Czech'**
+  String get ces;
+
+  /// No description provided for @cze.
+  ///
+  /// In en, this message translates to:
+  /// **'Czech'**
+  String get cze;
+
+  /// No description provided for @cha.
+  ///
+  /// In en, this message translates to:
+  /// **'Chamorro'**
+  String get cha;
+
+  /// No description provided for @che.
+  ///
+  /// In en, this message translates to:
+  /// **'Chechen'**
+  String get che;
+
+  /// No description provided for @chu.
+  ///
+  /// In en, this message translates to:
+  /// **'Church Slavic'**
+  String get chu;
+
+  /// No description provided for @chv.
+  ///
+  /// In en, this message translates to:
+  /// **'Chuvash'**
+  String get chv;
+
+  /// No description provided for @cor.
+  ///
+  /// In en, this message translates to:
+  /// **'Cornish'**
+  String get cor;
+
+  /// No description provided for @cos.
+  ///
+  /// In en, this message translates to:
+  /// **'Corsican'**
+  String get cos;
+
+  /// No description provided for @cre.
+  ///
+  /// In en, this message translates to:
+  /// **'Cree'**
+  String get cre;
+
+  /// No description provided for @cym.
+  ///
+  /// In en, this message translates to:
+  /// **'Welsh'**
+  String get cym;
+
+  /// No description provided for @wel.
+  ///
+  /// In en, this message translates to:
+  /// **'Welsh'**
+  String get wel;
+
+  /// No description provided for @dan.
+  ///
+  /// In en, this message translates to:
+  /// **'Danish'**
+  String get dan;
+
+  /// No description provided for @deu.
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get deu;
+
+  /// No description provided for @ger.
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get ger;
+
+  /// No description provided for @div.
+  ///
+  /// In en, this message translates to:
+  /// **'Divehi'**
+  String get div;
+
+  /// No description provided for @dzo.
+  ///
+  /// In en, this message translates to:
+  /// **'Dzongkha'**
+  String get dzo;
+
+  /// No description provided for @ell.
+  ///
+  /// In en, this message translates to:
+  /// **'Greek'**
+  String get ell;
+
+  /// No description provided for @gre.
+  ///
+  /// In en, this message translates to:
+  /// **'Greek'**
+  String get gre;
+
+  /// No description provided for @grc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ancient Greek'**
+  String get grc;
+
+  /// No description provided for @eng.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get eng;
+
+  /// No description provided for @epo.
+  ///
+  /// In en, this message translates to:
+  /// **'Esperanto'**
+  String get epo;
+
+  /// No description provided for @est.
+  ///
+  /// In en, this message translates to:
+  /// **'Estonian'**
+  String get est;
+
+  /// No description provided for @eus.
+  ///
+  /// In en, this message translates to:
+  /// **'Basque'**
+  String get eus;
+
+  /// No description provided for @ewe.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewe'**
+  String get ewe;
+
+  /// No description provided for @fao.
+  ///
+  /// In en, this message translates to:
+  /// **'Faroese'**
+  String get fao;
+
+  /// No description provided for @fas.
+  ///
+  /// In en, this message translates to:
+  /// **'Persian'**
+  String get fas;
+
+  /// No description provided for @per.
+  ///
+  /// In en, this message translates to:
+  /// **'Persian'**
+  String get per;
+
+  /// No description provided for @fij.
+  ///
+  /// In en, this message translates to:
+  /// **'Fijian'**
+  String get fij;
+
+  /// No description provided for @fin.
+  ///
+  /// In en, this message translates to:
+  /// **'Finnish'**
+  String get fin;
+
+  /// No description provided for @fra.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get fra;
+
+  /// No description provided for @fre.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get fre;
+
+  /// No description provided for @fry.
+  ///
+  /// In en, this message translates to:
+  /// **'Western Frisian'**
+  String get fry;
+
+  /// No description provided for @ful.
+  ///
+  /// In en, this message translates to:
+  /// **'Fulah'**
+  String get ful;
+
+  /// No description provided for @gla.
+  ///
+  /// In en, this message translates to:
+  /// **'Scottish Gaelic'**
+  String get gla;
+
+  /// No description provided for @gle.
+  ///
+  /// In en, this message translates to:
+  /// **'Irish'**
+  String get gle;
+
+  /// No description provided for @glg.
+  ///
+  /// In en, this message translates to:
+  /// **'Galician'**
+  String get glg;
+
+  /// No description provided for @glv.
+  ///
+  /// In en, this message translates to:
+  /// **'Manx'**
+  String get glv;
+
+  /// No description provided for @grn.
+  ///
+  /// In en, this message translates to:
+  /// **'Guarani'**
+  String get grn;
+
+  /// No description provided for @guj.
+  ///
+  /// In en, this message translates to:
+  /// **'Gujarati'**
+  String get guj;
+
+  /// No description provided for @hat.
+  ///
+  /// In en, this message translates to:
+  /// **'Haitian'**
+  String get hat;
+
+  /// No description provided for @hau.
+  ///
+  /// In en, this message translates to:
+  /// **'Hausa'**
+  String get hau;
+
+  /// No description provided for @heb.
+  ///
+  /// In en, this message translates to:
+  /// **'Hebrew'**
+  String get heb;
+
+  /// No description provided for @her.
+  ///
+  /// In en, this message translates to:
+  /// **'Herero'**
+  String get her;
+
+  /// No description provided for @hin.
+  ///
+  /// In en, this message translates to:
+  /// **'Hindi'**
+  String get hin;
+
+  /// No description provided for @hmo.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiri Motu'**
+  String get hmo;
+
+  /// No description provided for @hrv.
+  ///
+  /// In en, this message translates to:
+  /// **'Croatian'**
+  String get hrv;
+
+  /// No description provided for @hun.
+  ///
+  /// In en, this message translates to:
+  /// **'Hungarian'**
+  String get hun;
+
+  /// No description provided for @hye.
+  ///
+  /// In en, this message translates to:
+  /// **'Armenian'**
+  String get hye;
+
+  /// No description provided for @arm.
+  ///
+  /// In en, this message translates to:
+  /// **'Armenian'**
+  String get arm;
+
+  /// No description provided for @ibo.
+  ///
+  /// In en, this message translates to:
+  /// **'Igbo'**
+  String get ibo;
+
+  /// No description provided for @ido.
+  ///
+  /// In en, this message translates to:
+  /// **'Ido'**
+  String get ido;
+
+  /// No description provided for @iii.
+  ///
+  /// In en, this message translates to:
+  /// **'Sichuan Yi'**
+  String get iii;
+
+  /// No description provided for @iku.
+  ///
+  /// In en, this message translates to:
+  /// **'Inuktitut'**
+  String get iku;
+
+  /// No description provided for @ile.
+  ///
+  /// In en, this message translates to:
+  /// **'Interlingue'**
+  String get ile;
+
+  /// No description provided for @ina.
+  ///
+  /// In en, this message translates to:
+  /// **'Interlingua'**
+  String get ina;
+
+  /// No description provided for @ind.
+  ///
+  /// In en, this message translates to:
+  /// **'Indonesian'**
+  String get ind;
+
+  /// No description provided for @ipk.
+  ///
+  /// In en, this message translates to:
+  /// **'Inupiaq'**
+  String get ipk;
+
+  /// No description provided for @isl.
+  ///
+  /// In en, this message translates to:
+  /// **'Icelandic'**
+  String get isl;
+
+  /// No description provided for @ice.
+  ///
+  /// In en, this message translates to:
+  /// **'Icelandic'**
+  String get ice;
+
+  /// No description provided for @ita.
+  ///
+  /// In en, this message translates to:
+  /// **'Italian'**
+  String get ita;
+
+  /// No description provided for @jav.
+  ///
+  /// In en, this message translates to:
+  /// **'Javanese'**
+  String get jav;
+
+  /// No description provided for @jpn.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese'**
+  String get jpn;
+
+  /// No description provided for @kal.
+  ///
+  /// In en, this message translates to:
+  /// **'Kalaallisut'**
+  String get kal;
+
+  /// No description provided for @kan.
+  ///
+  /// In en, this message translates to:
+  /// **'Kannada'**
+  String get kan;
+
+  /// No description provided for @kas.
+  ///
+  /// In en, this message translates to:
+  /// **'Kashmiri'**
+  String get kas;
+
+  /// No description provided for @kat.
+  ///
+  /// In en, this message translates to:
+  /// **'Georgian'**
+  String get kat;
+
+  /// No description provided for @kau.
+  ///
+  /// In en, this message translates to:
+  /// **'Kanuri'**
+  String get kau;
+
+  /// No description provided for @kaz.
+  ///
+  /// In en, this message translates to:
+  /// **'Kazakh'**
+  String get kaz;
+
+  /// No description provided for @khm.
+  ///
+  /// In en, this message translates to:
+  /// **'Khmer'**
+  String get khm;
+
+  /// No description provided for @kik.
+  ///
+  /// In en, this message translates to:
+  /// **'Kikuyu'**
+  String get kik;
+
+  /// No description provided for @kin.
+  ///
+  /// In en, this message translates to:
+  /// **'Kinyarwanda'**
+  String get kin;
+
+  /// No description provided for @kir.
+  ///
+  /// In en, this message translates to:
+  /// **'Kirghiz'**
+  String get kir;
+
+  /// No description provided for @kom.
+  ///
+  /// In en, this message translates to:
+  /// **'Komi'**
+  String get kom;
+
+  /// No description provided for @kon.
+  ///
+  /// In en, this message translates to:
+  /// **'Kongo'**
+  String get kon;
+
+  /// No description provided for @kor.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get kor;
+
+  /// No description provided for @kua.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuanyama'**
+  String get kua;
+
+  /// No description provided for @kur.
+  ///
+  /// In en, this message translates to:
+  /// **'Kurdish'**
+  String get kur;
+
+  /// No description provided for @lao.
+  ///
+  /// In en, this message translates to:
+  /// **'Lao'**
+  String get lao;
+
+  /// No description provided for @lat.
+  ///
+  /// In en, this message translates to:
+  /// **'Latin'**
+  String get lat;
+
+  /// No description provided for @lav.
+  ///
+  /// In en, this message translates to:
+  /// **'Latvian'**
+  String get lav;
+
+  /// No description provided for @lim.
+  ///
+  /// In en, this message translates to:
+  /// **'Limburgan'**
+  String get lim;
+
+  /// No description provided for @lin.
+  ///
+  /// In en, this message translates to:
+  /// **'Lingala'**
+  String get lin;
+
+  /// No description provided for @lit.
+  ///
+  /// In en, this message translates to:
+  /// **'Lithuanian'**
+  String get lit;
+
+  /// No description provided for @ltz.
+  ///
+  /// In en, this message translates to:
+  /// **'Luxembourgish'**
+  String get ltz;
+
+  /// No description provided for @lub.
+  ///
+  /// In en, this message translates to:
+  /// **'Luba-Katanga'**
+  String get lub;
+
+  /// No description provided for @lug.
+  ///
+  /// In en, this message translates to:
+  /// **'Ganda'**
+  String get lug;
+
+  /// No description provided for @mah.
+  ///
+  /// In en, this message translates to:
+  /// **'Marshallese'**
+  String get mah;
+
+  /// No description provided for @mal.
+  ///
+  /// In en, this message translates to:
+  /// **'Malayalam'**
+  String get mal;
+
+  /// No description provided for @mar.
+  ///
+  /// In en, this message translates to:
+  /// **'Marathi'**
+  String get mar;
+
+  /// No description provided for @mkd.
+  ///
+  /// In en, this message translates to:
+  /// **'Macedonian'**
+  String get mkd;
+
+  /// No description provided for @mlg.
+  ///
+  /// In en, this message translates to:
+  /// **'Malagasy'**
+  String get mlg;
+
+  /// No description provided for @mlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Maltese'**
+  String get mlt;
+
+  /// No description provided for @mon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mongolian'**
+  String get mon;
+
+  /// No description provided for @mri.
+  ///
+  /// In en, this message translates to:
+  /// **'Maori'**
+  String get mri;
+
+  /// No description provided for @msa.
+  ///
+  /// In en, this message translates to:
+  /// **'Malay'**
+  String get msa;
+
+  /// No description provided for @mya.
+  ///
+  /// In en, this message translates to:
+  /// **'Burmese'**
+  String get mya;
+
+  /// No description provided for @nau.
+  ///
+  /// In en, this message translates to:
+  /// **'Nauru'**
+  String get nau;
+
+  /// No description provided for @nav.
+  ///
+  /// In en, this message translates to:
+  /// **'Navajo'**
+  String get nav;
+
+  /// No description provided for @nbl.
+  ///
+  /// In en, this message translates to:
+  /// **'South Ndebele'**
+  String get nbl;
+
+  /// No description provided for @nde.
+  ///
+  /// In en, this message translates to:
+  /// **'North Ndebele'**
+  String get nde;
+
+  /// No description provided for @ndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Ndonga'**
+  String get ndo;
+
+  /// No description provided for @nep.
+  ///
+  /// In en, this message translates to:
+  /// **'Nepali'**
+  String get nep;
+
+  /// No description provided for @nld.
+  ///
+  /// In en, this message translates to:
+  /// **'Dutch'**
+  String get nld;
+
+  /// No description provided for @dut.
+  ///
+  /// In en, this message translates to:
+  /// **'Dutch'**
+  String get dut;
+
+  /// No description provided for @nno.
+  ///
+  /// In en, this message translates to:
+  /// **'Norwegian Nynorsk'**
+  String get nno;
+
+  /// No description provided for @nob.
+  ///
+  /// In en, this message translates to:
+  /// **'Norwegian Bokmål'**
+  String get nob;
+
+  /// No description provided for @nor.
+  ///
+  /// In en, this message translates to:
+  /// **'Norwegian'**
+  String get nor;
+
+  /// No description provided for @nya.
+  ///
+  /// In en, this message translates to:
+  /// **'Nyanja'**
+  String get nya;
+
+  /// No description provided for @oci.
+  ///
+  /// In en, this message translates to:
+  /// **'Occitan'**
+  String get oci;
+
+  /// No description provided for @oji.
+  ///
+  /// In en, this message translates to:
+  /// **'Ojibwa'**
+  String get oji;
+
+  /// No description provided for @ori.
+  ///
+  /// In en, this message translates to:
+  /// **'Oriya'**
+  String get ori;
+
+  /// No description provided for @orm.
+  ///
+  /// In en, this message translates to:
+  /// **'Oromo'**
+  String get orm;
+
+  /// No description provided for @oss.
+  ///
+  /// In en, this message translates to:
+  /// **'Ossetian'**
+  String get oss;
+
+  /// No description provided for @pan.
+  ///
+  /// In en, this message translates to:
+  /// **'Panjabi'**
+  String get pan;
+
+  /// No description provided for @pli.
+  ///
+  /// In en, this message translates to:
+  /// **'Pali'**
+  String get pli;
+
+  /// No description provided for @pol.
+  ///
+  /// In en, this message translates to:
+  /// **'Polish'**
+  String get pol;
+
+  /// No description provided for @por.
+  ///
+  /// In en, this message translates to:
+  /// **'Portuguese'**
+  String get por;
+
+  /// No description provided for @pus.
+  ///
+  /// In en, this message translates to:
+  /// **'Pushto'**
+  String get pus;
+
+  /// No description provided for @que.
+  ///
+  /// In en, this message translates to:
+  /// **'Quechua'**
+  String get que;
+
+  /// No description provided for @roh.
+  ///
+  /// In en, this message translates to:
+  /// **'Romansh'**
+  String get roh;
+
+  /// No description provided for @ron.
+  ///
+  /// In en, this message translates to:
+  /// **'Romanian'**
+  String get ron;
+
+  /// No description provided for @rum.
+  ///
+  /// In en, this message translates to:
+  /// **'Romanian'**
+  String get rum;
+
+  /// No description provided for @run.
+  ///
+  /// In en, this message translates to:
+  /// **'Rundi'**
+  String get run;
+
+  /// No description provided for @rus.
+  ///
+  /// In en, this message translates to:
+  /// **'Russian'**
+  String get rus;
+
+  /// No description provided for @sag.
+  ///
+  /// In en, this message translates to:
+  /// **'Sango'**
+  String get sag;
+
+  /// No description provided for @san.
+  ///
+  /// In en, this message translates to:
+  /// **'Sanskrit'**
+  String get san;
+
+  /// No description provided for @sin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sinhala'**
+  String get sin;
+
+  /// No description provided for @slk.
+  ///
+  /// In en, this message translates to:
+  /// **'Slovak'**
+  String get slk;
+
+  /// No description provided for @slv.
+  ///
+  /// In en, this message translates to:
+  /// **'Slovenian'**
+  String get slv;
+
+  /// No description provided for @sme.
+  ///
+  /// In en, this message translates to:
+  /// **'Northern Sami'**
+  String get sme;
+
+  /// No description provided for @smo.
+  ///
+  /// In en, this message translates to:
+  /// **'Samoan'**
+  String get smo;
+
+  /// No description provided for @sna.
+  ///
+  /// In en, this message translates to:
+  /// **'Shona'**
+  String get sna;
+
+  /// No description provided for @snd.
+  ///
+  /// In en, this message translates to:
+  /// **'Sindhi'**
+  String get snd;
+
+  /// No description provided for @som.
+  ///
+  /// In en, this message translates to:
+  /// **'Somali'**
+  String get som;
+
+  /// No description provided for @sot.
+  ///
+  /// In en, this message translates to:
+  /// **'Sotho, Southern'**
+  String get sot;
+
+  /// No description provided for @spa.
+  ///
+  /// In en, this message translates to:
+  /// **'Spanish'**
+  String get spa;
+
+  /// No description provided for @sqi.
+  ///
+  /// In en, this message translates to:
+  /// **'Albanian'**
+  String get sqi;
+
+  /// No description provided for @alb.
+  ///
+  /// In en, this message translates to:
+  /// **'Albanian'**
+  String get alb;
+
+  /// No description provided for @srd.
+  ///
+  /// In en, this message translates to:
+  /// **'Sardinian'**
+  String get srd;
+
+  /// No description provided for @srp.
+  ///
+  /// In en, this message translates to:
+  /// **'Serbian'**
+  String get srp;
+
+  /// No description provided for @ssw.
+  ///
+  /// In en, this message translates to:
+  /// **'Swati'**
+  String get ssw;
+
+  /// No description provided for @sun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sundanese'**
+  String get sun;
+
+  /// No description provided for @swa.
+  ///
+  /// In en, this message translates to:
+  /// **'Swahili'**
+  String get swa;
+
+  /// No description provided for @swe.
+  ///
+  /// In en, this message translates to:
+  /// **'Swedish'**
+  String get swe;
+
+  /// No description provided for @tah.
+  ///
+  /// In en, this message translates to:
+  /// **'Tahitian'**
+  String get tah;
+
+  /// No description provided for @tam.
+  ///
+  /// In en, this message translates to:
+  /// **'Tamil'**
+  String get tam;
+
+  /// No description provided for @tat.
+  ///
+  /// In en, this message translates to:
+  /// **'Tatar'**
+  String get tat;
+
+  /// No description provided for @tel.
+  ///
+  /// In en, this message translates to:
+  /// **'Telugu'**
+  String get tel;
+
+  /// No description provided for @tgk.
+  ///
+  /// In en, this message translates to:
+  /// **'Tajik'**
+  String get tgk;
+
+  /// No description provided for @tgl.
+  ///
+  /// In en, this message translates to:
+  /// **'Tagalog'**
+  String get tgl;
+
+  /// No description provided for @tha.
+  ///
+  /// In en, this message translates to:
+  /// **'Thai'**
+  String get tha;
+
+  /// No description provided for @tir.
+  ///
+  /// In en, this message translates to:
+  /// **'Tigrinya'**
+  String get tir;
+
+  /// No description provided for @ton.
+  ///
+  /// In en, this message translates to:
+  /// **'Tonga'**
+  String get ton;
+
+  /// No description provided for @tsn.
+  ///
+  /// In en, this message translates to:
+  /// **'Tswana'**
+  String get tsn;
+
+  /// No description provided for @tso.
+  ///
+  /// In en, this message translates to:
+  /// **'Tsonga'**
+  String get tso;
+
+  /// No description provided for @tuk.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkmen'**
+  String get tuk;
+
+  /// No description provided for @tur.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkish'**
+  String get tur;
+
+  /// No description provided for @twi.
+  ///
+  /// In en, this message translates to:
+  /// **'Twi'**
+  String get twi;
+
+  /// No description provided for @uig.
+  ///
+  /// In en, this message translates to:
+  /// **'Uighur'**
+  String get uig;
+
+  /// No description provided for @ukr.
+  ///
+  /// In en, this message translates to:
+  /// **'Ukrainian'**
+  String get ukr;
+
+  /// No description provided for @urd.
+  ///
+  /// In en, this message translates to:
+  /// **'Urdu'**
+  String get urd;
+
+  /// No description provided for @uzb.
+  ///
+  /// In en, this message translates to:
+  /// **'Uzbek'**
+  String get uzb;
+
+  /// No description provided for @ven.
+  ///
+  /// In en, this message translates to:
+  /// **'Venda'**
+  String get ven;
+
+  /// No description provided for @vie.
+  ///
+  /// In en, this message translates to:
+  /// **'Vietnamese'**
+  String get vie;
+
+  /// No description provided for @vol.
+  ///
+  /// In en, this message translates to:
+  /// **'Volapük'**
+  String get vol;
+
+  /// No description provided for @wln.
+  ///
+  /// In en, this message translates to:
+  /// **'Walloon'**
+  String get wln;
+
+  /// No description provided for @wol.
+  ///
+  /// In en, this message translates to:
+  /// **'Wolof'**
+  String get wol;
+
+  /// No description provided for @xho.
+  ///
+  /// In en, this message translates to:
+  /// **'Xhosa'**
+  String get xho;
+
+  /// No description provided for @yid.
+  ///
+  /// In en, this message translates to:
+  /// **'Yiddish'**
+  String get yid;
+
+  /// No description provided for @yor.
+  ///
+  /// In en, this message translates to:
+  /// **'Yoruba'**
+  String get yor;
+
+  /// No description provided for @zha.
+  ///
+  /// In en, this message translates to:
+  /// **'Zhuang'**
+  String get zha;
+
+  /// No description provided for @zho.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get zho;
+
+  /// No description provided for @chi.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get chi;
+
+  /// No description provided for @zul.
+  ///
+  /// In en, this message translates to:
+  /// **'Zulu'**
+  String get zul;
+
+  /// No description provided for @und.
+  ///
+  /// In en, this message translates to:
+  /// **'Bilinmeyen'**
+  String get und;
 }
 
 class _AppLocalizationsDelegate

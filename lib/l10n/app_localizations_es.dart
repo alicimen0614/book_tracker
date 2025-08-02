@@ -761,4 +761,601 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get addBookToLibrary => 'Add this book to your library';
+
+  @override
+  String get aar => 'Afar';
+
+  @override
+  String get abk => 'Abkhazian';
+
+  @override
+  String get afr => 'Afrikaans';
+
+  @override
+  String get aka => 'Akan';
+
+  @override
+  String get amh => 'Amharic';
+
+  @override
+  String get ara => 'Arabic';
+
+  @override
+  String get arg => 'Aragonese';
+
+  @override
+  String get asm => 'Assamese';
+
+  @override
+  String get ava => 'Avaric';
+
+  @override
+  String get ave => 'Avestan';
+
+  @override
+  String get aym => 'Aymara';
+
+  @override
+  String get aze => 'Azerbaijani';
+
+  @override
+  String get bak => 'Bashkir';
+
+  @override
+  String get bam => 'Bambara';
+
+  @override
+  String get bel => 'Belarusian';
+
+  @override
+  String get ben => 'Bengali';
+
+  @override
+  String get bih => 'Bihari';
+
+  @override
+  String get bis => 'Bislama';
+
+  @override
+  String get bod => 'Tibetan';
+
+  @override
+  String get tib => 'Tibetan';
+
+  @override
+  String get bos => 'Bosnian';
+
+  @override
+  String get bre => 'Breton';
+
+  @override
+  String get bul => 'Bulgarian';
+
+  @override
+  String get cat => 'Catalan';
+
+  @override
+  String get ces => 'Czech';
+
+  @override
+  String get cze => 'Czech';
+
+  @override
+  String get cha => 'Chamorro';
+
+  @override
+  String get che => 'Chechen';
+
+  @override
+  String get chu => 'Church Slavic';
+
+  @override
+  String get chv => 'Chuvash';
+
+  @override
+  String get cor => 'Cornish';
+
+  @override
+  String get cos => 'Corsican';
+
+  @override
+  String get cre => 'Cree';
+
+  @override
+  String get cym => 'Welsh';
+
+  @override
+  String get wel => 'Welsh';
+
+  @override
+  String get dan => 'Danish';
+
+  @override
+  String get deu => 'German';
+
+  @override
+  String get ger => 'German';
+
+  @override
+  String get div => 'Divehi';
+
+  @override
+  String get dzo => 'Dzongkha';
+
+  @override
+  String get ell => 'Greek';
+
+  @override
+  String get gre => 'Greek';
+
+  @override
+  String get grc => 'Ancient Greek';
+
+  @override
+  String get eng => 'English';
+
+  @override
+  String get epo => 'Esperanto';
+
+  @override
+  String get est => 'Estonian';
+
+  @override
+  String get eus => 'Basque';
+
+  @override
+  String get ewe => 'Ewe';
+
+  @override
+  String get fao => 'Faroese';
+
+  @override
+  String get fas => 'Persian';
+
+  @override
+  String get per => 'Persian';
+
+  @override
+  String get fij => 'Fijian';
+
+  @override
+  String get fin => 'Finnish';
+
+  @override
+  String get fra => 'French';
+
+  @override
+  String get fre => 'French';
+
+  @override
+  String get fry => 'Western Frisian';
+
+  @override
+  String get ful => 'Fulah';
+
+  @override
+  String get gla => 'Scottish Gaelic';
+
+  @override
+  String get gle => 'Irish';
+
+  @override
+  String get glg => 'Galician';
+
+  @override
+  String get glv => 'Manx';
+
+  @override
+  String get grn => 'Guarani';
+
+  @override
+  String get guj => 'Gujarati';
+
+  @override
+  String get hat => 'Haitian';
+
+  @override
+  String get hau => 'Hausa';
+
+  @override
+  String get heb => 'Hebrew';
+
+  @override
+  String get her => 'Herero';
+
+  @override
+  String get hin => 'Hindi';
+
+  @override
+  String get hmo => 'Hiri Motu';
+
+  @override
+  String get hrv => 'Croatian';
+
+  @override
+  String get hun => 'Hungarian';
+
+  @override
+  String get hye => 'Armenian';
+
+  @override
+  String get arm => 'Armenian';
+
+  @override
+  String get ibo => 'Igbo';
+
+  @override
+  String get ido => 'Ido';
+
+  @override
+  String get iii => 'Sichuan Yi';
+
+  @override
+  String get iku => 'Inuktitut';
+
+  @override
+  String get ile => 'Interlingue';
+
+  @override
+  String get ina => 'Interlingua';
+
+  @override
+  String get ind => 'Indonesian';
+
+  @override
+  String get ipk => 'Inupiaq';
+
+  @override
+  String get isl => 'Icelandic';
+
+  @override
+  String get ice => 'Icelandic';
+
+  @override
+  String get ita => 'Italian';
+
+  @override
+  String get jav => 'Javanese';
+
+  @override
+  String get jpn => 'Japanese';
+
+  @override
+  String get kal => 'Kalaallisut';
+
+  @override
+  String get kan => 'Kannada';
+
+  @override
+  String get kas => 'Kashmiri';
+
+  @override
+  String get kat => 'Georgian';
+
+  @override
+  String get kau => 'Kanuri';
+
+  @override
+  String get kaz => 'Kazakh';
+
+  @override
+  String get khm => 'Khmer';
+
+  @override
+  String get kik => 'Kikuyu';
+
+  @override
+  String get kin => 'Kinyarwanda';
+
+  @override
+  String get kir => 'Kirghiz';
+
+  @override
+  String get kom => 'Komi';
+
+  @override
+  String get kon => 'Kongo';
+
+  @override
+  String get kor => 'Korean';
+
+  @override
+  String get kua => 'Kuanyama';
+
+  @override
+  String get kur => 'Kurdish';
+
+  @override
+  String get lao => 'Lao';
+
+  @override
+  String get lat => 'Latin';
+
+  @override
+  String get lav => 'Latvian';
+
+  @override
+  String get lim => 'Limburgan';
+
+  @override
+  String get lin => 'Lingala';
+
+  @override
+  String get lit => 'Lithuanian';
+
+  @override
+  String get ltz => 'Luxembourgish';
+
+  @override
+  String get lub => 'Luba-Katanga';
+
+  @override
+  String get lug => 'Ganda';
+
+  @override
+  String get mah => 'Marshallese';
+
+  @override
+  String get mal => 'Malayalam';
+
+  @override
+  String get mar => 'Marathi';
+
+  @override
+  String get mkd => 'Macedonian';
+
+  @override
+  String get mlg => 'Malagasy';
+
+  @override
+  String get mlt => 'Maltese';
+
+  @override
+  String get mon => 'Mongolian';
+
+  @override
+  String get mri => 'Maori';
+
+  @override
+  String get msa => 'Malay';
+
+  @override
+  String get mya => 'Burmese';
+
+  @override
+  String get nau => 'Nauru';
+
+  @override
+  String get nav => 'Navajo';
+
+  @override
+  String get nbl => 'South Ndebele';
+
+  @override
+  String get nde => 'North Ndebele';
+
+  @override
+  String get ndo => 'Ndonga';
+
+  @override
+  String get nep => 'Nepali';
+
+  @override
+  String get nld => 'Dutch';
+
+  @override
+  String get dut => 'Dutch';
+
+  @override
+  String get nno => 'Norwegian Nynorsk';
+
+  @override
+  String get nob => 'Norwegian Bokmål';
+
+  @override
+  String get nor => 'Norwegian';
+
+  @override
+  String get nya => 'Nyanja';
+
+  @override
+  String get oci => 'Occitan';
+
+  @override
+  String get oji => 'Ojibwa';
+
+  @override
+  String get ori => 'Oriya';
+
+  @override
+  String get orm => 'Oromo';
+
+  @override
+  String get oss => 'Ossetian';
+
+  @override
+  String get pan => 'Panjabi';
+
+  @override
+  String get pli => 'Pali';
+
+  @override
+  String get pol => 'Polish';
+
+  @override
+  String get por => 'Portuguese';
+
+  @override
+  String get pus => 'Pushto';
+
+  @override
+  String get que => 'Quechua';
+
+  @override
+  String get roh => 'Romansh';
+
+  @override
+  String get ron => 'Romanian';
+
+  @override
+  String get rum => 'Romanian';
+
+  @override
+  String get run => 'Rundi';
+
+  @override
+  String get rus => 'Russian';
+
+  @override
+  String get sag => 'Sango';
+
+  @override
+  String get san => 'Sanskrit';
+
+  @override
+  String get sin => 'Sinhala';
+
+  @override
+  String get slk => 'Slovak';
+
+  @override
+  String get slv => 'Slovenian';
+
+  @override
+  String get sme => 'Northern Sami';
+
+  @override
+  String get smo => 'Samoan';
+
+  @override
+  String get sna => 'Shona';
+
+  @override
+  String get snd => 'Sindhi';
+
+  @override
+  String get som => 'Somali';
+
+  @override
+  String get sot => 'Sotho, Southern';
+
+  @override
+  String get spa => 'Spanish';
+
+  @override
+  String get sqi => 'Albanian';
+
+  @override
+  String get alb => 'Albanian';
+
+  @override
+  String get srd => 'Sardinian';
+
+  @override
+  String get srp => 'Serbian';
+
+  @override
+  String get ssw => 'Swati';
+
+  @override
+  String get sun => 'Sundanese';
+
+  @override
+  String get swa => 'Swahili';
+
+  @override
+  String get swe => 'Swedish';
+
+  @override
+  String get tah => 'Tahitian';
+
+  @override
+  String get tam => 'Tamil';
+
+  @override
+  String get tat => 'Tatar';
+
+  @override
+  String get tel => 'Telugu';
+
+  @override
+  String get tgk => 'Tajik';
+
+  @override
+  String get tgl => 'Tagalog';
+
+  @override
+  String get tha => 'Thai';
+
+  @override
+  String get tir => 'Tigrinya';
+
+  @override
+  String get ton => 'Tonga';
+
+  @override
+  String get tsn => 'Tswana';
+
+  @override
+  String get tso => 'Tsonga';
+
+  @override
+  String get tuk => 'Turkmen';
+
+  @override
+  String get tur => 'Turkish';
+
+  @override
+  String get twi => 'Twi';
+
+  @override
+  String get uig => 'Uighur';
+
+  @override
+  String get ukr => 'Ukrainian';
+
+  @override
+  String get urd => 'Urdu';
+
+  @override
+  String get uzb => 'Uzbek';
+
+  @override
+  String get ven => 'Venda';
+
+  @override
+  String get vie => 'Vietnamese';
+
+  @override
+  String get vol => 'Volapük';
+
+  @override
+  String get wln => 'Walloon';
+
+  @override
+  String get wol => 'Wolof';
+
+  @override
+  String get xho => 'Xhosa';
+
+  @override
+  String get yid => 'Yiddish';
+
+  @override
+  String get yor => 'Yoruba';
+
+  @override
+  String get zha => 'Zhuang';
+
+  @override
+  String get zho => 'Chinese';
+
+  @override
+  String get chi => 'Chinese';
+
+  @override
+  String get zul => 'Zulu';
+
+  @override
+  String get und => 'Bilinmeyen';
 }
