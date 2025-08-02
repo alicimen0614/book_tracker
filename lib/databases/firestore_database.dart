@@ -289,10 +289,9 @@ class FirestoreDatabase extends ChangeNotifier {
       required String quoteId}) async {
     try {
       await _firestore
-          .collection(collectionPath)
-          .doc(quoteId)
-          .set({
+          .collection(collectionPath).add({
         'reason': reason,
+        'reportedQuoteId': quoteId,
         'note': note,
         'reporterUserId': reporterUserId,
         'ownerUserId': ownerUserId,

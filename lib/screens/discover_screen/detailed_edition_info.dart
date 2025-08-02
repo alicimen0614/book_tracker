@@ -10,6 +10,7 @@ import 'package:book_tracker/screens/library_screen/add_book_view.dart';
 import 'package:book_tracker/screens/library_screen/add_note_view.dart';
 import 'package:book_tracker/screens/user_screen/alert_for_data_source.dart';
 import 'package:book_tracker/services/analytics_service.dart';
+import 'package:book_tracker/utils/common_methods.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -766,13 +767,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                           Uint8List? base64AsString =
                                               await readNetworkImage(
                                                   "https://covers.openlibrary.org/b/id/${widget.editionInfo.covers!.first}-M.jpg");
-                                          await insertToSqlDatabase(
+                                          await insertToSql(
                                               base64AsString, context);
                                           if (ref
                                                   .read(authProvider)
                                                   .currentUser !=
                                               null) {
-                                            await insertToFirestore();
+                                            await insertToFirestore(widget.editionInfo,ref,context,bookStatusAsString);
                                           }
 
                                           ref
@@ -801,13 +802,13 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
                                                 "",
                                             'shelf': '$bookStatus'
                                           });
-                                          await insertToSqlDatabase(
+                                          await insertToSql(
                                               null, context);
                                           if (ref
                                                   .read(authProvider)
                                                   .currentUser !=
                                               null) {
-                                            await insertToFirestore();
+                                            await insertToFirestore(widget.editionInfo,ref,context,bookStatusAsString);
                                           }
                                           ref
                                               .read(bookStateProvider.notifier)
@@ -906,40 +907,8 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     );
   }
 
-  Future<void> insertToFirestore() async {
-    BookWorkEditionsModelEntries editionInfo = widget.editionInfo;
 
-    List<int?>? coverList = [];
-    editionInfo.covers != null
-        ? coverList = [editionInfo.covers!.first]
-        : coverList = null;
-
-    return await ref.read(firestoreProvider).setBookData(
-          context,
-          collectionPath: "usersBooks",
-          bookAsMap: {
-            "title": editionInfo.title,
-            "number_of_pages": editionInfo.number_of_pages,
-            "covers": editionInfo.covers != null ? coverList : null,
-            "bookStatus": bookStatus == BookStatus.alreadyRead
-                ? "Okuduklarım"
-                : bookStatus == BookStatus.currentlyReading
-                    ? "Şu an okuduklarım"
-                    : "Okumak istediklerim",
-            "publishers": editionInfo.publishers,
-            "physical_format": editionInfo.physical_format,
-            "publish_date": editionInfo.publish_date,
-            "isbn_10": editionInfo.isbn_10,
-            "isbn_13": editionInfo.isbn_13,
-            "authorsNames": authorsNames,
-            "description": editionInfo.description,
-            "languages": editionInfo.languages?.first?.key
-          },
-          userId: ref.read(authProvider).currentUser!.uid,
-        );
-  }
-
-  Future<void> insertToSqlDatabase(
+  Future<void> insertToSql(
       Uint8List? imageAsByte, BuildContext context) async {
     for (var element in authorsNames) {
       await ref
@@ -947,25 +916,7 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
           .insertAuthors(element, uniqueIdCreater(widget.editionInfo), context);
     }
 
-    await ref
-        .read(sqlProvider)
-        .insertBook(
-            widget.editionInfo,
-            bookStatus == BookStatus.alreadyRead
-                ? "Okuduklarım"
-                : bookStatus == BookStatus.currentlyReading
-                    ? "Şu an okuduklarım"
-                    : "Okumak istediklerim",
-            imageAsByte,
-            context)
-        .whenComplete(() => ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              duration: const Duration(seconds: 1),
-              content: Text(
-                  AppLocalizations.of(context)!.bookSuccessfullyAddedToLibrary),
-              action: SnackBarAction(
-                  label: AppLocalizations.of(context)!.okay, onPressed: () {}),
-              behavior: SnackBarBehavior.floating,
-            )));
+    await insertToSqlDatabase(imageAsByte, context,ref, widget.editionInfo, bookStatusAsString);
   }
 
   Future<void> updateBookStatus(
@@ -999,16 +950,6 @@ class _DetailedEditionInfoState extends ConsumerState<DetailedEditionInfo> {
     }
   }
 
-  Future<Uint8List?> readNetworkImage(String imageUrl) async {
-    try {
-      final ByteData data =
-          await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl);
-      final Uint8List bytes = data.buffer.asUint8List();
-      return bytes;
-    } catch (e) {
-      return null;
-    }
-  }
 
   Scrollbar editionInfoBodyBuilder(BuildContext context) {
     String? joinedText;

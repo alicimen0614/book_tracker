@@ -9,11 +9,14 @@ import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/auth_screen/auth_view.dart';
 import 'package:book_tracker/screens/home_screen/add_quote_screen.dart';
-import 'package:book_tracker/services/analytics_service.dart';
+import 'package:book_tracker/utils/common_methods.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
+import 'package:book_tracker/widgets/delete_dialog.dart';
+import 'package:book_tracker/widgets/reporting_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:book_tracker/l10n/app_localizations.dart';
@@ -396,6 +399,74 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
       context: pageContext,
       builder: (context) {
         return Column(mainAxisSize: MainAxisSize.min, children: [
+          if (widget.quoteEntry.quote.isbnData!=null || widget.quoteEntry.quote.isbnData!="") ListTile(
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30))),
+            visualDensity: const VisualDensity(vertical: 3),
+            onTap: () async {
+              bool isBookAlreadyExists = await checkIfBookAlreadyExists(widget.quoteEntry.quote.isbnData,ref.read(bookStateProvider).listOfBooksFromFirestore,ref.read(bookStateProvider).listOfBooksFromSql,ref,);
+              if(isBookAlreadyExists) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .bookAlreadyExistsInLibrary)));
+                return;
+              }
+              showDialog(
+                          context: context,
+                          builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ));
+              BookWorkEditionsModelEntries? editionInfo;
+              if(widget.quoteEntry.quote.isbnData == null || widget.quoteEntry.quote.isbnData == "") {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .errorAddingBook)));
+                return;
+              }
+              else{
+                 editionInfo= await getBookInfoFromIsbn(context,
+               widget.quoteEntry.quote.isbnData,ref
+              );
+                
+              }
+             
+              if (editionInfo == null) {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!
+                        .errorAddingBook)));
+                return;}
+               Uint8List? base64AsString =
+                                              await readNetworkImage(
+                                                  "https://covers.openlibrary.org/b/id/${editionInfo.covers?.first}-M.jpg");
+                                          await insertToSqlDatabase(
+                                              base64AsString, context,ref,editionInfo,"Okumak istediklerim");
+                                          if (ref
+                                                  .read(authProvider)
+                                                  .currentUser !=
+                                              null) {
+                                            await insertToFirestore(editionInfo,ref,context,"Okumak istediklerim");
+                                          }
+                                           Navigator.pop(context);
+                                           Navigator.pop(context);
+                                          ref
+                                              .read(bookStateProvider.notifier)
+                                              .getPageData();
+                                             
+            },
+            leading: const Icon(
+              Icons.add_circle_sharp,
+              size: 30,
+            ),
+            title: Text(AppLocalizations.of(context)!.addBookToLibrary,
+                style: const TextStyle(fontSize: 20)),
+          ),const Divider(height: 0),
           if (FirebaseAuth.instance.currentUser != null && 
                       widget.quoteEntry.quote.userId == FirebaseAuth.instance.currentUser!.uid) ListTile(
             visualDensity: const VisualDensity(vertical: 3),
@@ -444,7 +515,7 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
                       widget.quoteEntry.quote.userId == FirebaseAuth.instance.currentUser!.uid) ListTile(
             visualDensity: const VisualDensity(vertical: 3),
             onTap: () async {
-              alertDialogBuilderForDeleting(context, ref);
+             showDialog(context: context, builder: (context) => DeleteDialog(quoteId: widget.quoteEntry.id),);
             },
             leading: const Icon(
               Icons.delete,
@@ -457,7 +528,9 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
           ListTile(
             visualDensity: const VisualDensity(vertical: 3),
             onTap: () async {
-              alertDialogForReporting(context, ref);
+              showDialog(context: context, builder: (context) =>  ReportingDialog(quoteEntry: widget.quoteEntry,),);
+
+             
             },
             leading: const Icon(
               Icons.report_sharp,
@@ -471,178 +544,10 @@ class _DetailedQuoteViewState extends ConsumerState<DetailedQuoteView> {
     );
   }
 
-  
-  Future<dynamic> alertDialogBuilderForDeleting(BuildContext context, WidgetRef ref) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          title:  Const.appName,
-          description: AppLocalizations.of(context)!.confirmDeleteQuote,
-          thirdButtonOnPressed: () async {
-            var result =
-                await ref.read(quotesProvider.notifier).deleteQuote(widget.quoteEntry.id);
-            if (result == true) {
-              AnalyticsService()
-                  .logEvent("delete_quote", {"quote_id": widget.quoteEntry.id});
-              Navigator.pop(context);
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                      AppLocalizations.of(context)!.quoteSuccessfullyDeleted)));
-            } else {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text(AppLocalizations.of(context)!.errorDeletingQuote)));
-            }
-          },
-          thirdButtonText: AppLocalizations.of(context)!.delete,
-          firstButtonOnPressed: () {
-            Navigator.pop(context);
-          },
-          firstButtonText: AppLocalizations.of(context)!.cancel,
-        );
-      },
-    );
+Future<BookWorkEditionsModelEntries?> getBookInfoFromIsbn(BuildContext context,String? isbnData,WidgetRef ref) async {
+    BookWorkEditionsModelEntries? bookInfo;
+         bookInfo= await ref.read(booksProvider).getSingleEditionInfo(context,isbnData);
+         return bookInfo;
   }
 
-Future<dynamic> alertDialogForReporting(BuildContext context, WidgetRef ref) {
-  String selectedReason = ReportReason.inappropriate.value;
-  TextEditingController noteController = TextEditingController();
-  
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            title: Text(AppLocalizations.of(context)!.reportQuote),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(AppLocalizations.of(context)!.reportQuoteDescription),
-                  const SizedBox(height: 16),
-                   Text(
-                    AppLocalizations.of(context)!.reportReason,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  RadioListTile<String>(
-                    title:  Text(ReportReason.inappropriate.getDisplayText(context)),
-                    value: ReportReason.inappropriate.value,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: Text(ReportReason.spam.getDisplayText(context)),
-                    value: ReportReason.spam.value,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: Text(ReportReason.copyright.getDisplayText(context)),
-                    value: ReportReason.copyright.value,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: Text(ReportReason.misleading.getDisplayText(context)),
-                    value: ReportReason.misleading.value,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: Text(ReportReason.other.getDisplayText(context)),
-                    value: ReportReason.other.value,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                   Text(
-                    AppLocalizations.of(context)!.reportingNote,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: noteController,
-                    decoration:  InputDecoration(
-                      border: const OutlineInputBorder(),
-                      hintText:  AppLocalizations.of(context)!.annotation,
-                    ),
-                    maxLines: 3,
-                    maxLength: 200,
-                  ),
-                ],
-              ),
-            ),
-            actionsAlignment: MainAxisAlignment.end,
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              TextButton(
-                onPressed: () async {
-                  var result = await ref.read(firestoreProvider).insertReport(
-                    context,
-                    reason: selectedReason,
-                    note: noteController.text.trim(),
-                    reporterUserId: FirebaseAuth.instance.currentUser?.uid ?? "Visitor",
-                    ownerUserId: widget.quoteEntry.quote.userId ?? "",
-                    quoteText: widget.quoteEntry.quote.quoteText ?? "",
-                    reporterEmail: FirebaseAuth.instance.currentUser?.email ?? "Visitor",
-                    quoteId: widget.quoteEntry.id,
-                  );
-
-                  if (result == true) {
-                    AnalyticsService().logEvent("report_quote", {"quote_id": widget.quoteEntry.id});
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(AppLocalizations.of(context)!.quoteSuccessfullyReported),
-                    ));
-                  } else {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(AppLocalizations.of(context)!.errorReportingQuote),
-                    ));
-                  }
-                },
-                child: Text(AppLocalizations.of(context)!.submit),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
 }

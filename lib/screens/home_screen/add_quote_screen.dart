@@ -8,6 +8,7 @@ import 'package:book_tracker/providers/quotes_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/custom_alert_dialog.dart';
+import 'package:book_tracker/widgets/delete_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -107,7 +108,7 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
                   ? IconButton(
                       tooltip: AppLocalizations.of(context)!.deleteQuote,
                       onPressed: () async {
-                        alertDialogBuilder(context);
+                        showDialog(context: context, builder: (context) => DeleteDialog(quoteId: widget.quoteId),);
                       },
                       icon: const Icon(
                         Icons.delete,
@@ -276,42 +277,6 @@ class _AddNoteViewState extends ConsumerState<AddQuoteScreen> {
     ));
   }
 
-  Future<dynamic> alertDialogBuilder(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          title:  Const.appName,
-          description: AppLocalizations.of(context)!.confirmDeleteQuote,
-          firstButtonText: AppLocalizations.of(context)!.cancel,
-          firstButtonOnPressed: () async {
-            Navigator.pop(context);
-          },
-          thirdButtonText: AppLocalizations.of(context)!.delete,
-          thirdButtonOnPressed: () async {
-            var result = await ref
-                .read(quotesProvider.notifier)
-                .deleteQuote(widget.quoteId);
-            if (result == true) {
-              AnalyticsService()
-                  .logEvent("delete_quote", {"quote_id": widget.quoteId});
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                      AppLocalizations.of(context)!.quoteSuccessfullyDeleted)));
-            } else {
-              Navigator.pop(context);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content:
-                      Text(AppLocalizations.of(context)!.errorDeletingQuote)));
-            }
-          },
-        );
-      },
-    );
-  }
 
   Future<dynamic> alertDialogForUpdateBuilder(BuildContext context) {
     return showDialog(
