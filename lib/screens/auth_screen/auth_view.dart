@@ -4,16 +4,12 @@ import 'package:book_tracker/providers/connectivity_provider.dart';
 import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/auth_screen/verify_email_view.dart';
 import 'package:book_tracker/services/analytics_service.dart';
-
 import 'package:book_tracker/widgets/animated_button.dart';
-import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../widgets/text_field_widget.dart';
 
 enum FormStatus { signIn, register, reset }

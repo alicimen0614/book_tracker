@@ -3,7 +3,7 @@
     package="com.example.book_tracker">
     
    <application
-        android:label="book_tracker"
+        android:label="VastRead"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <property
