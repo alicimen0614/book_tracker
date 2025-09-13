@@ -63,13 +63,14 @@ class _HomeScreenViewState extends ConsumerState<HomeScreenView>
 
   @override
   void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (ref.read(bookStateProvider).listOfBooksToShow.isEmpty) {
         ref.read(bookStateProvider.notifier).getPageData();
       }
     });
 
-    super.initState();
+    
   }
 
   @override

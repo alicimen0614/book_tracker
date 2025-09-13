@@ -1,6 +1,6 @@
 import 'package:book_tracker/const.dart';
 import 'package:book_tracker/providers/locale_provider.dart';
-import 'package:book_tracker/widgets/bottom_navigation_bar_controller.dart';
+import 'package:book_tracker/splashscreen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +60,7 @@ class MyApp extends ConsumerWidget {
             const BottomNavigationBarThemeData(backgroundColor: Colors.white),
         fontFamily: 'Nunito Sans',
       ),
-      home: const ProviderScope(child: BottomNavigationBarController()),
+      home:  const SplashScreen(),
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context)
