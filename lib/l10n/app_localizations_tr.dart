@@ -761,6 +761,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get addBookToLibrary => 'Bu kitabı kütüphanene ekle';
 
   @override
+  String get userNotFound => 'Bu mail adresine sahip bir kullanıcı bulunamadı.';
+
+  @override
+  String get passwordResetEmailSent =>
+      'Şifre sıfırlama maili gönderildi. Lütfen spam klasörünü de kontrol ediniz.';
+
+  @override
   String get aar => 'Afar';
 
   @override

@@ -30,6 +30,26 @@ class AuthService {
     }
   }
 
+  Future<void> sendPasswordResetEmail(String mailEntry,BuildContext context) async {
+      try {
+         await _firebaseAuth
+          .sendPasswordResetEmail(email: mailEntry);
+    
+        
+      } on FirebaseAuthException catch (e) {
+        switch (e.code) {
+          case 'invalid-email':
+            throw AppLocalizations.of(context)!.enterValidEmail;
+          case 'user-not-found':
+            throw AppLocalizations.of(context)!.userNotFound;
+          default:
+            throw '${AppLocalizations.of(context)!.somethingWentWrong} ${AppLocalizations.of(context)!.tryAgainLater}';
+        }
+
+      }
+     
+  }
+
   Stream<User?> get authState {
     return _firebaseAuth.authStateChanges();
   }
@@ -122,6 +142,7 @@ class AuthService {
   Future<UserCredential?> signInWithEmailAndPassword(
       String email, String password, BuildContext context) async {
     try {
+      
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       return userCredential;

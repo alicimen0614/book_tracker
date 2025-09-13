@@ -10,7 +10,7 @@ class AnimatedButton extends StatefulWidget {
   final String text;
   final double widthSize;
   final Color backgroundColor;
-  final Function onTap;
+  final Function? onTap;
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
 }
@@ -24,12 +24,12 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     final double height = 40 - _shadowHeight;
 
     return GestureDetector(
-      onTapUp: (_) {
+      onTapUp: widget.onTap!=null? (_) {
         setState(() {
           _position = 5;
         });
-        widget.onTap();
-      },
+        widget.onTap!();
+      }:null,
       onTapDown: (_) {
         setState(() {
           _position = 0;

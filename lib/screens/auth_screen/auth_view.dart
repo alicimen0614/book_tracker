@@ -5,6 +5,7 @@ import 'package:book_tracker/providers/riverpod_management.dart';
 import 'package:book_tracker/screens/auth_screen/verify_email_view.dart';
 import 'package:book_tracker/services/analytics_service.dart';
 import 'package:book_tracker/widgets/animated_button.dart';
+import 'package:book_tracker/widgets/error_snack_bar.dart';
 import 'package:book_tracker/widgets/internet_connection_error_dialog.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,6 +25,7 @@ class AuthView extends ConsumerStatefulWidget {
 
 class _AuthViewState extends ConsumerState<AuthView> {
   bool isConnected = false;
+  bool _isSendingEmail = false;
   Future<void>? _signInWithGoogle(WidgetRef ref) async {
     showDialog(
         context: context,
@@ -35,6 +37,7 @@ class _AuthViewState extends ConsumerState<AuthView> {
 
     await ref.read(authProvider).signInWithGoogle(context).then(
       (value) async {
+        Navigator.pop(context);
         if (value != null) {
           AnalyticsService().firebaseAnalytics.logLogin(loginMethod: "Google");
 
@@ -505,10 +508,39 @@ class _AuthViewState extends ConsumerState<AuthView> {
             Expanded(
               flex: 3,
               child: AnimatedButton(
-                  onTap: () {},
+                  onTap: _isSendingEmail ? null : () async{
+                     if (resetFormKey.currentState!.validate()) {
+                    try {
+                       setState(() => _isSendingEmail = true);
+
+                       await ref.read(authProvider).sendPasswordResetEmail(resetEmailController.text,context);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(AppLocalizations.of(context)!
+                                .passwordResetEmailSent)));
+                        setState(() {
+                          formStatus = FormStatus.signIn;
+                        });}
+                    } catch (e) {
+                      errorSnackBar(context, e.toString(),
+                          infoMessage:
+                              e.toString());
+                    }
+                    finally {
+                      if (mounted) {
+                        setState(() => _isSendingEmail = false);
+                      }
+                    }
+                     }
+                     else 
+                     {
+                      return;
+                     } 
+                  },
                   text: AppLocalizations.of(context)!.send,
                   widthSize: 200,
                   backgroundColor: const Color.fromRGBO(204, 149, 68, 1)),
+                  
             ),
             Expanded(
               flex: 5,
@@ -556,7 +588,6 @@ class _AuthViewState extends ConsumerState<AuthView> {
           await _signInWithGoogle(ref)!.whenComplete(() {
             if (ref.read(authProvider).currentUser != null) {
               ref.read(bookStateProvider.notifier).getPageData();
-              Navigator.pop(context);
               Navigator.pop(context);
               ref.read(indexBottomNavbarProvider.notifier).update((state) => 0);
             }

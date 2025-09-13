@@ -1510,6 +1510,18 @@ abstract class AppLocalizations {
   /// **'Add this book to your library'**
   String get addBookToLibrary;
 
+  /// No description provided for @userNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no user registered with this email address.'**
+  String get userNotFound;
+
+  /// No description provided for @passwordResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email has been sent. Please check your spam folder as well.'**
+  String get passwordResetEmailSent;
+
   /// No description provided for @aar.
   ///
   /// In en, this message translates to:

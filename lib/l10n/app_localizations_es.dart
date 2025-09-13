@@ -763,6 +763,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addBookToLibrary => 'Add this book to your library';
 
   @override
+  String get userNotFound =>
+      'There is no user registered with this email address.';
+
+  @override
+  String get passwordResetEmailSent =>
+      'Password reset email has been sent. Please check your spam folder as well.';
+
+  @override
   String get aar => 'Afar';
 
   @override

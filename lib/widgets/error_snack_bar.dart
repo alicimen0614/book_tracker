@@ -3,8 +3,10 @@ import 'package:book_tracker/l10n/app_localizations.dart';
 
 errorSnackBar(BuildContext snackbarContext, String errorMessage,
     {String infoMessage = ''}) {
-  infoMessage =
+  if(infoMessage==''){
+infoMessage =
       '${AppLocalizations.of(snackbarContext)!.somethingWentWrong} ${AppLocalizations.of(snackbarContext)!.tryAgainLater}';
+  } 
   return ScaffoldMessenger.of(snackbarContext).showSnackBar(SnackBar(
     duration: const Duration(seconds: 4),
     content: Column(
